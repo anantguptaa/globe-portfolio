@@ -2,7 +2,7 @@
 
 My personal portfolio: computer vision and geospatial ML, presented as a mission-control globe. Every page is pinned to a place on Earth, and moving around the site flies a 3D dot globe there.
 
-**Live:** [your-domain.com](https://your-domain.com) <!-- TODO: replace once deployed -->
+**Live:** [anantgupta.com](https://globe-portfolio-theta.vercel.app) <!-- TODO: replace once deployed -->
 
 ![Screenshot of the landing page](./docs/screenshot.png) <!-- TODO: add a screenshot -->
 
