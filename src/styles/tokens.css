@@ -1,0 +1,98 @@
+/*
+ * Design tokens — the single source of colours, fonts, spacing and motion.
+ * Components read these with var(--token). No hex values anywhere else.
+ * Values come from docs/SPEC.md → "Design tokens".
+ */
+
+:root {
+  /* ---------- Colour ---------- */
+  --bg: #050911;
+  --surface: #090d12;
+  --border: #1c232a;
+  --border-strong: #30343d;
+  --text: #f2f3f5;
+  --text-muted: #a7b2bf;
+  --accent: #00a1ff;
+  --ok: #31c48d; /* Contact "standing by" dot only */
+
+  /* Segmentation masks only — never interface colours */
+  --mask-1: #ff7a1a;
+  --mask-2: #2ec4b6;
+  --mask-3: #f2c14e;
+  --mask-4: #5b8def;
+
+  /* ---------- Font families ---------- */
+  --font-display: 'TeX Gyre Adventor', 'Century Gothic', 'Avenir Next', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* ---------- Type scale (mobile first; desktop overrides below) ---------- */
+  --fs-menu: 40px; /* landing menu rows */
+  --fs-title: 40px; /* page title */
+  --fs-name-landing: 18px; /* name in header, landing */
+  --fs-name-page: 18px; /* name in header, other pages */
+  --fs-section: 20px; /* card and section titles */
+  --fs-stat: 32px; /* big stats */
+  --fs-body: 16px;
+  --fs-body-sm: 15px;
+  --fs-label: 12px; /* labels, coordinates, nav */
+  --fs-label-sm: 11px;
+
+  --lh-body: 1.5;
+  --lh-tight: 1;
+  --tracking-display: -0.03em;
+  --tracking-label: 0.08em;
+
+  /* ---------- Spacing (4px base) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+
+  --page-pad: 6vw; /* page side padding */
+  --content-max: 1200px; /* desktop content width (spec: 1100–1280) */
+  --touch-min: 44px; /* minimum touch target */
+
+  /* ---------- Radii ---------- */
+  --radius-card: 6px;
+  --radius-button: 4px;
+  --radius-round: 50%;
+
+  /* ---------- Focus ring ---------- */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 3px;
+
+  /* ---------- Motion ---------- */
+  --dur-fast: 0.2s; /* cursor, colour */
+  --dur-base: 0.45s; /* icon fill */
+  --dur-wipe: 0.55s; /* menu wipe */
+  --dur-spin: 0.6s; /* icon flip */
+  --dur-page: 1s; /* page transitions (0.8–1.2s) */
+
+  --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-zoom-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ---------- Breakpoint (reference only: CSS vars can't be used in @media) ----------
+     Desktop layout from 768px wide; mobile below. */
+}
+
+@media (min-width: 768px) {
+  :root {
+    --fs-menu: clamp(44px, 8vw, 120px);
+    --fs-title: 56px;
+    --fs-name-landing: 32px;
+    --fs-name-page: 20px;
+    --fs-section: 24px;
+    --fs-stat: 56px;
+    --fs-body: 17px;
+    --fs-body-sm: 16px;
+    --fs-label: 13px;
+    --fs-label-sm: 12px;
+  }
+}

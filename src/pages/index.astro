@@ -1,11 +1,32 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+/**
+ * Temporary test page for step 2 (foundations).
+ * Replaced by the real landing page in step 4.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<Layout>
-  <Welcome />
-</Layout>
+<BaseLayout variant="landing">
+  <section class="container test">
+    <p class="label">90.00°N · Test page</p>
+    <h1>Mission control</h1>
+    <p>
+      This is a placeholder page for checking the foundations: design tokens, self-hosted fonts, the header and
+      the footer. The heading uses TeX Gyre Adventor Bold, this paragraph uses Inter, and the label above uses
+      JetBrains Mono. <a href="/cv.pdf">Here is a link in the accent colour</a>.
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .test {
+    display: grid;
+    gap: var(--space-4);
+    padding-block: var(--space-16);
+  }
+
+  .test p:not(.label) {
+    max-width: 65ch;
+    color: var(--text-muted);
+  }
+</style>

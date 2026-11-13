@@ -1,0 +1,122 @@
+---
+/**
+ * Footer.
+ * Desktop: © + coordinates, social icons, last-updated date, "Back to orbit ↑".
+ * Mobile: icons centred, one line of text under them.
+ */
+import SocialIcon from './SocialIcon.astro';
+import { SITE, SOCIAL_LINKS } from '../data/site';
+
+interface Props {
+  /** Coordinates of the current page's pin. */
+  coords?: string;
+  /** Contact page sets this to false: its rows already link to each channel. */
+  showSocial?: boolean;
+}
+
+const { coords = SITE.defaultCoords, showSocial = true } = Astro.props;
+
+// Build time = last updated. Rebuilt on every deploy.
+const now = new Date();
+const year = now.getFullYear();
+const updated = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+---
+
+<footer class="site-footer">
+  <div class="container inner">
+    <p class="label copyright">
+      © {year} {SITE.name} <span aria-hidden="true">·</span>
+      <span class="visually-hidden">Coordinates:</span>
+      {coords}
+    </p>
+
+    {
+      showSocial && (
+        <ul class="social" aria-label="Elsewhere">
+          {SOCIAL_LINKS.map((link) => (
+            <li>
+              <SocialIcon {...link} />
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    <p class="label updated">Last updated <time datetime={now.toISOString().slice(0, 10)}>{updated}</time></p>
+    <a class="label to-top" href="#top">Back to orbit <span aria-hidden="true">↑</span></a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: auto;
+    padding-block: var(--space-8);
+    border-top: 1px solid var(--border);
+  }
+
+  /* Mobile: icons first, centred; one text line under them. */
+  .inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    text-align: center;
+  }
+
+  .social {
+    order: -1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .label {
+    font-size: var(--fs-label-sm);
+  }
+
+  .updated,
+  .to-top {
+    display: none;
+  }
+
+  .to-top {
+    align-items: center;
+    min-height: var(--touch-min);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-move);
+  }
+
+  .to-top:focus-visible {
+    color: var(--accent);
+  }
+
+  @media (pointer: fine) {
+    .to-top:hover {
+      color: var(--accent);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .inner {
+      flex-direction: row;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      text-align: left;
+    }
+
+    .social {
+      order: 0;
+    }
+
+    .updated {
+      display: block;
+    }
+
+    .to-top {
+      display: inline-flex;
+    }
+  }
+</style>
