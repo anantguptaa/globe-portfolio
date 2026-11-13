@@ -60,8 +60,8 @@ portfolio/
 │  │  ├─ Globe.ts               # Three.js scene, pins, labels, camera moves
 │  │  ├─ shaders.ts             # points vertex/fragment shaders
 │  │  └─ pins.ts                # page and item coordinates
+│  ├─ content.config.ts         # collection schemas (Astro 5+ location)
 │  ├─ content/
-│  │  ├─ config.ts              # collection schemas
 │  │  ├─ projects/*.md(x)
 │  │  ├─ roles/*.md
 │  │  └─ posts/*.mdx            # later
@@ -214,9 +214,9 @@ The zoom (accent) is the signature move and plays only when leaving the landing 
 Content lives in Markdown files with typed frontmatter, so adding a project or role is one new file.
 
 ```ts
-// src/content/config.ts (sketch)
+// src/content.config.ts (sketch)
 projects: {
-  title: string; slug: string; order: number; featured: boolean;
+  title: string; order: number; featured: boolean;
   summary: string;                 // one line for cards
   location: { lat: number; lon: number; label: string };
   role?: string; dates?: string; status?: 'ongoing' | 'complete';
@@ -237,6 +237,8 @@ posts (later): { title: string; date: string; summary: string; tags: string[]; d
 
 - Featured projects are `featured: true`, sorted by `order`; the rest go in "Other builds".
 - Roles sort by `start`, newest first, with education last.
+- An entry's id is its filename (`usa-fields.md` → `usa-fields`); it is the URL slug for `/projects/[slug]` and the value `reference()` fields use. There is no `slug` field.
+- Role dates are `YYYY-MM` or `YYYY-MM-DD` and stay quoted in YAML, so they are read as strings, not dates.
 
 ## Accessibility and performance
 
