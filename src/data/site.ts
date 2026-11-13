@@ -20,11 +20,11 @@ export interface SocialLink {
 
 export const SOCIAL_LINKS: readonly SocialLink[] = [
   // PLACEHOLDER: your real email address
-  { kind: 'email', href: 'mailto:you@example.com', label: 'Email' },
+  { kind: 'email', href: 'mailto:guptaanantt4@gmail.com', label: 'Email' },
   // PLACEHOLDER: your GitHub profile URL
-  { kind: 'github', href: 'https://github.com/your-username', label: 'GitHub' },
+  { kind: 'github', href: 'https://github.com/anantguptaa', label: 'GitHub' },
   // PLACEHOLDER: your LinkedIn profile URL
-  { kind: 'linkedin', href: 'https://www.linkedin.com/in/your-profile', label: 'LinkedIn' },
+  { kind: 'linkedin', href: 'https://www.linkedin.com/in/anantgupta04', label: 'LinkedIn' },
   { kind: 'cv', href: '/cv.pdf', label: 'CV (PDF)' },
 ];
 

@@ -25,7 +25,7 @@ const updated = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short'
 <footer class="site-footer">
   <div class="container inner">
     <p class="label copyright">
-      © {year} {SITE.name} <span aria-hidden="true">·</span>
+      © {year} {SITE.name} <span aria-hidden="true">· </span>
       <span class="visually-hidden">Coordinates:</span>
       {coords}
     </p>
@@ -43,7 +43,7 @@ const updated = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short'
     }
 
     <p class="label updated">Last updated <time datetime={now.toISOString().slice(0, 10)}>{updated}</time></p>
-    <a class="label to-top" href="#top">Back to orbit <span aria-hidden="true">↑</span></a>
+    <a class="label to-top" href="#top">Back to orbit <span aria-hidden="true"> ↑</span></a>
   </div>
 </footer>
 
