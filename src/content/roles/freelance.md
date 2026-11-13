@@ -5,8 +5,9 @@ org: Self-employed
 start: '2026-06' 
 # No end date: current role.
 location:
-  lat: 48.53
-  lon: 123.24
+  # Point Nemo (48.88°S 123.39°W): south and west are negative.
+  lat: -48.88
+  lon: -123.39
   label: Remote
 kind: freelance
 bullets:
