@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Contact: ground station</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#050911}
+@font-face{font-family:'TeX Gyre Adventor';src:url('fonts/TeXGyreAdventor-Bold.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+.soc{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1px solid #30343D;color:#F2F3F5;text-decoration:none;transition:border-color .4s,color .4s}.soc::before{content:'';position:absolute;left:0;top:100%;width:100%;height:100%;background:#00A1FF;transition:top .45s ease;z-index:-1}.soc:hover::before,.soc:focus-visible::before{top:0}.soc:hover,.soc:focus-visible{color:#050911;border-color:#00A1FF}.soc svg{display:block;transition:transform .6s ease}.soc:hover svg,.soc:focus-visible svg{transform:rotateY(360deg)}@media (prefers-reduced-motion: reduce){.soc::before,.soc svg{transition:none}}
+@media (pointer: fine){body,a,button,input,label{cursor:none}}
+a{color:#F2F3F5}a:hover{color:#00A1FF}
+</style>
+</helmet>
+<div id="top" ref="{{ setRoot }}" onMouseMove="{{ onCursorMove }}" onMouseLeave="{{ onCursorLeave }}" style="position: relative; overflow: hidden; min-height: 1100px; box-sizing: border-box; background: #050911; color: #F2F3F5; font-family: Inter, sans-serif; overflow: hidden">
+<header style="position: relative; z-index: 2; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 24px; padding: 16px 6vw; border-bottom: 1px solid #1C232A">
+<a href="Main.dc.html" style="font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; text-decoration: none; padding: 12px 0">Anant Gupta</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 0 28px; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em">
+<a href="About.dc.html" style="text-decoration: none; padding: 14px 0">ABOUT</a>
+<a href="Projects.dc.html" style="text-decoration: none; padding: 14px 0">PROJECTS</a>
+<a href="Experience.dc.html" style="text-decoration: none; padding: 14px 0">EXPERIENCE</a>
+<a href="Contact.dc.html" aria-current="page" style="text-decoration: none; padding: 14px 0; color: #00A1FF">CONTACT</a>
+</nav>
+</header>
+<main style="max-width: 1100px; margin: 0 auto; padding: 0 6vw 96px; display: flex; flex-direction: column">
+<section style="display: flex; flex-wrap: wrap; align-items: center; gap: 0 48px">
+<div style="flex: 1 1 380px; padding-top: 64px; display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 1">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #00A1FF; letter-spacing: 0.1em">GROUND STATION · 48.88°S 123.39°W · POINT NEMO</span>
+<h1 style="margin: 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 64px; line-height: 1.05; letter-spacing: -0.02em">Open a channel.</h1>
+<p style="margin: 0; max-width: 480px; font-size: 18px; line-height: 1.55; color: #A7B2BF">Open to MSc positions in computer vision and to internships. Pick a frequency below. [AVAILABLE FROM]</p>
+<div aria-live="polite" style="margin-top: 12px; display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.1em">
+<span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: {{dot}}"></span>
+<span style="color: {{statusColor}}">{{status}}</span>
+</div>
+</div>
+<div style="flex: 0 1 480px; margin: 0 auto; -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 92%); mask-image: linear-gradient(to bottom, #000 45%, transparent 92%)">
+<canvas ref="{{ setCanvas }}" width="960" height="960" role="img" aria-label="Dotted globe pinned at Point Nemo; hovering a contact link sends a signal from the pin" style="width: min(480px, 86vw); aspect-ratio: 1 / 1; display: block"></canvas>
+</div>
+</section>
+<div style="position: relative; z-index: 1; margin-top: -130px; background: linear-gradient(to bottom, rgba(5,9,17,0), #050911 120px); padding-top: 40px; display: flex; flex-direction: column; font-family: 'JetBrains Mono', monospace">
+<a href="mailto:guptaanantt4@gmail.com" onMouseEnter="{{ on0 }}" onFocus="{{ on0 }}" onMouseLeave="{{ off }}" onBlur="{{ off }}" style="text-decoration: none; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 24px; padding: 22px 0; border-top: 1px solid #1C232A"><span style="font-size: 13px; letter-spacing: 0.1em; color: #A7B2BF">CH 01 · EMAIL</span><span style="font-size: 20px">guptaanantt4@gmail.com ↗</span></a>
+<a href="https://github.com/anantguptaa" onMouseEnter="{{ on1 }}" onFocus="{{ on1 }}" onMouseLeave="{{ off }}" onBlur="{{ off }}" style="text-decoration: none; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 24px; padding: 22px 0; border-top: 1px solid #1C232A"><span style="font-size: 13px; letter-spacing: 0.1em; color: #A7B2BF">CH 02 · GITHUB</span><span style="font-size: 20px">github.com/anantguptaa ↗</span></a>
+<a href="https://linkedin.com/in/anantgupta04" onMouseEnter="{{ on2 }}" onFocus="{{ on2 }}" onMouseLeave="{{ off }}" onBlur="{{ off }}" style="text-decoration: none; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 24px; padding: 22px 0; border-top: 1px solid #1C232A"><span style="font-size: 13px; letter-spacing: 0.1em; color: #A7B2BF">CH 03 · LINKEDIN</span><span style="font-size: 20px">linkedin.com/in/anantgupta04 ↗</span></a>
+<a href="#" onMouseEnter="{{ on3 }}" onFocus="{{ on3 }}" onMouseLeave="{{ off }}" onBlur="{{ off }}" style="text-decoration: none; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 24px; padding: 22px 0; border-top: 1px solid #1C232A; border-bottom: 1px solid #1C232A"><span style="font-size: 13px; letter-spacing: 0.1em; color: #A7B2BF">CH 04 · CV</span><span style="font-size: 20px">Download PDF ↗</span></a>
+</div>
+</main>
+<footer style="border-top: 1px solid #1C232A; padding: 20px 6vw; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 32px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; color: #A7B2BF">
+<span>© 2026 ANANT GUPTA · 53.52°N 113.53°W</span>
+<nav aria-label="Social links" style="display: flex; gap: 12px">
+<a class="soc" href="mailto:guptaanantt4@gmail.com" aria-label="Email"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><polyline points="3 7 12 13 21 7"></polyline></svg></a>
+<a class="soc" href="https://github.com/anantguptaa" aria-label="GitHub"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>
+<a class="soc" href="https://linkedin.com/in/anantgupta04" aria-label="LinkedIn"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
+<a class="soc" href="#" aria-label="CV (PDF)"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></a>
+</nav>
+<span>LAST UPDATED · NOV 2026</span>
+<a href="#top" style="text-decoration: none; padding: 14px 0">BACK TO ORBIT ↑</a>
+</footer>
+<div ref="{{ setCursor }}" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; background: #00A1FF; pointer-events: none; z-index: 50; opacity: 0; transition: opacity 0.2s, width 0.2s, height 0.2s, margin 0.2s, background-color 0.2s"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+moveCursor(e) {
+const c = this.cursorEl, root = this.rootEl;
+if (!c || !root) return;
+if (window.matchMedia && !window.matchMedia('(pointer: fine)').matches) return;
+const r = root.getBoundingClientRect();
+const s = (r.width / root.offsetWidth) || 1;
+c.style.transform = 'translate(' + ((e.clientX - r.left) / s) + 'px,' + ((e.clientY - r.top) / s) + 'px)';
+const t = e.target && e.target.closest ? e.target : null;
+const hot = !!(t && t.closest('a,button,input,label'));
+const dark = !!(t && t.closest('[data-cursor-dark]'));
+c.style.opacity = hot ? '0.55' : '1';
+c.style.width = c.style.height = hot ? '56px' : '28px';
+c.style.marginLeft = c.style.marginTop = hot ? '-28px' : '-14px';
+c.style.backgroundColor = dark ? '#050911' : '#00A1FF';
+}
+hideCursor() { if (this.cursorEl) this.cursorEl.style.opacity = '0'; }
+scrollSpin() {
+if (this.reduce || !this.canvas) return 0;
+const top = this.canvas.getBoundingClientRect().top;
+if (this.top0 == null) this.top0 = top;
+const t = (this.top0 - top) * 0.25;
+this.spin = (this.spin || 0) + (t - (this.spin || 0)) * 0.12;
+return this.spin;
+}
+channels() { return ['EMAIL', 'GITHUB', 'LINKEDIN', 'CV']; }
+ch() { return (this.state && this.state.ch != null) ? this.state.ch : -1; }
+componentDidMount() {
+this.pin = { lat: -48.88, lon: -123.39 };
+this.cur = { lat: 10, lon: -60 };
+this.sig = 0;
+this.reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+this.LAND = [[11,15],[6,16,19,20,23,23,26,29],[0,11,13,14,16,16,18,35],[2,2,5,12,17,34],[5,11,17,32],[5,10,17,32],[7,9,16,30],[8,9,16,23,25,26,28,30],[10,12,17,22,26,29],[10,14,19,21,28,33],[10,14,19,22,30,32],[11,13,19,22,29,33],[10,12,19,20,29,33,35,35],[10,11,32,32,34,35],[11,11],[11,12,22,33],[0,35],[0,35]];
+const tick = () => { this.draw(); this.raf = requestAnimationFrame(tick); };
+this.raf = requestAnimationFrame(tick);
+}
+componentWillUnmount() { cancelAnimationFrame(this.raf); }
+land(lat, lon) {
+const r = Math.min(17, Math.max(0, Math.floor((90 - lat) / 10)));
+const c = ((Math.floor((lon + 180) / 10) % 36) + 36) % 36;
+const row = this.LAND[r];
+for (let i = 0; i < row.length; i += 2) { if (c >= row[i] && c <= row[i + 1]) return true; }
+return false;
+}
+draw() {
+const cv = this.canvas;
+if (!cv || !this.cur) return;
+const ctx = cv.getContext('2d');
+const tgt = { lat: -30, lon: this.pin.lon };
+const k = this.reduce ? 1 : 0.04;
+const dl = ((tgt.lon - this.cur.lon + 540) % 360) - 180;
+this.cur.lon += dl * k;
+this.cur.lat += (tgt.lat - this.cur.lat) * k;
+const active = this.ch() >= 0;
+this.sig += ((active ? 1 : 0) - this.sig) * (this.reduce ? 1 : 0.12);
+const W = cv.width, R = W * 0.42, cx = W / 2, cy = W / 2 + W * 0.03, d = Math.PI / 180, TAU = Math.PI * 2;
+const la0 = this.cur.lat * d, lo0 = (this.cur.lon + this.scrollSpin()) * d, s0 = Math.sin(la0), c0 = Math.cos(la0);
+ctx.clearRect(0, 0, W, W);
+ctx.setLineDash([]);
+ctx.globalAlpha = 1;
+ctx.beginPath(); ctx.arc(cx, cy, R + 6, 0, TAU); ctx.strokeStyle = '#1C232A'; ctx.lineWidth = 2; ctx.stroke();
+for (let lat = -87; lat <= 87; lat += 3) {
+const cl = Math.cos(lat * d), sl = Math.sin(lat * d);
+const n = Math.max(1, Math.round(110 * cl));
+for (let j = 0; j < n; j++) {
+const lon = -180 + 360 * j / n, dlon = lon * d - lo0;
+const z = s0 * sl + c0 * cl * Math.cos(dlon);
+if (z <= 0.02) continue;
+const x = cl * Math.sin(dlon), y = c0 * sl - s0 * cl * Math.cos(dlon);
+const isLand = this.land(lat, lon);
+ctx.globalAlpha = isLand ? 0.3 + 0.7 * z : 0.1 + 0.14 * z;
+ctx.fillStyle = isLand ? '#F2F3F5' : '#A7B2BF';
+ctx.beginPath(); ctx.arc(cx + R * x, cy - R * y, (isLand ? 3.2 : 2) * (0.6 + 0.4 * z), 0, TAU); ctx.fill();
+}
+}
+const tl = this.pin.lat * d, tdl = this.pin.lon * d - lo0;
+const tz = s0 * Math.sin(tl) + c0 * Math.cos(tl) * Math.cos(tdl);
+if (tz <= 0.05) { ctx.globalAlpha = 1; return; }
+const px = cx + R * Math.cos(tl) * Math.sin(tdl), py = cy - R * (c0 * Math.sin(tl) - s0 * Math.cos(tl) * Math.cos(tdl));
+const now = this.reduce ? 900 : performance.now();
+const s = this.sig;
+if (s > 0.01) {
+const sx = cx + R * 0.92, sy = cy - R * 1.02;
+const mx = px + (sx - px) * 0.25, my = sy - R * 0.1;
+ctx.globalAlpha = s;
+ctx.strokeStyle = '#00A1FF'; ctx.lineWidth = 3;
+ctx.setLineDash([14, 12]); ctx.lineDashOffset = -(now / 25);
+ctx.beginPath(); ctx.moveTo(px, py); ctx.quadraticCurveTo(mx, my, sx, sy); ctx.stroke();
+ctx.setLineDash([]);
+ctx.fillStyle = '#F2F3F5';
+ctx.fillRect(sx - 9, sy - 9, 18, 18);
+ctx.fillStyle = '#A7B2BF';
+ctx.fillRect(sx - 34, sy - 4, 20, 8); ctx.fillRect(sx + 14, sy - 4, 20, 8);
+for (let r = 0; r < 3; r++) {
+const q = ((now / 1200) + r / 3) % 1;
+ctx.globalAlpha = s * (1 - q) * 0.9;
+ctx.beginPath(); ctx.arc(px, py, 12 + 70 * q, 0, TAU); ctx.stroke();
+}
+}
+const p = this.reduce ? 0.5 : (performance.now() % 1800) / 1800;
+ctx.globalAlpha = 1; ctx.fillStyle = '#00A1FF';
+ctx.beginPath(); ctx.arc(px, py, 9, 0, TAU); ctx.fill();
+ctx.globalAlpha = (1 - p) * (1 - s); ctx.strokeStyle = '#00A1FF'; ctx.lineWidth = 3;
+ctx.beginPath(); ctx.arc(px, py, 14 + 40 * p, 0, TAU); ctx.stroke();
+ctx.globalAlpha = 1;
+}
+renderVals() {
+const c = this.ch();
+const set = (i) => () => { if (this.ch() !== i) this.setState({ ch: i }); };
+const on = c >= 0;
+return {
+status: on ? 'TRANSMITTING · ' + this.channels()[c] : 'CHANNEL OPEN · STANDING BY',
+statusColor: on ? '#00A1FF' : '#A7B2BF',
+dot: on ? '#00A1FF' : '#31C48D',
+on0: set(0), on1: set(1), on2: set(2), on3: set(3), off: set(-1),
+setCanvas: (el) => { if (el) this.canvas = el; },
+setRoot: (el) => { if (el) this.rootEl = el; },
+setCursor: (el) => { if (el) this.cursorEl = el; },
+onCursorMove: (e) => this.moveCursor(e),
+onCursorLeave: () => this.hideCursor()
+};
+}
+}
+</script>
+</body>
+</html>

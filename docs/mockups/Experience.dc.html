@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Experience: flight log</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#050911}
+@font-face{font-family:'TeX Gyre Adventor';src:url('fonts/TeXGyreAdventor-Bold.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+.soc{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1px solid #30343D;color:#F2F3F5;text-decoration:none;transition:border-color .4s,color .4s}.soc::before{content:'';position:absolute;left:0;top:100%;width:100%;height:100%;background:#00A1FF;transition:top .45s ease;z-index:-1}.soc:hover::before,.soc:focus-visible::before{top:0}.soc:hover,.soc:focus-visible{color:#050911;border-color:#00A1FF}.soc svg{display:block;transition:transform .6s ease}.soc:hover svg,.soc:focus-visible svg{transform:rotateY(360deg)}@media (prefers-reduced-motion: reduce){.soc::before,.soc svg{transition:none}}
+@media (pointer: fine){body,a,button,input,label{cursor:none}}
+a{color:#F2F3F5}a:hover{color:#00A1FF}
+</style>
+</helmet>
+<div id="top" ref="{{ setRoot }}" onMouseMove="{{ onCursorMove }}" onMouseLeave="{{ onCursorLeave }}" style="position: relative; overflow: hidden; min-height: 1700px; box-sizing: border-box; background: #050911; color: #F2F3F5; font-family: Inter, sans-serif; overflow: hidden">
+<header style="position: relative; z-index: 2; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 24px; padding: 16px 6vw; border-bottom: 1px solid #1C232A">
+<a href="Main.dc.html" style="font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; text-decoration: none; padding: 12px 0">Anant Gupta</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 0 28px; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em">
+<a href="About.dc.html" style="text-decoration: none; padding: 14px 0">ABOUT</a>
+<a href="Projects.dc.html" style="text-decoration: none; padding: 14px 0">PROJECTS</a>
+<a href="Experience.dc.html" aria-current="page" style="text-decoration: none; padding: 14px 0; color: #00A1FF">EXPERIENCE</a>
+<a href="Contact.dc.html" style="text-decoration: none; padding: 14px 0">CONTACT</a>
+</nav>
+</header>
+<main style="max-width: 1100px; margin: 0 auto; padding: 0 6vw 96px; display: flex; flex-direction: column">
+<section style="display: flex; flex-wrap: wrap; align-items: center; gap: 0 48px">
+<div style="flex: 1 1 360px; padding-top: 64px; display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 1">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #00A1FF; letter-spacing: 0.1em">FLIGHT LOG</span>
+<h1 style="margin: 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 56px; line-height: 1.05; letter-spacing: -0.02em">Experience</h1>
+<p style="margin: 0; max-width: 460px; font-size: 18px; line-height: 1.55; color: #A7B2BF">Hover a role to see where it happened.</p>
+<div aria-live="polite" style="margin-top: 12px; display: flex; flex-direction: column; gap: 6px; font-family: 'JetBrains Mono', monospace">
+<span style="font-size: 15px; color: #00A1FF; letter-spacing: 0.06em">{{coord}}</span>
+<span style="font-size: 13px; color: #A7B2BF; letter-spacing: 0.1em">{{place}}</span>
+</div>
+</div>
+<div style="flex: 0 1 480px; margin: 0 auto; -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 92%); mask-image: linear-gradient(to bottom, #000 45%, transparent 92%)">
+<canvas ref="{{ setCanvas }}" width="960" height="960" role="img" aria-label="Dotted globe with a pin for each role; rotates to the hovered role" style="width: min(480px, 86vw); aspect-ratio: 1 / 1; display: block"></canvas>
+</div>
+</section>
+<div style="position: relative; z-index: 1; margin-top: -130px; background: linear-gradient(to bottom, rgba(5,9,17,0), #050911 120px); padding-top: 40px; display: flex; flex-direction: column">
+<article onMouseEnter="{{ pick0 }}" style="display: flex; flex-wrap: wrap; gap: 12px 40px; padding: 32px 0; border-top: 1px solid #1C232A">
+<div style="flex: 0 0 200px; display: flex; flex-direction: column; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 13px">
+<span style="color: #00A1FF; letter-spacing: 0.06em">MAY 2026 – PRESENT</span>
+<span style="color: #A7B2BF">53.52°N 113.53°W</span>
+</div>
+<div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; color: {{c0}}"><a href="#" onFocus="{{ pick0 }}" style="text-decoration: none; color: inherit">Research Assistant</a></h2>
+<span style="font-size: 16px; color: #A7B2BF">Multimedia Research Centre, University of Alberta · under Prof. Irene Cheng</span>
+<ul style="margin: 6px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 16px; line-height: 1.5">
+<li>Benchmark segmentation models with DINOv3-pretrained ConvNeXt encoders for mapping agricultural fields from aerial imagery; 0.896 mIoU on a held-out test set.</li>
+<li>Hand-annotated 2,500+ image patches and ran a 20-trial Optuna hyperparameter search in PyTorch Lightning.</li>
+<li>Exploring AlphaEarth satellite embeddings for crop classification.</li>
+</ul>
+<a href="ProjectDetail.dc.html" style="align-self: flex-start; padding: 12px 0; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.06em; text-decoration: none; color: #00A1FF">SEE THE PROJECT: USA_FIELDS →</a>
+</div>
+</article>
+<article onMouseEnter="{{ pick1 }}" style="display: flex; flex-wrap: wrap; gap: 12px 40px; padding: 32px 0; border-top: 1px solid #1C232A">
+<div style="flex: 0 0 200px; display: flex; flex-direction: column; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 13px">
+<span style="color: #00A1FF; letter-spacing: 0.06em">JUN 2026 – PRESENT</span>
+<span style="color: #A7B2BF">[CLIENT LOCATION]</span>
+</div>
+<div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; color: {{c1}}"><a href="#" onFocus="{{ pick1 }}" style="text-decoration: none; color: inherit">Freelance Web Designer &amp; Developer</a></h2>
+<span style="font-size: 16px; color: #A7B2BF">Independent</span>
+<ul style="margin: 6px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 16px; line-height: 1.5">
+<li>Designing and building a catalogue website for a sanitary ware importer: about 40 products across two in-house brands, with an enquiry-based contact flow.</li>
+<li>Figma UI/UX design complete; build under way.</li>
+</ul>
+</div>
+</article>
+<article onMouseEnter="{{ pick2 }}" style="display: flex; flex-wrap: wrap; gap: 12px 40px; padding: 32px 0; border-top: 1px solid #1C232A">
+<div style="flex: 0 0 200px; display: flex; flex-direction: column; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 13px">
+<span style="color: #00A1FF; letter-spacing: 0.06em">MAY – AUG 2025</span>
+<span style="color: #A7B2BF">28.54°N 77.39°E · NOIDA</span>
+</div>
+<div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; color: {{c2}}"><a href="#" onFocus="{{ pick2 }}" style="text-decoration: none; color: inherit">Machine Learning Intern</a></h2>
+<span style="font-size: 16px; color: #A7B2BF">Instant Systems Inc.</span>
+<ul style="margin: 6px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 16px; line-height: 1.5">
+<li>Built a computer vision pipeline with PyTorch and YOLOv8 on a 1,200-image dataset, improving accuracy by 20%.</li>
+<li>Containerized the pipeline with Docker, saving about two hours of setup time.</li>
+</ul>
+</div>
+</article>
+<article onMouseEnter="{{ pick3 }}" style="display: flex; flex-wrap: wrap; gap: 12px 40px; padding: 32px 0; border-top: 1px solid #1C232A">
+<div style="flex: 0 0 200px; display: flex; flex-direction: column; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 13px">
+<span style="color: #00A1FF; letter-spacing: 0.06em">MAY – AUG 2023</span>
+<span style="color: #A7B2BF">28.61°N 77.21°E · DELHI</span>
+</div>
+<div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; color: {{c3}}"><a href="#" onFocus="{{ pick3 }}" style="text-decoration: none; color: inherit">Volunteer Teaching Assistant</a></h2>
+<span style="font-size: 16px; color: #A7B2BF">Teach For India</span>
+<ul style="margin: 6px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 16px; line-height: 1.5">
+<li>Led classroom activities and taught a class under the teacher's guidance.</li>
+<li>Supported students individually and in groups, and helped plan daily lessons.</li>
+</ul>
+</div>
+</article>
+<article onMouseEnter="{{ pick4 }}" style="display: flex; flex-wrap: wrap; gap: 12px 40px; padding: 32px 0; border-top: 1px solid #1C232A; border-bottom: 1px solid #1C232A">
+<div style="flex: 0 0 200px; display: flex; flex-direction: column; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 13px">
+<span style="color: #00A1FF; letter-spacing: 0.06em">EXPECTED APR 2027</span>
+<span style="color: #A7B2BF">53.52°N 113.53°W</span>
+</div>
+<div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; color: {{c4}}"><a href="#" onFocus="{{ pick4 }}" style="text-decoration: none; color: inherit">BSc Computing Science (Specialization)</a></h2>
+<span style="font-size: 16px; color: #A7B2BF">University of Alberta</span>
+<ul style="margin: 6px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 16px; line-height: 1.5">
+<li>Dean's Honour Roll, 2023–24 and 2025–26.</li>
+<li>Coursework: Computer Vision, Machine Learning I &amp; II, Reinforcement Learning, Search and Planning in AI.</li>
+</ul>
+</div>
+</article>
+<a href="#" style="align-self: flex-start; margin-top: 48px; text-decoration: none; padding: 14px 20px; border: 1px solid #30343D; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.06em">FULL CV (PDF) ↗</a>
+</div>
+</main>
+<footer style="border-top: 1px solid #1C232A; padding: 20px 6vw; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 32px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; color: #A7B2BF">
+<span>© 2026 ANANT GUPTA · 53.52°N 113.53°W</span>
+<nav aria-label="Social links" style="display: flex; gap: 12px">
+<a class="soc" href="mailto:guptaanantt4@gmail.com" aria-label="Email"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><polyline points="3 7 12 13 21 7"></polyline></svg></a>
+<a class="soc" href="https://github.com/anantguptaa" aria-label="GitHub"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>
+<a class="soc" href="https://linkedin.com/in/anantgupta04" aria-label="LinkedIn"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
+<a class="soc" href="#" aria-label="CV (PDF)"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></a>
+</nav>
+<span>LAST UPDATED · NOV 2026</span>
+<a href="#top" style="text-decoration: none; padding: 14px 0">BACK TO ORBIT ↑</a>
+</footer>
+<div ref="{{ setCursor }}" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; background: #00A1FF; pointer-events: none; z-index: 50; opacity: 0; transition: opacity 0.2s, width 0.2s, height 0.2s, margin 0.2s, background-color 0.2s"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+moveCursor(e) {
+const c = this.cursorEl, root = this.rootEl;
+if (!c || !root) return;
+if (window.matchMedia && !window.matchMedia('(pointer: fine)').matches) return;
+const r = root.getBoundingClientRect();
+const s = (r.width / root.offsetWidth) || 1;
+c.style.transform = 'translate(' + ((e.clientX - r.left) / s) + 'px,' + ((e.clientY - r.top) / s) + 'px)';
+const t = e.target && e.target.closest ? e.target : null;
+const hot = !!(t && t.closest('a,button,input,label'));
+const dark = !!(t && t.closest('[data-cursor-dark]'));
+c.style.opacity = hot ? '0.55' : '1';
+c.style.width = c.style.height = hot ? '56px' : '28px';
+c.style.marginLeft = c.style.marginTop = hot ? '-28px' : '-14px';
+c.style.backgroundColor = dark ? '#050911' : '#00A1FF';
+}
+hideCursor() { if (this.cursorEl) this.cursorEl.style.opacity = '0'; }
+scrollSpin() {
+if (this.reduce || !this.canvas) return 0;
+const top = this.canvas.getBoundingClientRect().top;
+if (this.top0 == null) this.top0 = top;
+const t = (this.top0 - top) * 0.25;
+this.spin = (this.spin || 0) + (t - (this.spin || 0)) * 0.12;
+return this.spin;
+}
+roles() {
+return [
+{ lat: 53.52, lon: -113.53, coord: '53.52°N 113.53°W', place: 'RESEARCH ASSISTANT · MRC, EDMONTON' },
+{ lat: 53.55, lon: -113.49, coord: '[COORDS]', place: 'FREELANCE · [CLIENT LOCATION]' },
+{ lat: 28.54, lon: 77.39, coord: '28.54°N 77.39°E', place: 'ML INTERN · INSTANT SYSTEMS · NOIDA, INDIA' },
+{ lat: 28.61, lon: 77.21, coord: '28.61°N 77.21°E', place: 'TEACH FOR INDIA · DELHI, INDIA' },
+{ lat: 53.52, lon: -113.53, coord: '53.52°N 113.53°W', place: 'UNIVERSITY OF ALBERTA · EDMONTON' }
+];
+}
+idx() { return (this.state && this.state.idx != null) ? this.state.idx : 0; }
+componentDidMount() {
+this.cur = { lat: 30, lon: -60 };
+this.reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+this.LAND = [[11,15],[6,16,19,20,23,23,26,29],[0,11,13,14,16,16,18,35],[2,2,5,12,17,34],[5,11,17,32],[5,10,17,32],[7,9,16,30],[8,9,16,23,25,26,28,30],[10,12,17,22,26,29],[10,14,19,21,28,33],[10,14,19,22,30,32],[11,13,19,22,29,33],[10,12,19,20,29,33,35,35],[10,11,32,32,34,35],[11,11],[11,12,22,33],[0,35],[0,35]];
+const tick = () => { this.draw(); this.raf = requestAnimationFrame(tick); };
+this.raf = requestAnimationFrame(tick);
+}
+componentWillUnmount() { cancelAnimationFrame(this.raf); }
+land(lat, lon) {
+const r = Math.min(17, Math.max(0, Math.floor((90 - lat) / 10)));
+const c = ((Math.floor((lon + 180) / 10) % 36) + 36) % 36;
+const row = this.LAND[r];
+for (let i = 0; i < row.length; i += 2) { if (c >= row[i] && c <= row[i + 1]) return true; }
+return false;
+}
+draw() {
+const cv = this.canvas;
+if (!cv || !this.cur) return;
+const ctx = cv.getContext('2d');
+const list = this.roles();
+const active = this.idx();
+const tgt = list[active];
+const k = this.reduce ? 1 : 0.06;
+const dl = ((tgt.lon - this.cur.lon + 540) % 360) - 180;
+this.cur.lon += dl * k;
+this.cur.lat += (tgt.lat - this.cur.lat) * k;
+const W = cv.width, R = W * 0.45, cx = W / 2, cy = W / 2, d = Math.PI / 180, TAU = Math.PI * 2;
+const la0 = this.cur.lat * d, lo0 = (this.cur.lon + this.scrollSpin()) * d, s0 = Math.sin(la0), c0 = Math.cos(la0);
+ctx.clearRect(0, 0, W, W);
+ctx.globalAlpha = 1;
+ctx.beginPath(); ctx.arc(cx, cy, R + 6, 0, TAU); ctx.strokeStyle = '#1C232A'; ctx.lineWidth = 2; ctx.stroke();
+for (let lat = -87; lat <= 87; lat += 3) {
+const cl = Math.cos(lat * d), sl = Math.sin(lat * d);
+const n = Math.max(1, Math.round(120 * cl));
+for (let j = 0; j < n; j++) {
+const lon = -180 + 360 * j / n, dlon = lon * d - lo0;
+const z = s0 * sl + c0 * cl * Math.cos(dlon);
+if (z <= 0.02) continue;
+const x = cl * Math.sin(dlon), y = c0 * sl - s0 * cl * Math.cos(dlon);
+const isLand = this.land(lat, lon);
+ctx.globalAlpha = isLand ? 0.3 + 0.7 * z : 0.1 + 0.14 * z;
+ctx.fillStyle = isLand ? '#F2F3F5' : '#A7B2BF';
+ctx.beginPath(); ctx.arc(cx + R * x, cy - R * y, (isLand ? 3.4 : 2.1) * (0.6 + 0.4 * z), 0, TAU); ctx.fill();
+}
+}
+const p = this.reduce ? 0.5 : (performance.now() % 1800) / 1800;
+for (let i = 0; i < list.length; i++) {
+const tl = list[i].lat * d, tdl = list[i].lon * d - lo0;
+const tz = s0 * Math.sin(tl) + c0 * Math.cos(tl) * Math.cos(tdl);
+if (tz <= 0.05) continue;
+const px = cx + R * Math.cos(tl) * Math.sin(tdl), py = cy - R * (c0 * Math.sin(tl) - s0 * Math.cos(tl) * Math.cos(tdl));
+const on = i === active;
+ctx.globalAlpha = on ? 1 : 0.55;
+ctx.fillStyle = '#00A1FF';
+ctx.beginPath(); ctx.arc(px, py, on ? 9 : 6, 0, TAU); ctx.fill();
+if (on) {
+ctx.globalAlpha = 1 - p; ctx.strokeStyle = '#00A1FF'; ctx.lineWidth = 3;
+ctx.beginPath(); ctx.arc(px, py, 14 + 40 * p, 0, TAU); ctx.stroke();
+}
+}
+ctx.globalAlpha = 1;
+}
+renderVals() {
+const list = this.roles();
+const a = this.idx();
+const pick = (i) => () => { if (this.idx() !== i) this.setState({ idx: i }); };
+const c = (i) => (i === a ? '#00A1FF' : '#F2F3F5');
+return {
+coord: list[a].coord, place: list[a].place,
+c0: c(0), c1: c(1), c2: c(2), c3: c(3), c4: c(4),
+pick0: pick(0), pick1: pick(1), pick2: pick(2), pick3: pick(3), pick4: pick(4),
+setCanvas: (el) => { if (el) this.canvas = el; },
+setRoot: (el) => { if (el) this.rootEl = el; },
+setCursor: (el) => { if (el) this.cursorEl = el; },
+onCursorMove: (e) => this.moveCursor(e),
+onCursorLeave: () => this.hideCursor()
+};
+}
+}
+</script>
+</body>
+</html>

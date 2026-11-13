@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Landing, mobile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#050911}
+@font-face{font-family:'TeX Gyre Adventor';src:url('fonts/TeXGyreAdventor-Bold.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+.soc{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1px solid #30343D;color:#F2F3F5;text-decoration:none;transition:border-color .4s,color .4s}.soc::before{content:'';position:absolute;left:0;top:100%;width:100%;height:100%;background:#00A1FF;transition:top .45s ease;z-index:-1}.soc:hover::before,.soc:focus-visible::before{top:0}.soc:hover,.soc:focus-visible{color:#050911;border-color:#00A1FF}.soc svg{display:block;transition:transform .6s ease}.soc:hover svg,.soc:focus-visible svg{transform:rotateY(360deg)}@media (prefers-reduced-motion: reduce){.soc::before,.soc svg{transition:none}}
+a{color:#F2F3F5}a:hover{color:#00A1FF}a:focus-visible{outline:2px solid #00A1FF;outline-offset:-2px}
+</style>
+</helmet>
+<div id="top" ref="{{ setRoot }}" style="position: relative; overflow: hidden; min-height: 844px; box-sizing: border-box; background: #050911; color: #F2F3F5; font-family: Inter, sans-serif; display: flex; flex-direction: column">
+<canvas ref="{{ setCanvas }}" width="600" height="600" role="img" aria-label="Dotted globe that turns to the place behind each menu item and spins as you scroll" style="position: absolute; left: 5vw; top: 150px; width: 90vw; aspect-ratio: 1 / 1; z-index: 0; pointer-events: none"></canvas>
+<div style="position: relative; z-index: 1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 4px 32px; padding: 24px 6vw 24px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 32px; letter-spacing: -0.01em">Anant Gupta</h1>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #A7B2BF">cs @ ualberta · computer vision &amp; geospatial ML</p>
+</div>
+<div style="display: flex; align-items: center; gap: 28px; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em">
+<a href="#" style="text-decoration: none; padding: 12px 0">CV ↗</a>
+</div>
+</div>
+<nav aria-label="Main" style="position: relative; z-index: 1; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-end">
+<a href="AboutMobile.dc.html" onClick="{{ t0 }}" onMouseEnter="{{ h0 }}" onFocus="{{ h0 }}" onMouseLeave="{{ hOff }}" onBlur="{{ hOff }}" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 40px; padding: 4px 6vw; border-top: 1px solid #1C232A; text-decoration: none; color: #F2F3F5">
+<span style="display: flex; align-items: baseline; gap: 20px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: {{r0.num}}">01</span><span style="font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.08; letter-spacing: -0.03em; color: transparent; background-image: linear-gradient(to right, #00A1FF 50%, #F2F3F5 50%); background-size: 200% 100%; background-position: {{r0.pos}}; -webkit-background-clip: text; background-clip: text; transition: background-position 0.55s cubic-bezier(0.65, 0, 0.35, 1)">ABOUT</span></span>
+</a>
+<a href="ProjectsMobile.dc.html" onClick="{{ t1 }}" onMouseEnter="{{ h1 }}" onFocus="{{ h1 }}" onMouseLeave="{{ hOff }}" onBlur="{{ hOff }}" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 40px; padding: 4px 6vw; border-top: 1px solid #1C232A; text-decoration: none; color: #F2F3F5">
+<span style="display: flex; align-items: baseline; gap: 20px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: {{r1.num}}">02</span><span style="font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.08; letter-spacing: -0.03em; color: transparent; background-image: linear-gradient(to right, #00A1FF 50%, #F2F3F5 50%); background-size: 200% 100%; background-position: {{r1.pos}}; -webkit-background-clip: text; background-clip: text; transition: background-position 0.55s cubic-bezier(0.65, 0, 0.35, 1)">PROJECTS</span></span>
+</a>
+<a href="ExperienceMobile.dc.html" onClick="{{ t2 }}" onMouseEnter="{{ h2 }}" onFocus="{{ h2 }}" onMouseLeave="{{ hOff }}" onBlur="{{ hOff }}" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 40px; padding: 4px 6vw; border-top: 1px solid #1C232A; text-decoration: none; color: #F2F3F5">
+<span style="display: flex; align-items: baseline; gap: 20px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: {{r2.num}}">03</span><span style="font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.08; letter-spacing: -0.03em; color: transparent; background-image: linear-gradient(to right, #00A1FF 50%, #F2F3F5 50%); background-size: 200% 100%; background-position: {{r2.pos}}; -webkit-background-clip: text; background-clip: text; transition: background-position 0.55s cubic-bezier(0.65, 0, 0.35, 1)">EXPERIENCE</span></span>
+</a>
+<a href="ContactMobile.dc.html" onClick="{{ t3 }}" onMouseEnter="{{ h3 }}" onFocus="{{ h3 }}" onMouseLeave="{{ hOff }}" onBlur="{{ hOff }}" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 40px; padding: 4px 6vw; border-top: 1px solid #1C232A; text-decoration: none; color: #F2F3F5">
+<span style="display: flex; align-items: baseline; gap: 20px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: {{r3.num}}">04</span><span style="font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.08; letter-spacing: -0.03em; color: transparent; background-image: linear-gradient(to right, #00A1FF 50%, #F2F3F5 50%); background-size: 200% 100%; background-position: {{r3.pos}}; -webkit-background-clip: text; background-clip: text; transition: background-position 0.55s cubic-bezier(0.65, 0, 0.35, 1)">CONTACT</span></span>
+</a>
+<span style="padding: 14px 6vw; border-top: 1px solid #1C232A; border-bottom: 1px solid #1C232A; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: #A7B2BF">TAP ONCE TO AIM · TAP AGAIN TO OPEN</span>
+</nav>
+<footer style="position: relative; z-index: 1; background: #050911; border-top: 1px solid #1C232A; padding: 28px 6vw 32px; display: flex; flex-direction: column; align-items: center; gap: 18px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #A7B2BF">
+<nav aria-label="Social links" style="display: flex; gap: 16px">
+<a class="soc" href="mailto:guptaanantt4@gmail.com" aria-label="Email"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><polyline points="3 7 12 13 21 7"></polyline></svg></a>
+<a class="soc" href="https://github.com/anantguptaa" aria-label="GitHub"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>
+<a class="soc" href="https://linkedin.com/in/anantgupta04" aria-label="LinkedIn"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
+<a class="soc" href="#" aria-label="CV (PDF)"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></a>
+</nav>
+<span>© 2026 ANANT GUPTA · UPDATED NOV 2026</span>
+</footer>
+<div ref="{{ setCursor }}" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; background: #00A1FF; pointer-events: none; z-index: 50; opacity: 0; transition: opacity 0.2s, width 0.2s, height 0.2s, margin 0.2s, background-color 0.2s"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+moveCursor(e) {
+const c = this.cursorEl, root = this.rootEl;
+if (!c || !root) return;
+if (window.matchMedia && !window.matchMedia('(pointer: fine)').matches) return;
+const r = root.getBoundingClientRect();
+const s = (r.width / root.offsetWidth) || 1;
+c.style.transform = 'translate(' + ((e.clientX - r.left) / s) + 'px,' + ((e.clientY - r.top) / s) + 'px)';
+const t = e.target && e.target.closest ? e.target : null;
+const hot = !!(t && t.closest('a,button,input,label'));
+const dark = !!(t && t.closest('[data-cursor-dark]'));
+c.style.opacity = hot ? '0.55' : '1';
+c.style.width = c.style.height = hot ? '56px' : '28px';
+c.style.marginLeft = c.style.marginTop = hot ? '-28px' : '-14px';
+c.style.backgroundColor = dark ? '#050911' : '#00A1FF';
+}
+hideCursor() { if (this.cursorEl) this.cursorEl.style.opacity = '0'; }
+scrollSpin() {
+if (this.reduce || !this.canvas) return 0;
+const top = this.canvas.getBoundingClientRect().top;
+if (this.top0 == null) this.top0 = top;
+const t = (this.top0 - top) * 0.25;
+this.spin = (this.spin || 0) + (t - (this.spin || 0)) * 0.12;
+return this.spin;
+}
+places() {
+return {
+home: { lat: 89.9, lon: 0, label: '90.00°N 0.00°E · NORTH POLE' },
+projects: { lat: 41.88, lon: -93.1, label: '41.88°N 93.10°W · NAIP FARMLAND' },
+experience: { lat: 53.52, lon: -113.53, label: '53.52°N 113.53°W · EDMONTON' },
+contact: { lat: -48.88, lon: -123.39, label: '48.88°S 123.39°W · POINT NEMO' }
+};
+}
+key() { return (this.state && this.state.key) || 'home'; }
+componentDidMount() {
+this.cur = { lat: 89.9, lon: 0 };
+this.reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+this.LAND = [[11,15],[6,16,19,20,23,23,26,29],[0,11,13,14,16,16,18,35],[2,2,5,12,17,34],[5,11,17,32],[5,10,17,32],[7,9,16,30],[8,9,16,23,25,26,28,30],[10,12,17,22,26,29],[10,14,19,21,28,33],[10,14,19,22,30,32],[11,13,19,22,29,33],[10,12,19,20,29,33,35,35],[10,11,32,32,34,35],[11,11],[11,12,22,33],[0,35],[0,35]];
+const tick = () => { this.draw(); this.raf = requestAnimationFrame(tick); };
+this.raf = requestAnimationFrame(tick);
+}
+componentWillUnmount() { cancelAnimationFrame(this.raf); }
+land(lat, lon) {
+const r = Math.min(17, Math.max(0, Math.floor((90 - lat) / 10)));
+const c = ((Math.floor((lon + 180) / 10) % 36) + 36) % 36;
+const row = this.LAND[r];
+for (let i = 0; i < row.length; i += 2) { if (c >= row[i] && c <= row[i + 1]) return true; }
+return false;
+}
+draw() {
+const cv = this.canvas;
+if (!cv || !this.cur) return;
+const ctx = cv.getContext('2d');
+const tgt = this.places()[this.key()];
+const k = this.reduce ? 1 : 0.07;
+const dl = ((tgt.lon - this.cur.lon + 540) % 360) - 180;
+this.cur.lon += dl * k;
+this.cur.lat += (tgt.lat - this.cur.lat) * k;
+const W = cv.width, R = W * 0.46, cx = W / 2, cy = W / 2, d = Math.PI / 180, TAU = Math.PI * 2;
+const la0 = this.cur.lat * d, lo0 = (this.cur.lon + this.scrollSpin()) * d, s0 = Math.sin(la0), c0 = Math.cos(la0);
+ctx.clearRect(0, 0, W, W);
+ctx.globalAlpha = 1;
+ctx.beginPath(); ctx.arc(cx, cy, R + 6, 0, TAU); ctx.strokeStyle = '#1C232A'; ctx.lineWidth = 2; ctx.stroke();
+for (let lat = -87; lat <= 87; lat += 3) {
+const cl = Math.cos(lat * d), sl = Math.sin(lat * d);
+const n = Math.max(1, Math.round(120 * cl));
+for (let j = 0; j < n; j++) {
+const lon = -180 + 360 * j / n, dlon = lon * d - lo0;
+const z = s0 * sl + c0 * cl * Math.cos(dlon);
+if (z <= 0.02) continue;
+const x = cl * Math.sin(dlon), y = c0 * sl - s0 * cl * Math.cos(dlon);
+const isLand = this.land(lat, lon);
+ctx.globalAlpha = isLand ? 0.25 + 0.6 * z : 0.08 + 0.12 * z;
+ctx.fillStyle = isLand ? '#F2F3F5' : '#A7B2BF';
+ctx.beginPath(); ctx.arc(cx + R * x, cy - R * y, (isLand ? 2.2 : 1.4) * (0.6 + 0.4 * z), 0, TAU); ctx.fill();
+}
+}
+const tl = tgt.lat * d, tdl = tgt.lon * d - lo0;
+const tz = s0 * Math.sin(tl) + c0 * Math.cos(tl) * Math.cos(tdl);
+if (tz > 0.05) {
+const px = cx + R * Math.cos(tl) * Math.sin(tdl), py = cy - R * (c0 * Math.sin(tl) - s0 * Math.cos(tl) * Math.cos(tdl));
+const p = this.reduce ? 0.5 : (performance.now() % 1800) / 1800;
+ctx.globalAlpha = 1; ctx.fillStyle = '#00A1FF';
+ctx.beginPath(); ctx.arc(px, py, 9, 0, TAU); ctx.fill();
+ctx.globalAlpha = 1 - p; ctx.strokeStyle = '#00A1FF'; ctx.lineWidth = 3;
+ctx.beginPath(); ctx.arc(px, py, 14 + 40 * p, 0, TAU); ctx.stroke();
+const settle = Math.max(0, 1 - (Math.abs(dl) + Math.abs(tgt.lat - this.cur.lat)) / 8);
+if (settle > 0.01) {
+ctx.font = '500 22px "JetBrains Mono", monospace';
+ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+const tw = ctx.measureText(tgt.label).width;
+const lx = Math.min(W - tw / 2 - 16, Math.max(tw / 2 + 16, px));
+const ly = py - 62;
+ctx.globalAlpha = settle * 0.85; ctx.fillStyle = '#050911';
+ctx.fillRect(lx - tw / 2 - 14, ly - 22, tw + 28, 44);
+ctx.globalAlpha = settle; ctx.fillStyle = '#F2F3F5';
+ctx.fillText(tgt.label, lx, ly + 1);
+ctx.strokeStyle = '#00A1FF'; ctx.lineWidth = 2;
+ctx.beginPath(); ctx.moveTo(px, ly + 22); ctx.lineTo(px, py - 14); ctx.stroke();
+}
+ctx.globalAlpha = 1;
+}
+}
+renderVals() {
+const keys = ['home', 'projects', 'experience', 'contact'];
+const hv = this.state && this.state.hover;
+const row = (i) => {
+const on = hv === keys[i];
+return { pos: on ? '0% 0' : '100% 0', num: on ? '#00A1FF' : '#A7B2BF' };
+};
+const go = (key) => () => this.setState({ key: key, hover: key });
+const tap = (key) => (e) => { if (!this.state || this.state.armed !== key) { e.preventDefault(); this.setState({ key: key, hover: key, armed: key }); } };
+return {
+r0: row(0), r1: row(1), r2: row(2), r3: row(3),
+h0: go('home'), h1: go('projects'), h2: go('experience'), h3: go('contact'),
+hOff: () => {},
+t0: tap('home'), t1: tap('projects'), t2: tap('experience'), t3: tap('contact'),
+setCanvas: (el) => { if (el) this.canvas = el; },
+setRoot: (el) => { if (el) this.rootEl = el; },
+setCursor: (el) => { if (el) this.cursorEl = el; },
+onCursorMove: (e) => this.moveCursor(e),
+onCursorLeave: () => this.hideCursor()
+};
+}
+}
+</script>
+</body>
+</html>

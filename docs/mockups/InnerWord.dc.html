@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Between pages: word becomes the title, globe follows</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#050911}
+@font-face{font-family:'TeX Gyre Adventor';src:url('fonts/TeXGyreAdventor-Bold.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+.soc{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1px solid #30343D;color:#F2F3F5;text-decoration:none;transition:border-color .4s,color .4s}.soc::before{content:'';position:absolute;left:0;top:100%;width:100%;height:100%;background:#00A1FF;transition:top .45s ease;z-index:-1}.soc:hover::before,.soc:focus-visible::before{top:0}.soc:hover,.soc:focus-visible{color:#050911;border-color:#00A1FF}.soc svg{display:block;transition:transform .6s ease}.soc:hover svg,.soc:focus-visible svg{transform:rotateY(360deg)}@media (prefers-reduced-motion: reduce){.soc::before,.soc svg{transition:none}}
+@media (pointer: fine){body,a,button,input,label{cursor:none}}
+a{color:#F2F3F5}a:hover{color:#00A1FF}a:focus-visible{outline:2px solid #00A1FF;outline-offset:-2px}
+</style>
+</helmet>
+<div id="top" ref="{{ setRoot }}" onMouseMove="{{ onCursorMove }}" onMouseLeave="{{ onCursorLeave }}" style="position: relative; overflow: hidden; min-height: 920px; box-sizing: border-box; background: #050911; color: #F2F3F5; font-family: Inter, sans-serif; display: flex; flex-direction: column">
+<canvas ref="{{ setCanvas }}" width="1040" height="1040" role="img" aria-label="Dotted globe that turns to each page's location" style="position: absolute; right: 5vw; top: 80px; width: min(520px, 60vw); aspect-ratio: 1 / 1; z-index: 0; pointer-events: none; transform-origin: 50% 50%; transform: {{cv.tf}}; transition: {{cv.tr}}"></canvas>
+<header style="position: relative; z-index: 2; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 24px; padding: 16px 6vw; border-bottom: 1px solid #1C232A">
+<a href="Main.dc.html" style="font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; text-decoration: none; padding: 12px 0">Anant Gupta</a>
+<nav aria-label="Pages" style="display: flex; flex-wrap: wrap; gap: 0 28px; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em">
+<a href="About.dc.html" style="text-decoration: none; padding: 14px 0">ABOUT</a>
+<a href="#" onClick="{{ goP }}" style="text-decoration: none; padding: 14px 0; color: {{nP}}"><span ref="{{ setNavP }}">PROJECTS</span></a>
+<a href="#" onClick="{{ goE }}" style="text-decoration: none; padding: 14px 0; color: {{nE}}"><span ref="{{ setNavE }}">EXPERIENCE</span></a>
+<a href="Contact.dc.html" style="text-decoration: none; padding: 14px 0">CONTACT</a>
+</nav>
+</header>
+<div style="position: relative; z-index: 1; flex-grow: 1">
+<section style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; padding: 56px 6vw 0; opacity: {{LP.op}}; transform: {{LP.tf}}; transition: {{LP.tr}}; pointer-events: {{LP.pe}}">
+<div style="max-width: 520px; display: flex; flex-direction: column; gap: 16px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #00A1FF; letter-spacing: 0.1em">MISSION INDEX</span>
+<h1 ref="{{ setTitleP }}" style="margin: 0; align-self: flex-start; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 56px; line-height: 1.08; letter-spacing: -0.03em; opacity: {{tP}}">PROJECTS</h1>
+<p style="margin: 0; font-size: 18px; line-height: 1.55; color: #A7B2BF">Each project is pinned on the globe where its data comes from.</p>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #00A1FF; letter-spacing: 0.06em">[41.88°N 93.10°W] · USA_FIELDS</span>
+</div>
+<div style="margin-top: 130px; display: flex; flex-wrap: wrap; gap: 24px">
+<article style="flex: 1 1 240px; background: #090D12; border: 1px solid #1C232A; border-radius: 6px; padding: 22px; display: flex; flex-direction: column; gap: 10px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A7B2BF; letter-spacing: 0.08em">01 · [41.88°N 93.10°W]</span><h2 style="margin: 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px">USA_FIELDS</h2><p style="margin: 0; font-size: 14px; line-height: 1.5; color: #A7B2BF">Field segmentation from aerial imagery with DINOv3 ConvNeXt encoders.</p><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.04em">0.896 test mIoU</span></article>
+<article style="flex: 1 1 240px; background: #090D12; border: 1px solid #1C232A; border-radius: 6px; padding: 22px; display: flex; flex-direction: column; gap: 10px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A7B2BF; letter-spacing: 0.08em">02 · 47.32°N 5.04°E</span><h2 style="margin: 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px">Computer Vision Coursework</h2><p style="margin: 0; font-size: 14px; line-height: 1.5; color: #A7B2BF">U-Net cardiac MRI segmentation, YOLOv8, GANs and diffusion models.</p><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.04em">0.902 IoU · 0.98 mAP@0.5</span></article>
+<article style="flex: 1 1 240px; background: #090D12; border: 1px solid #1C232A; border-radius: 6px; padding: 22px; display: flex; flex-direction: column; gap: 10px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A7B2BF; letter-spacing: 0.08em">03 · 53.55°N 113.49°W</span><h2 style="margin: 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px">EDSS Navigator</h2><p style="margin: 0; font-size: 14px; line-height: 1.5; color: #A7B2BF">Cross-platform app for the Edmonton Down Syndrome Society.</p><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.04em">65+ of 142 tests written</span></article>
+<article style="flex: 1 1 240px; background: #090D12; border: 1px solid #1C232A; border-radius: 6px; padding: 22px; display: flex; flex-direction: column; gap: 10px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A7B2BF; letter-spacing: 0.08em">04 · 53.52°N 113.53°W</span><h2 style="margin: 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px">pLUCK</h2><p style="margin: 0; font-size: 14px; line-height: 1.5; color: #A7B2BF">Android event lottery app, built by a team of six.</p><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.04em">50 automated UI tests</span></article>
+</div>
+</section>
+<section style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; padding: 56px 6vw 0; opacity: {{LE.op}}; transform: {{LE.tf}}; transition: {{LE.tr}}; pointer-events: {{LE.pe}}">
+<div style="max-width: 520px; display: flex; flex-direction: column; gap: 16px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #00A1FF; letter-spacing: 0.1em">FLIGHT LOG</span>
+<h1 ref="{{ setTitleE }}" style="margin: 0; align-self: flex-start; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 56px; line-height: 1.08; letter-spacing: -0.03em; opacity: {{tE}}">EXPERIENCE</h1>
+<p style="margin: 0; font-size: 18px; line-height: 1.55; color: #A7B2BF">Hover a role to see where it happened.</p>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #00A1FF; letter-spacing: 0.06em">53.52°N 113.53°W · EDMONTON</span>
+</div>
+<div style="margin-top: 130px; display: flex; flex-direction: column; border-bottom: 1px solid #1C232A">
+<article style="display: flex; flex-wrap: wrap; gap: 8px 40px; padding: 22px 0; border-top: 1px solid #1C232A; background: #050911"><span style="flex: 0 0 200px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #00A1FF; letter-spacing: 0.06em">MAY 2026 – PRESENT</span><span style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 6px"><span style="font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px">Research Assistant</span><span style="font-size: 15px; color: #A7B2BF">Multimedia Research Centre, University of Alberta</span></span></article>
+<article style="display: flex; flex-wrap: wrap; gap: 8px 40px; padding: 22px 0; border-top: 1px solid #1C232A; background: #050911"><span style="flex: 0 0 200px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #00A1FF; letter-spacing: 0.06em">JUN 2026 – PRESENT</span><span style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 6px"><span style="font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px">Freelance Web Designer &amp; Developer</span><span style="font-size: 15px; color: #A7B2BF">Independent</span></span></article>
+<article style="display: flex; flex-wrap: wrap; gap: 8px 40px; padding: 22px 0; border-top: 1px solid #1C232A; background: #050911"><span style="flex: 0 0 200px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #00A1FF; letter-spacing: 0.06em">MAY – AUG 2025</span><span style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 6px"><span style="font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px">Machine Learning Intern</span><span style="font-size: 15px; color: #A7B2BF">Instant Systems Inc. · Noida, India</span></span></article>
+</div>
+</section>
+</div>
+<div ref="{{ setFlyP }}" aria-hidden="true" style="position: absolute; left: 0; top: 0; z-index: 20; pointer-events: none; opacity: 0; white-space: nowrap; transform-origin: 0 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 56px; line-height: 1.08; letter-spacing: -0.03em; color: #00A1FF">PROJECTS</div>
+<div ref="{{ setFlyE }}" aria-hidden="true" style="position: absolute; left: 0; top: 0; z-index: 20; pointer-events: none; opacity: 0; white-space: nowrap; transform-origin: 0 0; font-family: 'TeX Gyre Adventor', 'Space Grotesk', sans-serif; font-weight: 700; font-size: 56px; line-height: 1.08; letter-spacing: -0.03em; color: #00A1FF">EXPERIENCE</div>
+<div ref="{{ setCursor }}" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; background: #00A1FF; pointer-events: none; z-index: 50; opacity: 0; transition: opacity 0.2s, width 0.2s, height 0.2s, margin 0.2s, background-color 0.2s"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":920}}'>
+class Component extends DCLogic {
+fly(fromEl, toEl, f, done) {
+const root = this.rootEl;
+if (!root || !f || !fromEl || !toEl || this.reduce) { done(); return; }
+const rr = root.getBoundingClientRect(), s = (rr.width / root.offsetWidth) || 1;
+const a = fromEl.getBoundingClientRect(), b = toEl.getBoundingClientRect();
+f.style.transition = 'none'; f.style.color = '#00A1FF';
+f.style.transform = 'translate(' + ((a.left - rr.left) / s) + 'px,' + ((a.top - rr.top) / s) + 'px) scale(' + (a.height / b.height) + ')';
+f.style.opacity = '1';
+f.getBoundingClientRect();
+f.style.transition = 'transform 0.8s cubic-bezier(0.65,0,0.35,1), color 0.8s';
+f.style.color = '#F2F3F5';
+f.style.transform = 'translate(' + ((b.left - rr.left) / s) + 'px,' + ((b.top - rr.top) / s) + 'px) scale(1)';
+clearTimeout(this.flyT);
+this.flyT = setTimeout(() => { done(); f.style.opacity = '0'; }, 830);
+}
+goTo(k) {
+if (this.key() === k) return;
+if (1 === 1) {
+this.setState({ page: k, hidden: k });
+this.fly(this.nav[k], this.title[k], this.flyEls[k], () => this.setState({ hidden: null }));
+} else if (1 === 3 && !this.reduce) {
+this.setState({ page: k, phase: 'dip' });
+clearTimeout(this.t1);
+this.t1 = setTimeout(() => this.setState({ phase: 'rest' }), 420);
+} else {
+this.setState({ page: k });
+}
+}
+moveCursor(e) {
+const c = this.cursorEl, root = this.rootEl;
+if (!c || !root) return;
+if (window.matchMedia && !window.matchMedia('(pointer: fine)').matches) return;
+const r = root.getBoundingClientRect();
+const s = (r.width / root.offsetWidth) || 1;
+c.style.transform = 'translate(' + ((e.clientX - r.left) / s) + 'px,' + ((e.clientY - r.top) / s) + 'px)';
+const t = e.target && e.target.closest ? e.target : null;
+const hot = !!(t && t.closest('a,button,input,label'));
+const dark = !!(t && t.closest('[data-cursor-dark]'));
+c.style.opacity = hot ? '0.55' : '1';
+c.style.width = c.style.height = hot ? '56px' : '28px';
+c.style.marginLeft = c.style.marginTop = hot ? '-28px' : '-14px';
+c.style.backgroundColor = dark ? '#050911' : '#00A1FF';
+}
+hideCursor() { if (this.cursorEl) this.cursorEl.style.opacity = '0'; }
+scrollSpin() {
+if (this.reduce || !this.canvas) return 0;
+const top = this.canvas.getBoundingClientRect().top;
+if (this.top0 == null) this.top0 = top;
+const t = (this.top0 - top) * 0.25;
+this.spin = (this.spin || 0) + (t - (this.spin || 0)) * 0.12;
+return this.spin;
+}
+places() {
+return {
+P: { lat: 41.88, lon: -93.1, label: '41.88°N 93.10°W · NAIP FARMLAND' },
+E: { lat: 53.52, lon: -113.53, label: '53.52°N 113.53°W · EDMONTON' }
+};
+}
+key() { return (this.state && this.state.page) || 'P'; }
+componentDidMount() {
+this.cur = { lat: 41.88, lon: -93.1 };
+this.reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+this.LAND = [[11,15],[6,16,19,20,23,23,26,29],[0,11,13,14,16,16,18,35],[2,2,5,12,17,34],[5,11,17,32],[5,10,17,32],[7,9,16,30],[8,9,16,23,25,26,28,30],[10,12,17,22,26,29],[10,14,19,21,28,33],[10,14,19,22,30,32],[11,13,19,22,29,33],[10,12,19,20,29,33,35,35],[10,11,32,32,34,35],[11,11],[11,12,22,33],[0,35],[0,35]];
+const tick = () => { this.draw(); this.raf = requestAnimationFrame(tick); };
+this.raf = requestAnimationFrame(tick);
+}
+componentWillUnmount() { cancelAnimationFrame(this.raf); clearTimeout(this.t1); clearTimeout(this.flyT); }
+land(lat, lon) {
+const r = Math.min(17, Math.max(0, Math.floor((90 - lat) / 10)));
+const c = ((Math.floor((lon + 180) / 10) % 36) + 36) % 36;
+const row = this.LAND[r];
+for (let i = 0; i < row.length; i += 2) { if (c >= row[i] && c <= row[i + 1]) return true; }
+return false;
+}
+draw() {
+const cv = this.canvas;
+if (!cv || !this.cur) return;
+const ctx = cv.getContext('2d');
+const tgt = this.places()[this.key()];
+const k = this.reduce ? 1 : 0.07;
+const dl = ((tgt.lon - this.cur.lon + 540) % 360) - 180;
+this.cur.lon += dl * k;
+this.cur.lat += (tgt.lat - this.cur.lat) * k;
+const W = cv.width, R = W * 0.46, cx = W / 2, cy = W / 2, d = Math.PI / 180, TAU = Math.PI * 2;
+const la0 = this.cur.lat * d, lo0 = (this.cur.lon + this.scrollSpin()) * d, s0 = Math.sin(la0), c0 = Math.cos(la0);
+ctx.clearRect(0, 0, W, W);
+ctx.globalAlpha = 1;
+ctx.beginPath(); ctx.arc(cx, cy, R + 6, 0, TAU); ctx.strokeStyle = '#1C232A'; ctx.lineWidth = 2; ctx.stroke();
+for (let lat = -87; lat <= 87; lat += 3) {
+const cl = Math.cos(lat * d), sl = Math.sin(lat * d);
+const n = Math.max(1, Math.round(120 * cl));
+for (let j = 0; j < n; j++) {
+const lon = -180 + 360 * j / n, dlon = lon * d - lo0;
+const z = s0 * sl + c0 * cl * Math.cos(dlon);
+if (z <= 0.02) continue;
+const x = cl * Math.sin(dlon), y = c0 * sl - s0 * cl * Math.cos(dlon);
+const isLand = this.land(lat, lon);
+ctx.globalAlpha = isLand ? 0.25 + 0.6 * z : 0.08 + 0.12 * z;
+ctx.fillStyle = isLand ? '#F2F3F5' : '#A7B2BF';
+ctx.beginPath(); ctx.arc(cx + R * x, cy - R * y, (isLand ? 3.6 : 2.2) * (0.6 + 0.4 * z), 0, TAU); ctx.fill();
+}
+}
+const tl = tgt.lat * d, tdl = tgt.lon * d - lo0;
+const tz = s0 * Math.sin(tl) + c0 * Math.cos(tl) * Math.cos(tdl);
+if (tz > 0.05) {
+const px = cx + R * Math.cos(tl) * Math.sin(tdl), py = cy - R * (c0 * Math.sin(tl) - s0 * Math.cos(tl) * Math.cos(tdl));
+const p = this.reduce ? 0.5 : (performance.now() % 1800) / 1800;
+ctx.globalAlpha = 1; ctx.fillStyle = '#00A1FF';
+ctx.beginPath(); ctx.arc(px, py, 9, 0, TAU); ctx.fill();
+ctx.globalAlpha = 1 - p; ctx.strokeStyle = '#00A1FF'; ctx.lineWidth = 3;
+ctx.beginPath(); ctx.arc(px, py, 14 + 40 * p, 0, TAU); ctx.stroke();
+const settle = Math.max(0, 1 - (Math.abs(dl) + Math.abs(tgt.lat - this.cur.lat)) / 8);
+if (settle > 0.01) {
+ctx.font = '500 24px "JetBrains Mono", monospace';
+ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+const tw = ctx.measureText(tgt.label).width;
+const lx = Math.min(W - tw / 2 - 16, Math.max(tw / 2 + 16, px));
+const ly = py - 62;
+ctx.globalAlpha = settle * 0.85; ctx.fillStyle = '#050911';
+ctx.fillRect(lx - tw / 2 - 14, ly - 22, tw + 28, 44);
+ctx.globalAlpha = settle; ctx.fillStyle = '#F2F3F5';
+ctx.fillText(tgt.label, lx, ly + 1);
+ctx.strokeStyle = '#00A1FF'; ctx.lineWidth = 2;
+ctx.beginPath(); ctx.moveTo(px, ly + 22); ctx.lineTo(px, py - 14); ctx.stroke();
+}
+ctx.globalAlpha = 1;
+}
+}
+renderVals() {
+const pg = this.key(), ph = (this.state && this.state.phase) || 'rest', hid = this.state && this.state.hidden;
+this.nav = this.nav || {}; this.title = this.title || {}; this.flyEls = this.flyEls || {};
+const layer = (k) => pg === k ? { op: 1, tf: 'none', tr: 'opacity 0.45s 0.3s', pe: 'auto' } : { op: 0, tf: 'none', tr: 'opacity 0.25s', pe: 'none' };
+const cv = { tf: pg === 'E' ? 'translate(-5vw,30px) scale(0.86)' : 'none', tr: 'transform 0.9s cubic-bezier(0.65,0,0.35,1)' };
+return {
+cv: cv, LP: layer('P'), LE: layer('E'),
+nP: pg === 'P' ? '#00A1FF' : '#F2F3F5', nE: pg === 'E' ? '#00A1FF' : '#F2F3F5',
+tP: hid === 'P' ? 0 : 1, tE: hid === 'E' ? 0 : 1,
+goP: (e) => { e.preventDefault(); this.goTo('P'); }, goE: (e) => { e.preventDefault(); this.goTo('E'); },
+setNavP: (el) => { if (el) this.nav.P = el; }, setNavE: (el) => { if (el) this.nav.E = el; },
+setTitleP: (el) => { if (el) this.title.P = el; }, setTitleE: (el) => { if (el) this.title.E = el; },
+setFlyP: (el) => { if (el) this.flyEls.P = el; }, setFlyE: (el) => { if (el) this.flyEls.E = el; },
+setCanvas: (el) => { if (el) this.canvas = el; },
+setRoot: (el) => { if (el) this.rootEl = el; },
+setCursor: (el) => { if (el) this.cursorEl = el; },
+onCursorMove: (e) => this.moveCursor(e),
+onCursorLeave: () => this.hideCursor()
+};
+}
+}
+</script>
+</body>
+</html>
