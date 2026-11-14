@@ -262,30 +262,6 @@ const globe = await projectsPins();
 
   /* ---------- Desktop ---------- */
   @media (min-width: 768px) {
-    /* How far the cards rise over the globe's faded bottom. */
-    .page {
-      --overlap: 150px;
-    }
-
-    .hero {
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0 var(--space-12);
-    }
-
-    .hero :global(.globe-slot) {
-      order: 0;
-    }
-
-    /* Bottom padding = the overlap, so the cards can only ever cover the globe, never the text. */
-    .intro {
-      flex: 1 1 380px;
-      padding-block: var(--space-16) calc(var(--overlap) + var(--space-6));
-      position: relative;
-      z-index: 1;
-    }
-
     .lede {
       font-size: var(--fs-body);
     }
@@ -300,14 +276,10 @@ const globe = await projectsPins();
       display: flex;
     }
 
-    /* Cards rise over the globe's faded bottom, as in the mockup. */
     .cards {
-      position: relative;
-      z-index: 1;
       flex-direction: row;
       flex-wrap: wrap;
       gap: var(--space-6);
-      margin-top: calc(-1 * var(--overlap));
     }
 
     .cards > :global(.card) {
@@ -348,6 +320,42 @@ const globe = await projectsPins();
       flex-wrap: wrap;
       align-items: baseline;
       gap: var(--space-1) var(--space-4);
+    }
+  }
+
+  /* ---------- Globe beside the title (1100px and wider) ----------
+     Below 1100px inner pages keep the phone layout for the globe: the 250px strip under
+     the header, with the content below it. Everything else switches at 768px as usual. */
+  @media (min-width: 1100px) {
+    /* How far the cards rise over the globe's faded bottom. */
+    .page {
+      --overlap: 150px;
+    }
+
+    /* Cards rise over the globe's faded bottom, as in the mockup. */
+    .cards {
+      position: relative;
+      z-index: 1;
+      margin-top: calc(-1 * var(--overlap));
+    }
+
+    .hero {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0 var(--space-12);
+    }
+
+    .hero :global(.globe-slot) {
+      order: 0;
+    }
+
+    /* Bottom padding = the overlap, so the cards can only ever cover the globe, never the text. */
+    .intro {
+      flex: 1 1 380px;
+      padding-block: var(--space-16) calc(var(--overlap) + var(--space-6));
+      position: relative;
+      z-index: 1;
     }
   }
 </style>

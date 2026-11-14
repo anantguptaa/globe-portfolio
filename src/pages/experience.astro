@@ -173,6 +173,30 @@ const globe = await experiencePins();
 
   /* ---------- Desktop ---------- */
   @media (min-width: 768px) {
+    .lede {
+      font-size: var(--fs-body);
+    }
+
+    .lede-desktop {
+      display: block;
+    }
+    .lede-mobile {
+      display: none;
+    }
+    .readout {
+      display: flex;
+    }
+
+    .cv-button {
+      align-self: flex-start;
+      margin-top: var(--space-12);
+    }
+  }
+
+  /* ---------- Globe beside the title (1100px and wider) ----------
+     Below 1100px inner pages keep the phone layout for the globe: the 250px strip under
+     the header, with the content below it. Everything else switches at 768px as usual. */
+  @media (min-width: 1100px) {
     .hero {
       flex-direction: row;
       flex-wrap: wrap;
@@ -191,20 +215,6 @@ const globe = await experiencePins();
       z-index: 1;
     }
 
-    .lede {
-      font-size: var(--fs-body);
-    }
-
-    .lede-desktop {
-      display: block;
-    }
-    .lede-mobile {
-      display: none;
-    }
-    .readout {
-      display: flex;
-    }
-
     /* The list rises over the globe's faded bottom, as in the mockup. */
     .roles {
       position: relative;
@@ -212,11 +222,6 @@ const globe = await experiencePins();
       margin-top: -130px;
       padding-top: var(--space-10);
       background: linear-gradient(to bottom, transparent, var(--bg) 120px);
-    }
-
-    .cv-button {
-      align-self: flex-start;
-      margin-top: var(--space-12);
     }
   }
 </style>

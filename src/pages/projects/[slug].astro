@@ -361,24 +361,6 @@ const { Content } = await render(project);
       gap: var(--space-16);
     }
 
-    .hero {
-      flex-direction: row;
-      align-items: center;
-      gap: var(--space-12);
-    }
-
-    .hero :global(.globe-slot) {
-      order: 0;
-    }
-
-    .intro {
-      flex: 1 1 0;
-      min-width: 0;
-      padding-top: var(--space-10);
-      position: relative;
-      z-index: 1;
-    }
-
     .eyebrow-coords {
       display: inline;
     }
@@ -396,6 +378,29 @@ const { Content } = await render(project);
 
     .links li {
       flex: 0 0 auto;
+    }
+  }
+
+  /* ---------- Globe beside the title (1100px and wider) ----------
+     Below 1100px inner pages keep the phone layout for the globe: the 250px strip under
+     the header, with the content below it. Everything else switches at 768px as usual. */
+  @media (min-width: 1100px) {
+    .hero {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-12);
+    }
+
+    .hero :global(.globe-slot) {
+      order: 0;
+    }
+
+    .intro {
+      flex: 1 1 0;
+      min-width: 0;
+      padding-top: var(--space-10);
+      position: relative;
+      z-index: 1;
     }
   }
 </style>

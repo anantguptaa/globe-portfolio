@@ -110,7 +110,7 @@ Two layouts: desktop at 768px and wider, mobile below it. Design and test at 144
 | ------------- | --------------------------------------------------- | ------------------------------------------------- |
 | Content width | Full width, 6vw sides                               | Max 1100–1280px, centred                          |
 | Header        | Name, then 4 links on one line                      | Name left, 4 links right                          |
-| Globe         | 250px strip under the header, faded at its bottom   | Large, beside the page title, fading into content |
+| Globe         | 250px strip under the header, faded at its bottom   | Large, beside the page title, fading into content; inner pages keep the 250px strip up to 1100px |
 | Lists         | Tap-to-expand rows (roles, lifecycle, other builds) | Everything open                                   |
 | Hover effects | Replaced by tap states                              | Colour wipe, card highlight, icon fill            |
 | Cursor        | System default                                      | Blue dot cursor                                   |

@@ -10,8 +10,10 @@
  *  - the area you can drag to turn the globe.
  *
  * Placement:
- *  - page    mobile: a 250px full-width strip under the header, faded at the bottom.
- *            desktop: a square beside the page title (size px), fading into the content.
+ *  - page    below 1100px: a 250px full-width strip under the header, faded at the bottom.
+ *            1100px and wider: a square beside the page title (size px), fading into the content.
+ *            (Inner pages keep the strip up to 1100px, past the usual 768px breakpoint: beside
+ *            the title there isn't room for both until then.)
  *  - landing large, behind the menu: below the header on mobile, off the right edge on desktop.
  * The fade (mask-image) and clipping set here are copied onto the live globe's window.
  */
@@ -90,8 +92,8 @@ const alt = activePin ? `Dotted globe pinned at ${activePin.label}` : 'Dotted gl
     }
   }
 
-  /* ---------- Page: desktop ---------- */
-  @media (min-width: 768px) {
+  /* ---------- Page: beside the title, 1100px and wider ---------- */
+  @media (min-width: 1100px) {
     .globe-slot.page {
       flex: 0 1 var(--slot-size);
       width: min(var(--slot-size), 86vw);

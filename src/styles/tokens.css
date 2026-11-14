@@ -88,8 +88,10 @@
   --ease-zoom-in: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* ---------- Breakpoint (reference only: CSS vars can't be used in @media) ----------
-     Desktop layout from 768px wide; mobile below. */
+  /* ---------- Breakpoints (reference only: CSS vars can't be used in @media) ----------
+     Desktop layout from 768px wide; mobile below.
+     Inner pages' globe: 250px strip under the header below 1100px; beside the title from
+     1100px (GlobeSlot.astro and the 1100px block in each inner page). */
 }
 
 @media (min-width: 768px) {
