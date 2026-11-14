@@ -1,0 +1,83 @@
+---
+/**
+ * GlobeStage — the box the globe lives in, with its still image.
+ *
+ * The still (/globe/still-<page>.webp) is ordinary HTML, so it shows at once, without
+ * JavaScript and without WebGL. When the live globe is ready, the loader sets
+ * data-globe="live" and the canvas fades in over the still, which is then hidden.
+ *
+ * Used by the dev test page for now; step 6 puts it in the base layout.
+ */
+export type StillName = 'landing' | 'about' | 'projects' | 'experience' | 'contact';
+
+interface Props {
+  /** Which still to show first. */
+  still: StillName;
+  /** Text alternative, shared by the still image and (later) the live canvas. */
+  label: string;
+  /** Extra classes for sizing the stage from the page. */
+  class?: string;
+  id?: string;
+}
+
+const { still, label, class: className, id } = Astro.props;
+---
+
+<div class:list={['globe-stage', className]} id={id} data-globe-stage>
+  <img
+    class="globe-still"
+    src={`/globe/still-${still}.webp`}
+    alt={label}
+    decoding="async"
+    fetchpriority="high"
+    draggable="false"
+  />
+</div>
+
+<style>
+  .globe-stage {
+    position: relative;
+  }
+
+  /* The still fills the stage. The stills are square screenshots of the live globe at the
+     same framing, so the live globe lands exactly on top of it. */
+  .globe-still {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+  }
+
+  /* The live canvas (added by Globe.ts) starts invisible on top of the still... */
+  .globe-stage :global(canvas.globe-canvas) {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-settle);
+  }
+
+  /* ...and fades in when ready. */
+  .globe-stage[data-globe='live'] :global(canvas.globe-canvas) {
+    opacity: 1;
+  }
+
+  /* Once the fade has finished, hide the still. visibility (not display) can wait for the
+     fade; hidden also removes it from screen readers, so only the canvas is announced. */
+  .globe-stage[data-globe='live'] .globe-still {
+    visibility: hidden;
+    transition: visibility 0s linear var(--dur-base);
+  }
+
+  /* Reduced motion: a quick crossfade instead. */
+  @media (prefers-reduced-motion: reduce) {
+    .globe-stage :global(canvas.globe-canvas) {
+      transition-duration: var(--dur-fast);
+    }
+
+    .globe-stage[data-globe='live'] .globe-still {
+      transition-delay: var(--dur-fast);
+    }
+  }
+</style>

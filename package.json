@@ -12,7 +12,9 @@
     "astro": "astro",
     "check": "astro check",
     "format": "prettier --write .",
-    "globe:mask": "node scripts/build-landmask.mjs"
+    "globe:mask": "node scripts/build-landmask.mjs",
+    "globe:stills": "node scripts/build-stills.mjs",
+    "globe:preview": "GLOBE_TEST_PAGE=1 astro build && GLOBE_TEST_PAGE=1 astro preview"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.10",
@@ -26,6 +28,7 @@
     "@astrojs/check": "^0.9.12",
     "@types/three": "^0.187.0",
     "d3-geo": "^3.1.2",
+    "playwright-core": "^1.65.1",
     "prettier": "^3.10.1",
     "prettier-plugin-astro": "^1.1.2",
     "sharp": "^0.35.5",

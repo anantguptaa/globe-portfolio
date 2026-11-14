@@ -2,7 +2,9 @@
  * Globe — a sphere of dots with pins, drawn with Three.js.
  *
  * Step 5a built the globe; 5b (this file now) adds pins, the label, flyTo and scroll spin.
- * Loading after first paint, pausing off-screen and the still-image fallback come in 5c.
+ * 5c: pauses while off-screen or in a hidden tab, and reports when its first full frame is
+ * drawn (onReady) so the loader can fade it in over the still image. Don't import this file
+ * directly in a page: use ./loader.ts, which loads it after first paint.
  *
  * How it's put together:
  *  - an icosahedron (a ball made of triangles) gives evenly spread points on a sphere;
@@ -19,7 +21,8 @@
  * place on the globe is also reachable as a normal link.
  *
  * Frames are drawn only while something is changing: a flight, a scroll ease, a drag or its
- * momentum, or the active pin's pulse. When everything is still (and always under reduced motion) the loop stops.
+ * momentum, or the active pin's pulse. The loop also stops while the globe is off-screen or
+ * the tab is hidden, and picks up where it left off on return. When everything is still (and always under reduced motion) the loop stops.
  *
  * Public API:
  *   setPins(pins)        replace the pins
@@ -48,7 +51,7 @@ export interface GlobePin {
 }
 
 export interface GlobeOptions {
-  /** Icosahedron detail. Default: 80, or 40 when the window is narrower than 768px. */
+  /** Icosahedron detail. The loader passes 80 or 40 from the device tier (see tier.ts). */
   detail?: number;
   /** 'dim' (default) draws faint ocean dots; 'hidden' draws land only. */
   ocean?: OceanMode;
@@ -62,6 +65,8 @@ export interface GlobeOptions {
   draggable?: boolean;
   /** Called when the globe starts moving (false) and when it comes to rest (true). */
   onSettle?: (settled: boolean) => void;
+  /** Called once, when the land mask has loaded and the first full frame is on screen. */
+  onReady?: () => void;
 }
 
 const RADIUS = 1;
@@ -191,6 +196,8 @@ export class Globe {
   private readonly reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   private readonly scrollSpin: boolean;
   private readonly onSettle?: (settled: boolean) => void;
+  private onReady?: () => void; // cleared once called
+  private readonly intersectionObserver: IntersectionObserver;
   private readonly draggable: boolean;
 
   // The label (HTML) and the text for screen readers.
@@ -216,6 +223,12 @@ export class Globe {
   private settled = true;
   private labelVisible = false;
   private disposed = false;
+
+  // Pausing: the loop stops while off-screen or in a hidden tab.
+  private onScreen = true;
+  private paused = false;
+  private pausedAt = 0;
+  private returnPending = false; // a drift-back was waiting when the globe paused
 
   // Home: where the globe drifts back to after a drag (when no pin is active).
   private homeLat = 0;
@@ -245,18 +258,20 @@ export class Globe {
   /** Throws if WebGL isn't available; the caller decides what to show instead (5c: the still). */
   constructor(container: HTMLElement, options: GlobeOptions = {}) {
     const {
-      detail = window.matchMedia('(max-width: 767.98px)').matches ? 40 : 80,
+      detail = 80,
       ocean = 'dim',
       landMaskUrl = '/globe/landmask.webp',
       label = 'Dotted globe of the Earth',
       scrollSpin = true,
       draggable = true,
       onSettle,
+      onReady,
     } = options;
 
     this.container = container;
     this.scrollSpin = scrollSpin;
     this.onSettle = onSettle;
+    this.onReady = onReady;
     this.draggable = draggable;
 
     // The label is positioned inside the container, so the container must be a positioning box.
@@ -401,6 +416,14 @@ export class Globe {
     }
 
     // ----- Keep the canvas the size of its container -----
+    // ----- Pause while off-screen or while the tab is hidden -----
+    this.intersectionObserver = new IntersectionObserver((entries) => {
+      this.onScreen = entries[entries.length - 1]?.isIntersecting ?? true;
+      this.updatePaused();
+    });
+    this.intersectionObserver.observe(container);
+    document.addEventListener('visibilitychange', this.updatePaused);
+
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(container);
     this.resize();
@@ -457,7 +480,8 @@ export class Globe {
 
   /** Make sure a frame is drawn soon. The loop then keeps itself going while anything is moving. */
   requestRender(): void {
-    if (this.disposed || this.frame) return;
+    // While paused, skip: resuming always draws a fresh frame.
+    if (this.disposed || this.paused || this.frame) return;
     this.frame = requestAnimationFrame(this.tick);
   }
 
@@ -474,6 +498,8 @@ export class Globe {
     this.canvas.removeEventListener('pointercancel', this.handlePointerUp);
     this.canvas.removeEventListener('pointerleave', this.handlePointerLeave);
     this.resizeObserver.disconnect();
+    this.intersectionObserver.disconnect();
+    document.removeEventListener('visibilitychange', this.updatePaused);
     this.points.geometry.dispose();
     this.points.material.dispose();
     this.pinPoints.geometry.dispose();
@@ -495,6 +521,7 @@ export class Globe {
     this.homeLat = lat;
     this.homeLon = lon;
     this.momentum = false;
+    this.returnPending = false;
     clearTimeout(this.returnTimer);
   }
 
@@ -534,8 +561,38 @@ export class Globe {
 
   private scheduleReturn(): void {
     clearTimeout(this.returnTimer);
-    this.returnTimer = window.setTimeout(this.returnHome, RETURN_DELAY);
+    this.returnPending = true;
+    this.returnTimer = window.setTimeout(() => {
+      this.returnPending = false;
+      this.returnHome();
+    }, RETURN_DELAY);
   }
+
+  /**
+   * Pause or resume, from the IntersectionObserver and visibilitychange. On resume a flight
+   * carries on from where it stopped (its start time is moved on by the pause), the frame
+   * clock restarts so nothing lurches, and a waiting drift-back gets its full delay again.
+   */
+  private readonly updatePaused = (): void => {
+    const shouldPause = !this.onScreen || document.visibilityState === 'hidden';
+    if (shouldPause === this.paused) return;
+    const now = performance.now();
+
+    if (shouldPause) {
+      this.paused = true;
+      this.pausedAt = now;
+      cancelAnimationFrame(this.frame);
+      this.frame = 0;
+      if (this.returnPending) clearTimeout(this.returnTimer);
+      return;
+    }
+
+    this.paused = false;
+    if (this.flight) this.flight.start += now - this.pausedAt;
+    this.lastTime = 0;
+    if (this.returnPending) this.scheduleReturn();
+    this.requestRender(); // draws once, and restarts the loop if anything is still moving
+  };
 
   /**
    * Is a screen point over the globe's visible disc? Only there does a press start a drag;
@@ -567,6 +624,7 @@ export class Globe {
     this.velocityLat = this.velocityLon = 0;
     // Grabbing the globe stops whatever it was doing.
     this.momentum = false;
+    this.returnPending = false;
     clearTimeout(this.returnTimer);
     this.advanceFlight(performance.now());
     this.flight = null;
@@ -783,6 +841,13 @@ export class Globe {
     this.earth.updateMatrixWorld();
     this.renderer.render(this.scene, this.camera);
     this.updateLabel();
+
+    // First full frame (dots visible, so the mask is in): tell the loader it can fade us in.
+    if (this.onReady && this.points.visible) {
+      const ready = this.onReady;
+      this.onReady = undefined;
+      ready();
+    }
   }
 
   /**

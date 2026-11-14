@@ -1,0 +1,331 @@
+---
+/**
+ * /dev/globe — test page for the globe. DEV ONLY: it exists under `npm run dev`, and in a
+ * build only when GLOBE_TEST_PAGE=1 is set (npm run globe:preview, npm run globe:stills).
+ * The normal `npm run build` leaves it out, so it never reaches the live site.
+ *
+ * How that works: this file is outside src/pages, so Astro doesn't make it a page by itself.
+ * astro.config.mjs adds the /dev/globe route only in those two cases (injectRoute). A normal
+ * build never sees this file, so none of its code (or Three.js) ends up in dist/.
+ *
+ * Normal mode: a button for every pin, a tall page for scroll spin, drag to turn.
+ *   ?globe=off | lite | full  force a tier (off = still image only)
+ * Stills mode (used by scripts/build-stills.mjs):
+ *   ?still=<page>  just the globe aimed at that page's pin, on a transparent background,
+ *                  at the still's size; sets data-still-ready on <html> when drawn.
+ */
+import '@fontsource/jetbrains-mono/latin-400.css';
+import '../styles/global.css';
+import GlobeStage from '../components/GlobeStage.astro';
+import { formatCoords } from '../lib/geo';
+
+// Every pin the real pages will use. `still` = which still image belongs to it.
+const places = [
+  { id: 'about', button: 'About', label: 'North Pole', lat: 90, lon: 0, still: 'about' },
+  { id: 'projects', button: 'Projects', label: 'USA', lat: 41.88, lon: -93.1, still: 'projects' },
+  { id: 'experience', button: 'Experience', label: 'Edmonton', lat: 53.52, lon: -113.53, still: 'experience' },
+  { id: 'contact', button: 'Contact', label: 'Point Nemo', lat: -48.88, lon: -123.39, still: 'contact' },
+  { id: 'noida', button: 'Noida', label: 'Noida, India', lat: 28.54, lon: 77.39, still: null },
+  { id: 'delhi', button: 'Delhi', label: 'Delhi, India', lat: 28.61, lon: 77.21, still: null },
+  { id: 'dijon', button: 'Dijon', label: 'ACDC cardiac MRI, Dijon', lat: 47.32, lon: 5.04, still: null },
+] as const;
+
+// The shape Globe.setPins() expects, plus the still name. Coordinates are formatted at build time.
+const pins = places.map(({ id, label, lat, lon, still }) => ({ id, lat, lon, label, still, coords: formatCoords(lat, lon) }));
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/* Keep search engines away from this page. */}
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Globe test</title>
+    {
+      /* Stills mode must be known before the first paint (transparent page, no controls),
+         so this tiny script runs right here instead of waiting for the bundled one. */
+    }
+    <script is:inline>
+      if (new URLSearchParams(location.search).has('still')) document.documentElement.dataset.stillMode = '';
+    </script>
+  </head>
+  <body>
+    <main class="test">
+      <h1 class="visually-hidden">Globe test page</h1>
+
+      {/* Stays at the top while the page scrolls, so the scroll spin is easy to watch. */}
+      <div class="sticky">
+        {/* data-pins hands the list above to the script below as JSON. */}
+        <GlobeStage
+          still="experience"
+          label="Dotted globe of the Earth with a pin for each place on this site"
+          class="stage"
+          id="globe-stage"
+        />
+        <div class="panel">
+          <p class="readout" id="globe-readout">Still image · loading the live globe…</p>
+          <div class="buttons" data-pins={JSON.stringify(pins)} id="pin-buttons">
+            {
+              places.map((place) => (
+                <button type="button" data-pin={place.id} aria-pressed={place.id === 'experience' ? 'true' : 'false'}>
+                  {place.button}
+                </button>
+              ))
+            }
+          </div>
+          <p class="hint">Scroll to spin · drag the globe to turn it · add ?globe=off for the still only</p>
+        </div>
+      </div>
+
+      {/* Empty height, only so the page can scroll. */}
+      <div class="scroll-room" aria-hidden="true">
+        <p>Scroll spin test area</p>
+        <p>0.25° of longitude per pixel</p>
+        <p>End</p>
+      </div>
+    </main>
+
+    <script>
+      // Only the small loader is imported here. Three.js and Globe.ts are fetched by the
+      // loader later, as a separate file (that's what keeps the page's first load small).
+      import { mountGlobe } from '../globe/loader';
+      import type { Globe, GlobePin } from '../globe/Globe';
+      import type { GlobeTier } from '../globe/tier';
+
+      type TestPin = GlobePin & { still: string | null };
+
+      const stage = document.getElementById('globe-stage') as HTMLElement;
+      const readout = document.getElementById('globe-readout') as HTMLElement;
+      const buttonRow = document.getElementById('pin-buttons') as HTMLElement;
+      const pinButtons = buttonRow.querySelectorAll<HTMLButtonElement>('button[data-pin]');
+      const stillImg = stage.querySelector<HTMLImageElement>('.globe-still');
+      const pins: TestPin[] = JSON.parse(buttonRow.dataset.pins ?? '[]');
+      const stillMode = new URLSearchParams(location.search).get('still');
+
+      if (stillMode) {
+        void renderStill(stillMode);
+      } else {
+        void runTestPage();
+      }
+
+      /** Normal test page: pin buttons, drag, scroll spin; still image until the globe is live. */
+      async function runTestPage() {
+        let currentId = 'experience';
+        let settled = true;
+        let live = false;
+        // Declared up front: the buttons work while the globe is still loading (globe is null).
+        let globe: Globe | null = null;
+        let tier: GlobeTier = 'full';
+
+        // Before (or without) the live globe, the buttons swap the still image instead.
+        const select = (id: string) => {
+          const pin = pins.find((p) => p.id === id);
+          if (!pin) return;
+          currentId = id;
+          pinButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pin === id)));
+          if (globe) {
+            globe.setActive(id);
+            globe.flyTo(pin.lat, pin.lon);
+          } else if (pin.still && stillImg) {
+            stillImg.src = `/globe/still-${pin.still}.webp`;
+          }
+          show();
+        };
+        pinButtons.forEach((button) => button.addEventListener('click', () => select(button.dataset.pin ?? '')));
+
+        const format = (lat: number, lon: number) =>
+          `${Math.abs(lat).toFixed(2)}°${lat < 0 ? 'S' : 'N'} ${Math.abs(lon).toFixed(2)}°${lon < 0 ? 'W' : 'E'}`;
+        const show = () => {
+          if (!globe) return;
+          const { lat, lon } = globe.center;
+          readout.textContent = `Live (${tier}) · ${settled ? 'settled' : 'moving'} · centre ${format(lat, lon)}`;
+        };
+        const follow = () => {
+          show();
+          if (!settled) requestAnimationFrame(follow);
+        };
+
+        const result = await mountGlobe(stage, {
+          label: 'Dotted globe of the Earth with a pin for each place on this site',
+          onReady: () => {
+            live = true;
+            show();
+          },
+          onSettle: (isSettled) => {
+            settled = isSettled;
+            if (live) show();
+            if (!isSettled) requestAnimationFrame(follow);
+          },
+        });
+
+        tier = result.tier;
+        globe = result.globe;
+        if (!globe) {
+          readout.textContent = `Still image only (tier: ${tier}${tier === 'still' ? '' : ', no WebGL'})`;
+          return;
+        }
+
+        // Pick up whichever pin was chosen while the globe was loading, without a flight.
+        globe.setPins(pins);
+        const pin = pins.find((p) => p.id === currentId);
+        if (pin) {
+          globe.setActive(pin.id);
+          globe.lookAt(pin.lat, pin.lon);
+        }
+        if (live) show();
+        else readout.textContent = `Loading the live globe (${tier})…`;
+      }
+
+      /**
+       * Stills mode: aim at one page's pin and draw that pin as a plain disc (no ring, no
+       * label), with nothing else on the page. The landing still shows all four page pins.
+       */
+      async function renderStill(page: string) {
+        const pageIds = ['about', 'projects', 'experience', 'contact'];
+        const aimId = page === 'landing' ? 'about' : page;
+        const aim = pins.find((p) => p.id === aimId);
+        if (!aim) return;
+
+        const { globe } = await mountGlobe(stage, {
+          label: 'Dotted globe of the Earth',
+          draggable: false,
+          scrollSpin: false,
+          onReady: () => {
+            // Two more frames, so the canvas has finished fading in, then flag "ready".
+            const fade = parseFloat(getComputedStyle(stage.querySelector('canvas') as Element).transitionDuration) || 0;
+            setTimeout(() => (document.documentElement.dataset.stillReady = 'true'), fade * 1000 + 100);
+          },
+        });
+        if (!globe) {
+          document.documentElement.dataset.stillReady = 'error';
+          return;
+        }
+        globe.setPins(page === 'landing' ? pins.filter((p) => pageIds.includes(p.id)) : [aim]);
+        globe.setActive(null);
+        globe.lookAt(aim.lat, aim.lon);
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .test {
+    padding-inline: var(--page-pad);
+  }
+
+  .sticky {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    padding-block: var(--space-6);
+    background-color: var(--bg); /* so the scrolling text passes behind, not over, the globe */
+    z-index: 1;
+  }
+
+  /* The globe fills this box; resize the window to test the ResizeObserver. */
+  .sticky :global(.stage) {
+    width: min(100%, 62dvh, 780px);
+    aspect-ratio: 1 / 1;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .readout {
+    color: var(--accent);
+  }
+
+  .hint {
+    color: var(--text-muted);
+  }
+
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+
+  button {
+    min-height: var(--touch-min);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-button);
+    background: none;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: var(--text);
+    cursor: pointer;
+    transition:
+      border-color var(--dur-fast) var(--ease-move),
+      color var(--dur-fast) var(--ease-move);
+  }
+
+  button:focus-visible,
+  button[aria-pressed='true'] {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  @media (pointer: fine) {
+    button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  }
+
+  .scroll-room {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 300dvh;
+    padding-block: var(--space-8);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ---------- Stills mode: only the globe, on a transparent page, at the still's size ---------- */
+  :global(html[data-still-mode]),
+  :global(html[data-still-mode] body) {
+    background: transparent;
+  }
+
+  :global(html[data-still-mode]) .test {
+    padding: 0;
+  }
+
+  :global(html[data-still-mode]) .sticky {
+    position: static;
+    padding: 0;
+    background: transparent;
+  }
+
+  :global(html[data-still-mode]) .panel,
+  :global(html[data-still-mode]) .scroll-room,
+  :global(html[data-still-mode]) :global(.globe-still) {
+    display: none;
+  }
+
+  /* Exact still size: the script sets the window to this width. */
+  :global(html[data-still-mode]) .sticky :global(.stage) {
+    width: 100vw;
+  }
+</style>
