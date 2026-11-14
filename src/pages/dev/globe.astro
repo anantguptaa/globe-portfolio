@@ -1,0 +1,225 @@
+---
+/**
+ * /dev/globe — TEMPORARY test page for the globe (step 5a). Not linked from anywhere, and
+ * deleted once step 5 is finished. It doesn't use BaseLayout: just the globe and some controls.
+ *
+ * Use it to check orientation: the three blue dots should sit on Edmonton, Noida and Point Nemo.
+ * Drag the globe (or focus it and use the arrow keys) to turn it; the buttons jump to each place.
+ */
+import '@fontsource/jetbrains-mono/latin-400.css';
+import '../../styles/global.css';
+
+// TEMPORARY (5a): the places used to check orientation.
+const places = [
+  { name: 'Edmonton', lat: 53.52, lon: -113.53 },
+  { name: 'Noida', lat: 28.54, lon: 77.39 },
+  { name: 'Point Nemo', lat: -48.88, lon: -123.39 },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/* Keep search engines away from this page while it exists. */}
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Globe test</title>
+  </head>
+  <body>
+    <main class="test">
+      <h1 class="visually-hidden">Globe test page</h1>
+
+      {
+        /* tabindex makes the stage focusable so the arrow keys can turn the globe.
+           data-places hands the list above to the script below as JSON. */
+      }
+      <div class="stage" id="globe-stage" tabindex="0" aria-label="Globe. Drag or use the arrow keys to turn it." data-places={JSON.stringify(places)}>
+      </div>
+
+      <div class="panel">
+        <p class="readout" id="globe-readout" aria-live="polite">Loading…</p>
+        <div class="buttons">
+          {
+            places.map((place) => (
+              <button type="button" data-lat={place.lat} data-lon={place.lon}>
+                {place.name}
+              </button>
+            ))
+          }
+          <button type="button" data-lat="0" data-lon="0">Reset</button>
+          <button type="button" id="globe-ocean" aria-pressed="false">Dim ocean</button>
+        </div>
+        <p class="hint">Drag to turn · arrow keys when the globe is focused</p>
+      </div>
+    </main>
+
+    <script>
+      // A normal bundled script: Astro compiles this TypeScript and pulls in Three.js for
+      // this page only. (5c will load it later, after the page's text has painted.)
+      import { Globe } from '../../globe/Globe';
+
+      const stage = document.getElementById('globe-stage') as HTMLElement;
+      const readout = document.getElementById('globe-readout') as HTMLElement;
+      const oceanButton = document.getElementById('globe-ocean') as HTMLButtonElement;
+
+      const format = (lat: number, lon: number) =>
+        `${Math.abs(lat).toFixed(2)}°${lat < 0 ? 'S' : 'N'} ${Math.abs(lon).toFixed(2)}°${lon < 0 ? 'W' : 'E'}`;
+
+      try {
+        const globe = new Globe(stage);
+
+        const show = () => {
+          const { lat, lon } = globe.center;
+          readout.textContent = `Centre ${format(lat, lon)} · ${globe.pointCount.toLocaleString()} dots`;
+        };
+        const turnTo = (lat: number, lon: number) => {
+          globe.lookAt(lat, lon);
+          show();
+        };
+
+        // TEMPORARY (5a): debug dots.
+        const places: { lat: number; lon: number }[] = JSON.parse(stage.dataset.places ?? '[]');
+        for (const place of places) globe.addDebugDot(place.lat, place.lon);
+
+        // Buttons: jump to a place.
+        document.querySelectorAll<HTMLButtonElement>('button[data-lat]').forEach((button) => {
+          button.addEventListener('click', () => turnTo(Number(button.dataset.lat), Number(button.dataset.lon)));
+        });
+
+        // Ocean toggle.
+        oceanButton.addEventListener('click', () => {
+          const dim = oceanButton.getAttribute('aria-pressed') !== 'true';
+          oceanButton.setAttribute('aria-pressed', String(dim));
+          globe.setOcean(dim ? 'dim' : 'hidden');
+        });
+
+        // TEMPORARY (5a): drag to turn. Dragging right brings places further west into view.
+        const DEGREES_PER_PIXEL = 0.3;
+        let dragging = false;
+        let lastX = 0;
+        let lastY = 0;
+        stage.addEventListener('pointerdown', (event) => {
+          dragging = true;
+          lastX = event.clientX;
+          lastY = event.clientY;
+          stage.setPointerCapture(event.pointerId);
+        });
+        stage.addEventListener('pointermove', (event) => {
+          if (!dragging) return;
+          const { lat, lon } = globe.center;
+          turnTo(
+            Math.max(-89, Math.min(89, lat + (event.clientY - lastY) * DEGREES_PER_PIXEL)),
+            lon - (event.clientX - lastX) * DEGREES_PER_PIXEL,
+          );
+          lastX = event.clientX;
+          lastY = event.clientY;
+        });
+        const stopDrag = () => (dragging = false);
+        stage.addEventListener('pointerup', stopDrag);
+        stage.addEventListener('pointercancel', stopDrag);
+
+        // TEMPORARY (5a): arrow keys do the same for keyboard users.
+        stage.addEventListener('keydown', (event) => {
+          const step = 5;
+          const moves: Record<string, [number, number]> = {
+            ArrowLeft: [0, -step],
+            ArrowRight: [0, step],
+            ArrowUp: [step, 0],
+            ArrowDown: [-step, 0],
+          };
+          const move = moves[event.key];
+          if (!move) return;
+          event.preventDefault();
+          const { lat, lon } = globe.center;
+          turnTo(Math.max(-89, Math.min(89, lat + move[0])), lon + move[1]);
+        });
+
+        show();
+      } catch (error) {
+        // No WebGL: say so. (5c shows the still image here instead.)
+        readout.textContent = 'This browser could not start WebGL, so the globe cannot be shown.';
+        console.error(error);
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .test {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+    min-height: 100dvh;
+    padding: var(--space-6) var(--page-pad);
+  }
+
+  /* The globe fills this box; resize the window to test the ResizeObserver. */
+  .stage {
+    width: min(100%, 80dvh, 780px);
+    aspect-ratio: 1 / 1;
+    cursor: grab;
+    touch-action: none; /* dragging turns the globe instead of scrolling the page */
+  }
+
+  .stage:active {
+    cursor: grabbing;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .readout {
+    color: var(--accent);
+  }
+
+  .hint {
+    color: var(--text-muted);
+  }
+
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+
+  button {
+    min-height: var(--touch-min);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-button);
+    background: none;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: var(--text);
+    cursor: pointer;
+    transition:
+      border-color var(--dur-fast) var(--ease-move),
+      color var(--dur-fast) var(--ease-move);
+  }
+
+  button:focus-visible,
+  button[aria-pressed='true'] {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  @media (pointer: fine) {
+    button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  }
+</style>
