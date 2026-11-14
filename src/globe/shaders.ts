@@ -95,8 +95,14 @@ export const fragmentShader = /* glsl */ `
     // bunch together on screen; without the fade they merge into a bright streak.
     float limb = smoothstep(0.05, 0.55, vFacing);
 
-    // Land is fully opaque; ocean uses uOceanAlpha (0 hides it).
-    float alpha = mix(uOceanAlpha, 1.0, isLand) * disc * limb;
+    // Ocean only: a wider fade towards the edge. The tightly packed ocean dots there form
+    // wavy interference patterns (moiré); fading them removes it. vFacing is 1 facing us
+    // and 0 at the edge, so ocean dots are at full strength over the middle of the globe and
+    // fade out over the outer part. Land is untouched by this, so coastlines stay crisp.
+    float oceanFade = smoothstep(0.15, 0.75, vFacing);
+
+    // Land is fully opaque; ocean uses uOceanAlpha (0 hides it), faded towards the edge.
+    float alpha = mix(uOceanAlpha * oceanFade, 1.0, isLand) * disc * limb;
     if (alpha <= 0.003) discard;
 
     vec3 color = mix(uOceanColor, uLandColor, isLand);
@@ -104,6 +110,72 @@ export const fragmentShader = /* glsl */ `
 
     // Three.js works with colours in "linear" form internally; this line converts the result
     // back to normal screen colours, so --text looks exactly like it does in CSS.
+    #include <colorspace_fragment>
+  }
+`;
+
+/* ------------------------------------------------------------------------------------------
+ * Pins: one point per pin, drawn as a small disc. The active pin also gets a ring that grows
+ * and fades (the "pulse"). Sizes are in CSS pixels, so pins look the same on any screen.
+ * ---------------------------------------------------------------------------------------- */
+
+export const pinVertexShader = /* glsl */ `
+  attribute float aActive;   // 1 for the active pin, 0 for the others
+
+  uniform float uBoxSize;    // width of the square each pin is drawn in, in CSS pixels
+  uniform float uPixelRatio;
+
+  varying float vFacing;
+  varying float vActive;
+
+  void main() {
+    // Same near-side test as the globe's dots.
+    vec3 normal = normalize(position);
+    vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+    vFacing = dot(normalize(normalMatrix * normal), normalize(-viewPosition.xyz));
+    vActive = aActive;
+
+    gl_Position = projectionMatrix * viewPosition;
+    // A fixed size in pixels: big enough to hold the ring at its largest.
+    gl_PointSize = uBoxSize * uPixelRatio;
+  }
+`;
+
+export const pinFragmentShader = /* glsl */ `
+  uniform vec3 uColor;        // --accent
+  uniform float uBoxSize;     // as above
+  uniform float uDiscRadius;  // disc radius in CSS pixels
+  uniform float uPhase;       // 0 → 1 over one pulse (1.8s); fixed under reduced motion
+  uniform float uHasActive;   // 1 when some pin is active (then the others are dimmed)
+
+  varying float vFacing;
+  varying float vActive;
+
+  void main() {
+    // Far side of the globe: hidden.
+    if (vFacing < 0.0) discard;
+
+    // Distance of this pixel from the pin's centre, in CSS pixels.
+    float r = length(gl_PointCoord - 0.5) * uBoxSize;
+
+    // The solid disc, with a soft one-pixel edge.
+    float disc = 1.0 - smoothstep(uDiscRadius - 0.6, uDiscRadius + 0.6, r);
+
+    // The ring (active pin only): its radius grows from the disc's edge to the edge of the
+    // box as uPhase goes 0 → 1, and it fades out as it grows.
+    float ringRadius = mix(uDiscRadius, uBoxSize * 0.5 - 1.5, uPhase);
+    float ring = (1.0 - smoothstep(0.4, 1.2, abs(r - ringRadius))) * (1.0 - uPhase) * vActive;
+
+    // Non-active pins draw at 55% while another pin is active.
+    float dim = mix(1.0, mix(0.55, 1.0, vActive), uHasActive);
+
+    // Fade out as the pin nears the globe's edge.
+    float limb = smoothstep(0.0, 0.2, vFacing);
+
+    float alpha = max(disc * dim, ring) * limb;
+    if (alpha <= 0.003) discard;
+
+    gl_FragColor = vec4(uColor, alpha);
     #include <colorspace_fragment>
   }
 `;

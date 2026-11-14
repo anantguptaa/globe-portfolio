@@ -175,6 +175,8 @@ One Three.js points globe, created once in the base layout and kept alive across
 - `flyTo(lat, lon)`: rotate by the shortest path, eased (about 0.07 per frame, or a 0.9s tween); retarget smoothly mid-flight.
 - Scroll spin: extra longitude = page scroll × 0.25°, eased; pins stay correct.
 - Idle: no auto-spin, so it stays still when nobody is interacting.
+- Drag: the globe's visible disc can be dragged to turn it (mouse and touch; on touch a sideways swipe turns it and an up/down swipe scrolls). A quick flick keeps it turning briefly (momentum, off under reduced motion). After about 3s untouched it flies back to the active pin, or the page's pin. No keyboard rotation: arrow keys stay with page scrolling, and every place is also reachable as a link.
+- On the landing page only the globe's visible area is draggable; the menu rows stay on top and fully clickable.
 
 **Performance tiers**
 

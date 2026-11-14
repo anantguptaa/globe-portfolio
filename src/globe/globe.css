@@ -1,0 +1,92 @@
+/*
+ * Styles for the HTML the Globe adds next to its canvas: the pin label and the
+ * screen-reader text. Imported by Globe.ts, so it loads with the globe, not before it.
+ */
+
+/* Zero-size anchor that Globe.ts moves to the active pin's point on screen each frame. */
+.globe-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-move);
+  will-change: transform;
+}
+
+.globe-label[data-visible='true'] {
+  opacity: 1;
+}
+
+/* The box sits above the pin: centred on it, lifted by the line's height plus a small gap. */
+.globe-label__box {
+  --line: 18px; /* length of the line from the box down towards the pin */
+  --gap: 8px; /* space between the line's end and the pin's centre */
+  position: absolute;
+  bottom: calc(var(--line) + var(--gap));
+  left: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  line-height: 1.3;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* The short blue line from the box down to the pin. */
+.globe-label__box::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 1px;
+  height: var(--line);
+  background-color: var(--accent);
+}
+
+.globe-label__coords {
+  color: var(--accent);
+}
+
+.globe-label__place {
+  color: var(--text-muted);
+}
+
+/* Text for screen readers only: the active pin, announced when it changes. */
+.globe-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ----- Dragging (Globe.ts sets these data attributes) ----- */
+
+/* Touch: a sideways swipe turns the globe; an up/down swipe still scrolls the page. */
+.globe-canvas[data-draggable='true'] {
+  touch-action: pan-y;
+}
+
+/* Mouse only: a grab hand over the globe's disc (not the empty corners of the canvas). */
+@media (pointer: fine) {
+  .globe-canvas[data-over='true'] {
+    cursor: grab;
+  }
+
+  .globe-canvas[data-dragging='true'] {
+    cursor: grabbing;
+  }
+}

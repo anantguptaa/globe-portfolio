@@ -1,20 +1,29 @@
 ---
 /**
- * /dev/globe — TEMPORARY test page for the globe (step 5a). Not linked from anywhere, and
+ * /dev/globe — TEMPORARY test page for the globe (step 5). Not linked from anywhere, and
  * deleted once step 5 is finished. It doesn't use BaseLayout: just the globe and some controls.
  *
- * Use it to check orientation: the three blue dots should sit on Edmonton, Noida and Point Nemo.
- * Drag the globe (or focus it and use the arrow keys) to turn it; the buttons jump to each place.
+ * 5b: a button for every pin the site uses (each flies the globe there and makes that pin
+ * active), and a tall page so scrolling shows the scroll spin. The globe can also be dragged
+ * (built into Globe.ts); after a few seconds it flies back to the active pin.
  */
 import '@fontsource/jetbrains-mono/latin-400.css';
 import '../../styles/global.css';
+import { formatCoords } from '../../lib/geo';
 
-// TEMPORARY (5a): the places used to check orientation.
+// Every pin the real pages will use.
 const places = [
-  { name: 'Edmonton', lat: 53.52, lon: -113.53 },
-  { name: 'Noida', lat: 28.54, lon: 77.39 },
-  { name: 'Point Nemo', lat: -48.88, lon: -123.39 },
+  { id: 'about', button: 'About', label: 'North Pole', lat: 90, lon: 0 },
+  { id: 'projects', button: 'Projects', label: 'USA', lat: 41.88, lon: -93.1 },
+  { id: 'experience', button: 'Experience', label: 'Edmonton', lat: 53.52, lon: -113.53 },
+  { id: 'contact', button: 'Contact', label: 'Point Nemo', lat: -48.88, lon: -123.39 },
+  { id: 'noida', button: 'Noida', label: 'Noida, India', lat: 28.54, lon: 77.39 },
+  { id: 'delhi', button: 'Delhi', label: 'Delhi, India', lat: 28.61, lon: 77.21 },
+  { id: 'dijon', button: 'Dijon', label: 'ACDC cardiac MRI, Dijon', lat: 47.32, lon: 5.04 },
 ];
+
+// The shape Globe.setPins() expects. Coordinates are formatted here, at build time.
+const pins = places.map(({ id, label, lat, lon }) => ({ id, lat, lon, label, coords: formatCoords(lat, lon) }));
 ---
 
 <!doctype html>
@@ -30,111 +39,89 @@ const places = [
     <main class="test">
       <h1 class="visually-hidden">Globe test page</h1>
 
-      {
-        /* tabindex makes the stage focusable so the arrow keys can turn the globe.
-           data-places hands the list above to the script below as JSON. */
-      }
-      <div class="stage" id="globe-stage" tabindex="0" aria-label="Globe. Drag or use the arrow keys to turn it." data-places={JSON.stringify(places)}>
+      {/* Stays at the top while the page scrolls, so the scroll spin is easy to watch. */}
+      <div class="sticky">
+        {/* data-pins hands the list above to the script below as JSON. */}
+        <div class="stage" id="globe-stage" data-pins={JSON.stringify(pins)}></div>
+
+        <div class="panel">
+          <p class="readout" id="globe-readout">Loading…</p>
+          <div class="buttons">
+            {
+              places.map((place) => (
+                <button type="button" data-pin={place.id} aria-pressed="false">
+                  {place.button}
+                </button>
+              ))
+            }
+          </div>
+          <p class="hint">Scroll to spin · drag the globe to turn it</p>
+        </div>
       </div>
 
-      <div class="panel">
-        <p class="readout" id="globe-readout" aria-live="polite">Loading…</p>
-        <div class="buttons">
-          {
-            places.map((place) => (
-              <button type="button" data-lat={place.lat} data-lon={place.lon}>
-                {place.name}
-              </button>
-            ))
-          }
-          <button type="button" data-lat="0" data-lon="0">Reset</button>
-          <button type="button" id="globe-ocean" aria-pressed="false">Dim ocean</button>
-        </div>
-        <p class="hint">Drag to turn · arrow keys when the globe is focused</p>
+      {/* TEMPORARY: empty height, only so the page can scroll. */}
+      <div class="scroll-room" aria-hidden="true">
+        <p>Scroll spin test area</p>
+        <p>0.25° of longitude per pixel</p>
+        <p>End</p>
       </div>
     </main>
 
     <script>
       // A normal bundled script: Astro compiles this TypeScript and pulls in Three.js for
       // this page only. (5c will load it later, after the page's text has painted.)
-      import { Globe } from '../../globe/Globe';
+      import { Globe, type GlobePin } from '../../globe/Globe';
 
       const stage = document.getElementById('globe-stage') as HTMLElement;
       const readout = document.getElementById('globe-readout') as HTMLElement;
-      const oceanButton = document.getElementById('globe-ocean') as HTMLButtonElement;
+      const pinButtons = document.querySelectorAll<HTMLButtonElement>('button[data-pin]');
 
       const format = (lat: number, lon: number) =>
         `${Math.abs(lat).toFixed(2)}°${lat < 0 ? 'S' : 'N'} ${Math.abs(lon).toFixed(2)}°${lon < 0 ? 'W' : 'E'}`;
 
       try {
-        const globe = new Globe(stage);
-
+        let settled = true;
         const show = () => {
           const { lat, lon } = globe.center;
-          readout.textContent = `Centre ${format(lat, lon)} · ${globe.pointCount.toLocaleString()} dots`;
+          readout.textContent = `${settled ? 'Settled' : 'Moving'} · centre ${format(lat, lon)}`;
         };
-        const turnTo = (lat: number, lon: number) => {
-          globe.lookAt(lat, lon);
+
+        const globe = new Globe(stage, {
+          label: 'Dotted globe of the Earth with a pin for each place on this site',
+          onSettle: (isSettled) => {
+            settled = isSettled;
+            show();
+            if (!isSettled) requestAnimationFrame(follow);
+          },
+        });
+
+        // TEMPORARY: while the globe moves, refresh the readout every frame.
+        const follow = () => {
+          show();
+          if (!settled) requestAnimationFrame(follow);
+        };
+
+        const pins: GlobePin[] = JSON.parse(stage.dataset.pins ?? '[]');
+        globe.setPins(pins);
+
+        // Pin buttons: make that pin active and fly to it.
+        const select = (id: string) => {
+          const pin = pins.find((p) => p.id === id);
+          if (!pin) return;
+          pinButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pin === id)));
+          globe.setActive(id);
+          globe.flyTo(pin.lat, pin.lon);
           show();
         };
+        pinButtons.forEach((button) => button.addEventListener('click', () => select(button.dataset.pin ?? '')));
 
-        // TEMPORARY (5a): debug dots.
-        const places: { lat: number; lon: number }[] = JSON.parse(stage.dataset.places ?? '[]');
-        for (const place of places) globe.addDebugDot(place.lat, place.lon);
-
-        // Buttons: jump to a place.
-        document.querySelectorAll<HTMLButtonElement>('button[data-lat]').forEach((button) => {
-          button.addEventListener('click', () => turnTo(Number(button.dataset.lat), Number(button.dataset.lon)));
-        });
-
-        // Ocean toggle.
-        oceanButton.addEventListener('click', () => {
-          const dim = oceanButton.getAttribute('aria-pressed') !== 'true';
-          oceanButton.setAttribute('aria-pressed', String(dim));
-          globe.setOcean(dim ? 'dim' : 'hidden');
-        });
-
-        // TEMPORARY (5a): drag to turn. Dragging right brings places further west into view.
-        const DEGREES_PER_PIXEL = 0.3;
-        let dragging = false;
-        let lastX = 0;
-        let lastY = 0;
-        stage.addEventListener('pointerdown', (event) => {
-          dragging = true;
-          lastX = event.clientX;
-          lastY = event.clientY;
-          stage.setPointerCapture(event.pointerId);
-        });
-        stage.addEventListener('pointermove', (event) => {
-          if (!dragging) return;
-          const { lat, lon } = globe.center;
-          turnTo(
-            Math.max(-89, Math.min(89, lat + (event.clientY - lastY) * DEGREES_PER_PIXEL)),
-            lon - (event.clientX - lastX) * DEGREES_PER_PIXEL,
-          );
-          lastX = event.clientX;
-          lastY = event.clientY;
-        });
-        const stopDrag = () => (dragging = false);
-        stage.addEventListener('pointerup', stopDrag);
-        stage.addEventListener('pointercancel', stopDrag);
-
-        // TEMPORARY (5a): arrow keys do the same for keyboard users.
-        stage.addEventListener('keydown', (event) => {
-          const step = 5;
-          const moves: Record<string, [number, number]> = {
-            ArrowLeft: [0, -step],
-            ArrowRight: [0, step],
-            ArrowUp: [step, 0],
-            ArrowDown: [-step, 0],
-          };
-          const move = moves[event.key];
-          if (!move) return;
-          event.preventDefault();
-          const { lat, lon } = globe.center;
-          turnTo(Math.max(-89, Math.min(89, lat + move[0])), lon + move[1]);
-        });
-
+        // Start on the Experience pin, without the flight.
+        const first = pins.find((p) => p.id === 'experience') ?? pins[0];
+        if (first) {
+          globe.setActive(first.id);
+          globe.lookAt(first.lat, first.lon);
+          pinButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pin === first.id)));
+        }
         show();
       } catch (error) {
         // No WebGL: say so. (5c shows the still image here instead.)
@@ -147,24 +134,25 @@ const places = [
 
 <style>
   .test {
+    padding-inline: var(--page-pad);
+  }
+
+  .sticky {
+    position: sticky;
+    top: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-6);
-    min-height: 100dvh;
-    padding: var(--space-6) var(--page-pad);
+    gap: var(--space-4);
+    padding-block: var(--space-6);
+    background-color: var(--bg); /* so the scrolling text passes behind, not over, the globe */
+    z-index: 1;
   }
 
   /* The globe fills this box; resize the window to test the ResizeObserver. */
   .stage {
-    width: min(100%, 80dvh, 780px);
+    width: min(100%, 62dvh, 780px);
     aspect-ratio: 1 / 1;
-    cursor: grab;
-    touch-action: none; /* dragging turns the globe instead of scrolling the page */
-  }
-
-  .stage:active {
-    cursor: grabbing;
   }
 
   .panel {
@@ -221,5 +209,19 @@ const places = [
       border-color: var(--accent);
       color: var(--accent);
     }
+  }
+
+  .scroll-room {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 300dvh;
+    padding-block: var(--space-8);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
   }
 </style>
