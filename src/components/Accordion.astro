@@ -1,0 +1,99 @@
+---
+/**
+ * Accordion — behaviour only, no layout. Wrap any markup that contains:
+ *   <button type="button" data-accordion-trigger> … <span data-accordion-sign aria-hidden="true" /> </button>
+ *   <div id="…" data-accordion-panel> … </div>
+ *
+ * Below 768px: panels start closed; tapping the button opens/closes them and flips
+ * aria-expanded. At 768px and up: everything is open and the button is not a toggle.
+ * Without JavaScript: everything is open.
+ *
+ * Used by RoleEntry now; Lifecycle and "Other builds" later.
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'div'> {
+  /** Element to render as the wrapper, e.g. "article" for a role. */
+  as?: 'div' | 'article' | 'section' | 'li';
+}
+
+// `as` is renamed to Tag: a capitalised variable can be used as an element name in the template.
+// `...rest` collects every other attribute (class, data-*, and Astro's scoped-style marker)
+// so the parent can style and label the wrapper.
+const { as: Tag = 'div', class: className, ...rest } = Astro.props;
+---
+
+<Tag class:list={['accordion', className]} data-accordion {...rest}>
+  <slot />
+</Tag>
+
+<style>
+  /* The sign only exists once the script has made the button a toggle (mobile + JS). */
+  .accordion :global([data-accordion-sign]) {
+    display: none;
+  }
+  .accordion :global([aria-expanded] [data-accordion-sign]) {
+    display: inline-block;
+  }
+  .accordion :global([aria-expanded] [data-accordion-sign])::before {
+    content: '+';
+  }
+  .accordion :global([aria-expanded='true'] [data-accordion-sign])::before {
+    content: '−';
+  }
+
+  /* Closed panels on mobile. The .js class (set in BaseLayout's <head> before anything paints)
+     means panels start hidden on mobile instead of flashing open and snapping shut. */
+  @media (max-width: 767.98px) {
+    :global(.js) .accordion:not([data-open]) :global([data-accordion-panel]) {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // A normal <script> (not is:inline): Astro bundles and minifies it and includes it once per
+  // page, however many accordions there are. It runs in the browser after the page has loaded.
+  // (Comments go in here or in {/* */}: an HTML comment would be sent to the browser.)
+  const mobile = window.matchMedia('(max-width: 767.98px)');
+
+  function parts(acc: HTMLElement) {
+    const trigger = acc.querySelector<HTMLButtonElement>('[data-accordion-trigger]');
+    const panel = acc.querySelector<HTMLElement>('[data-accordion-panel]');
+    return { trigger, panel };
+  }
+
+  function setOpen(acc: HTMLElement, open: boolean) {
+    const { trigger } = parts(acc);
+    acc.toggleAttribute('data-open', open);
+    trigger?.setAttribute('aria-expanded', String(open));
+  }
+
+  /** Mobile: make every button a closed toggle. Desktop: plain open content. */
+  function applyMode() {
+    document.querySelectorAll<HTMLElement>('[data-accordion]').forEach((acc) => {
+      const { trigger, panel } = parts(acc);
+      if (!trigger || !panel) return;
+      if (mobile.matches) {
+        if (panel.id) trigger.setAttribute('aria-controls', panel.id);
+        setOpen(acc, false);
+      } else {
+        acc.removeAttribute('data-open');
+        trigger.removeAttribute('aria-expanded');
+        trigger.removeAttribute('aria-controls');
+      }
+    });
+  }
+
+  // One listener for the whole page instead of one per button.
+  document.addEventListener('click', (event) => {
+    if (!mobile.matches) return;
+    const trigger = (event.target as Element).closest('[data-accordion-trigger]');
+    const acc = trigger?.closest<HTMLElement>('[data-accordion]');
+    if (acc) setOpen(acc, !acc.hasAttribute('data-open'));
+  });
+
+  mobile.addEventListener('change', applyMode); // rotate / resize across 768px
+  applyMode();
+  // TODO (step 7): with view transitions, also run applyMode on 'astro:page-load'.
+</script>

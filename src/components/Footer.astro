@@ -49,15 +49,15 @@ const updatedIso = now.toISOString().slice(0, 7); // "2026-11"
     }
 
     <p class="label updated">Last updated · <time datetime={updatedIso}>{updated}</time></p>
-    <a class="label to-top" href="#top" data-to-top>Back to orbit <span aria-hidden="true"> ↑</span></a>
+    <a class="label to-top" href="#top" data-to-top>Back to orbit<span aria-hidden="true">↑</span></a>
   </div>
 </footer>
 
-<!--
-  is:inline = Astro leaves this script exactly where it is instead of bundling it.
-  It runs while the page is still loading, before the first paint, so the link never
-  flashes on pages that don't scroll. Without JavaScript the link simply stays visible.
--->
+{
+  /* is:inline = Astro leaves this script exactly where it is instead of bundling it.
+     It runs while the page is still loading, before the first paint, so the link never
+     flashes on pages that don't scroll. Without JavaScript the link simply stays visible. */
+}
 <script is:inline>
   (() => {
     const root = document.documentElement;
@@ -111,6 +111,7 @@ const updatedIso = now.toISOString().slice(0, 7); // "2026-11"
 
   .to-top {
     align-items: center;
+    gap: 0.4em;
     min-height: var(--touch-min);
     text-decoration: none;
     transition: color var(--dur-fast) var(--ease-move);

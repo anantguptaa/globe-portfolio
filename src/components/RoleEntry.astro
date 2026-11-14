@@ -1,0 +1,240 @@
+---
+/**
+ * RoleEntry — one role on the Experience page.
+ * Desktop: dates + coordinates on the left; title, organisation and bullets on the right, all open.
+ * Mobile: dates, title and organisation form one tap row that opens the bullets (via Accordion).
+ * Hover (fine pointers), focus, or open on mobile: the title turns blue.
+ */
+import type { CollectionEntry } from 'astro:content';
+import Accordion from './Accordion.astro';
+import { formatCoords } from '../lib/geo';
+import { formatRoleDates } from '../lib/roles';
+
+interface Props {
+  /** One entry from the roles collection, exactly as getCollection returns it. */
+  role: CollectionEntry<'roles'>;
+  /** The linked project, if the role has one. */
+  project?: { title: string; href: string };
+}
+
+const { role, project } = Astro.props;
+const { title, org, start, end, location, bullets } = role.data;
+
+const dates = formatRoleDates(start, end);
+const coords = formatCoords(location.lat, location.lon);
+const panelId = `role-${role.id}`;
+---
+
+{/* TODO (step 6): hovering or focusing this role turns the globe to data-lat / data-lon. */}
+<Accordion as="article" class="role" data-pin={role.id} data-lat={location.lat} data-lon={location.lon}>
+  <div class="head">
+    <p class="meta">
+      <span class="dates">{dates}</span>
+      <span class="where">
+        <span><span class="visually-hidden">Location: </span>{coords}</span>
+        <span class="sep" aria-hidden="true">·</span>
+        <span>{location.label}</span>
+      </span>
+    </p>
+    <h2 class="title">
+      <button type="button" class="trigger" data-accordion-trigger>
+        <span class="title-text">{title}</span>
+        <span class="sign" data-accordion-sign aria-hidden="true"></span>
+      </button>
+    </h2>
+    <p class="org">{org}</p>
+  </div>
+
+  <div class="panel" id={panelId} data-accordion-panel>
+    <ul class="bullets">
+      {bullets.map((bullet) => <li>{bullet}</li>)}
+    </ul>
+    {
+      project && (
+        <a class="project-link" href={project.href}>
+          See the project: {project.title} <span aria-hidden="true">→</span>
+        </a>
+      )
+    }
+  </div>
+</Accordion>
+
+<style>
+  /* ---------- Mobile (default) ---------- */
+  .role {
+    border-top: 1px solid var(--border);
+  }
+
+  .head {
+    position: relative; /* anchors the tap area and the +/− sign */
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4) var(--space-8) var(--space-4) 0;
+    min-height: var(--touch-min);
+  }
+
+  .meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label-sm);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .dates {
+    color: var(--accent);
+  }
+
+  /* Mobile: "coords · city" on one line (wrapping if needed). Desktop: two lines, no dot. */
+  .where {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 0.6em;
+    color: var(--text-muted);
+  }
+
+  .title {
+    font-size: var(--fs-section);
+    line-height: 1.2;
+  }
+
+  /* The button looks like plain heading text. */
+  .trigger {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  /* Stretch the button's click area over the whole row (dates, title, organisation). */
+  .trigger::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .title-text {
+    color: var(--text);
+    transition: color var(--dur-fast) var(--ease-move);
+  }
+
+  .sign {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: var(--fs-section);
+    color: var(--accent);
+  }
+
+  .org {
+    font-size: var(--fs-body-sm);
+    color: var(--text-muted);
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-bottom: var(--space-4);
+  }
+
+  .bullets {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-left: var(--space-6);
+    font-size: var(--fs-body-sm);
+  }
+
+  .project-link {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: var(--touch-min);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  /* ---------- Title turns blue ---------- */
+  /* Keyboard focus anywhere in the role, or the role is open on mobile. */
+  .role:focus-within .title-text,
+  .role[data-open] .title-text {
+    color: var(--accent);
+  }
+
+  @media (pointer: fine) {
+    .role:hover .title-text {
+      color: var(--accent);
+    }
+  }
+
+  /* ---------- Desktop ---------- */
+  @media (min-width: 768px) {
+    .role {
+      display: grid;
+      grid-template-columns: 200px minmax(0, 1fr);
+      column-gap: var(--space-10);
+      row-gap: var(--space-3);
+      padding-block: var(--space-8);
+    }
+
+    /* The head's children join the grid directly: meta on the left, title and org on the right. */
+    .head {
+      display: contents;
+    }
+
+    .meta {
+      grid-column: 1;
+      grid-row: 1 / span 3;
+      font-size: var(--fs-label);
+    }
+
+    .where {
+      flex-direction: column;
+    }
+
+    .sep {
+      display: none;
+    }
+
+    .title,
+    .org,
+    .panel {
+      grid-column: 2;
+    }
+
+    .title {
+      font-size: var(--fs-section);
+    }
+
+    /* Not a toggle on desktop: no stretched area, normal cursor. */
+    .trigger {
+      cursor: default;
+    }
+    .trigger::after {
+      display: none;
+    }
+
+    .org,
+    .bullets {
+      font-size: var(--fs-body);
+    }
+
+    .panel {
+      padding-bottom: 0;
+    }
+  }
+</style>

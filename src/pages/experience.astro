@@ -1,0 +1,218 @@
+---
+/**
+ * /experience — the "flight log": every role from src/content/roles, newest first, education last.
+ * Everything in this frontmatter runs at build time; the browser only gets the finished HTML.
+ */
+import { getCollection, getEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GlobeSlot from '../components/GlobeSlot.astro';
+import RoleEntry from '../components/RoleEntry.astro';
+import { SITE } from '../data/site';
+import { formatCoords } from '../lib/geo';
+import { sortRoles } from '../lib/roles';
+
+// 1. Read every role file. Each entry has an id (the filename) and typed data (the frontmatter).
+const roles = sortRoles(await getCollection('roles'));
+
+// 2. For roles that reference a project, look the project up to get its title and URL.
+const entries = await Promise.all(
+  roles.map(async (role) => {
+    const ref = role.data.project;
+    const project = ref ? await getEntry(ref) : undefined;
+    return {
+      role,
+      project: project ? { title: project.data.title, href: `/projects/${project.id}` } : undefined,
+    };
+  }),
+);
+
+// Newest role, shown in the readout until the globe can change it (step 6).
+const first = roles[0];
+const pageCoords = formatCoords(53.52, -113.53); // Experience page pin: Edmonton (spec)
+---
+
+<BaseLayout title="Experience" coords={pageCoords}>
+  <div class="container page">
+    <section class="hero">
+      <div class="intro">
+        <p class="eyebrow">Flight log</p>
+        <h1>Experience</h1>
+        {/* TODO (step 6): true once the globe turns to the hovered / tapped role. */}
+        <p class="lede lede-desktop">Hover a role to see where it happened.</p>
+        <p class="lede lede-mobile">Tap a role to see where it happened and what I did.</p>
+        {
+          first && (
+            // TODO (step 6): update this readout to the hovered or focused role.
+            <div class="readout" aria-live="polite">
+              <span class="readout-coords">{formatCoords(first.data.location.lat, first.data.location.lon)}</span>
+              <span class="readout-place">
+                {first.data.title} · {first.data.location.label}
+              </span>
+            </div>
+          )
+        }
+      </div>
+      <GlobeSlot />
+    </section>
+
+    <div class="roles">
+      {entries.map(({ role, project }) => <RoleEntry role={role} project={project} />)}
+    </div>
+
+    <a class="cv-button" href={SITE.cvHref} target="_blank" rel="noopener">
+      Full CV (PDF) <span aria-hidden="true">↗</span>
+      <span class="visually-hidden">(opens in a new tab)</span>
+    </a>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: var(--space-16);
+  }
+
+  /* ---------- Top section ---------- */
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-block: var(--space-2) var(--space-6);
+  }
+
+  /* Mobile: the globe strip comes first, right under the header. */
+  .hero :global(.globe-slot) {
+    order: -1;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .lede {
+    max-width: 460px;
+    color: var(--text-muted);
+  }
+
+  .lede-desktop,
+  .readout {
+    display: none;
+  }
+
+  .readout {
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-top: var(--space-3);
+    font-family: var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .readout-coords {
+    font-size: var(--fs-body-sm);
+    color: var(--accent);
+  }
+
+  .readout-place {
+    font-size: var(--fs-label);
+    color: var(--text-muted);
+  }
+
+  /* ---------- Roles ---------- */
+  .roles {
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ---------- CV button ---------- */
+  .cv-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    min-height: var(--touch-min);
+    margin-top: var(--space-8);
+    padding: var(--space-3) var(--space-6);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-button);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+    transition:
+      border-color var(--dur-fast) var(--ease-move),
+      color var(--dur-fast) var(--ease-move);
+  }
+
+  .cv-button:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  @media (pointer: fine) {
+    .cv-button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  }
+
+  /* ---------- Desktop ---------- */
+  @media (min-width: 768px) {
+    .hero {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 0 var(--space-12);
+    }
+
+    .hero :global(.globe-slot) {
+      order: 0;
+    }
+
+    .intro {
+      flex: 1 1 360px;
+      padding-block: var(--space-16) 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .lede {
+      font-size: var(--fs-body);
+    }
+
+    .lede-desktop {
+      display: block;
+    }
+    .lede-mobile {
+      display: none;
+    }
+    .readout {
+      display: flex;
+    }
+
+    /* The list rises over the globe's faded bottom, as in the mockup. */
+    .roles {
+      position: relative;
+      z-index: 1;
+      margin-top: -130px;
+      padding-top: var(--space-10);
+      background: linear-gradient(to bottom, transparent, var(--bg) 120px);
+    }
+
+    .cv-button {
+      align-self: flex-start;
+      margin-top: var(--space-12);
+    }
+  }
+</style>

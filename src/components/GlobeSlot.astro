@@ -1,0 +1,64 @@
+---
+/**
+ * GlobeSlot — placeholder for the globe on content pages (step 5 puts the real globe here).
+ * Mobile: a 250px full-width strip under the header, faded at the bottom.
+ * Desktop: a 480px square beside the page title, fading into the content below.
+ * The faint dashed circle is TEMPORARY so you can see where the globe goes.
+ */
+---
+
+<div class="globe-slot" aria-hidden="true">
+  <div class="disc"></div>
+</div>
+
+<style>
+  /* Mobile: full-bleed strip (cancels the container's side padding). */
+  .globe-slot {
+    position: relative;
+    height: 250px;
+    margin-inline: calc(-1 * var(--page-pad));
+    overflow: hidden;
+    pointer-events: none;
+    /* Masks only use opacity, so any solid colour works here; var(--text) avoids a hex value. */
+    -webkit-mask-image: linear-gradient(to bottom, var(--text) 60%, transparent 100%);
+    mask-image: linear-gradient(to bottom, var(--text) 60%, transparent 100%);
+  }
+
+  .disc {
+    position: absolute;
+    top: var(--space-2);
+    left: 50%;
+    width: 340px;
+    aspect-ratio: 1 / 1;
+    transform: translateX(-50%);
+  }
+
+  /* TEMPORARY: dashed outline where the globe's disc will be. */
+  .disc::before {
+    content: '';
+    position: absolute;
+    inset: 4%;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-round);
+  }
+
+  @media (min-width: 768px) {
+    .globe-slot {
+      flex: 0 1 480px;
+      width: min(480px, 86vw);
+      height: auto;
+      aspect-ratio: 1 / 1;
+      margin-inline: auto;
+      overflow: visible;
+      -webkit-mask-image: linear-gradient(to bottom, var(--text) 45%, transparent 92%);
+      mask-image: linear-gradient(to bottom, var(--text) 45%, transparent 92%);
+    }
+
+    .disc {
+      top: 0;
+      left: 0;
+      width: 100%;
+      transform: none;
+    }
+  }
+</style>

@@ -44,6 +44,13 @@ const isLanding = variant === 'landing';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
     <link rel="preload" href="/fonts/TeXGyreAdventor-Bold.woff2" as="font" type="font/woff2" crossorigin />
+    {
+      /* Marks that JavaScript is running, before anything paints. CSS uses .js to start
+         mobile accordions closed without a flash; without JS everything stays open. */
+    }
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
   </head>
   <body class:list={{ 'is-landing': isLanding }}>
     <a class="skip-link" href="#main">Skip to content</a>
