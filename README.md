@@ -57,9 +57,12 @@ The frontmatter fields are defined in `src/content/config.ts`.
 
 ## Credits
 
-- Globe points technique adapted from [vertex-earth](https://github.com/bobbyroe/vertex-earth) by Bobby Roe (MIT).
+- Globe points technique adapted from [vertex-earth](https://github.com/bobbyroe/vertex-earth) by Bobby Roe (MIT; see [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)).
+- Rendering: [Three.js](https://threejs.org/) (MIT).
+- Geographic data: [Natural Earth](https://www.naturalearthdata.com/) via [world-atlas](https://github.com/topojson/world-atlas) (public domain; “Made with Natural Earth”).
 - Display font: [TeX Gyre Adventor](https://www.gust.org.pl/projects/e-foundry/tex-gyre) by GUST e-foundry (GUST Font License; see `public/fonts/GUST-FONT-LICENSE.txt`).
-- Body font: [Inter](https://rsms.me/inter/) (SIL Open Font License). Mono font: [JetBrains Mono](https://www.jetbrains.com/lp/mono/) (SIL Open Font License).
+- Body font: [Inter](https://rsms.me/inter/) (SIL Open Font License).
+- Mono font: [JetBrains Mono](https://www.jetbrains.com/lp/mono/) (SIL Open Font License).
 - Colour palette inspired by EnduroSat's site design.
 
 ## License

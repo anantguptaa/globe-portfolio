@@ -1,4 +1,10 @@
 /**
+ * Based on vertex-earth by Bobby Roe:
+ * https://github.com/bobbyroe/vertex-earth
+ * MIT License, Copyright (c) 2024 Bobby Roe.
+ */
+
+/**
  * Globe — a sphere of dots with pins, drawn with Three.js.
  *
  * Step 5a built the globe; 5b (this file now) adds pins, the label, flyTo and scroll spin.

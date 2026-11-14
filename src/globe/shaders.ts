@@ -1,4 +1,10 @@
 /**
+ * Based on vertex-earth by Bobby Roe:
+ * https://github.com/bobbyroe/vertex-earth
+ * MIT License, Copyright (c) 2024 Bobby Roe.
+ */
+
+/**
  * Globe shaders (GLSL), kept as strings and handed to a Three.js ShaderMaterial.
  *
  * A shader is a small program that runs on the graphics card:
