@@ -1,12 +1,14 @@
 ---
 /**
- * Header — name (links home) and the four section links.
- * The link for the current section gets the accent colour and aria-current="page".
+ * Header.
+ * - variant="page": name (links home) and the four section links; the current
+ *   section gets the accent colour and aria-current="page".
+ * - variant="landing": name as the page's <h1>, tagline, "Portfolio / year" and the
+ *   CV link. No nav links here: the landing menu rows are the navigation.
  */
 import { NAV_LINKS, SITE } from '../data/site';
 
 interface Props {
-  /** 'landing' shows the larger name used on the home page. */
   variant?: 'landing' | 'page';
 }
 
@@ -15,25 +17,45 @@ const { variant = 'page' } = Astro.props;
 // Strip a trailing slash so "/projects/" and "/projects" compare equal.
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`);
+const year = new Date().getFullYear();
 ---
 
 <header id="top" class:list={['site-header', variant]}>
-  <div class="container inner">
-    <a class="name" href="/" aria-current={path === '/' ? 'page' : undefined}>{SITE.name}</a>
-    <nav aria-label="Main">
-      <ul>
-        {
-          NAV_LINKS.map(({ href, label }) => (
-            <li>
-              <a href={href} aria-current={isCurrent(href) ? 'page' : undefined}>
-                {label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
-  </div>
+  {
+    /* Templates can branch with a ternary: only one of these is rendered into the HTML. */
+    variant === 'landing' ? (
+      <div class="container inner">
+        <div class="identity">
+          <h1 class="name">{SITE.name}</h1>
+          <p class="tagline">{SITE.tagline}</p>
+        </div>
+        <div class="meta">
+          <span class="edition">Portfolio / {year}</span>
+          <a class="cv" href={SITE.cvHref} target="_blank" rel="noopener">
+            CV <span aria-hidden="true">↗</span>
+            <span class="visually-hidden">(PDF, opens in a new tab)</span>
+          </a>
+        </div>
+      </div>
+    ) : (
+      <div class="container inner">
+        <a class="name" href="/">
+          {SITE.name}
+        </a>
+        <nav aria-label="Main">
+          <ul>
+            {NAV_LINKS.map(({ href, label }) => (
+              <li>
+                <a href={href} aria-current={isCurrent(href) ? 'page' : undefined}>
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    )
+  }
 </header>
 
 <style>
@@ -58,10 +80,6 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
     line-height: var(--lh-tight);
     color: var(--text);
     text-decoration: none;
-  }
-
-  .landing .name {
-    font-size: var(--fs-name-landing);
   }
 
   ul {
@@ -96,9 +114,73 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
     color: var(--text);
   }
 
+  /* ---------- Landing variant ---------- */
+  .landing {
+    padding-block: var(--space-6);
+  }
+
+  .landing .inner {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-1) var(--space-8);
+  }
+
+  .identity {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  /* Overrides the global h1 style (uppercase, page-title size). */
+  .landing .name {
+    display: block;
+    min-height: 0;
+    font-size: var(--fs-name-landing);
+    letter-spacing: var(--tracking-name);
+    text-transform: none;
+  }
+
+  .tagline {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label-lg);
+    color: var(--text-muted);
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .edition {
+    display: none;
+    color: var(--text-muted);
+  }
+
+  .cv {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: var(--touch-min);
+    color: var(--text);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-move);
+  }
+
+  .cv:focus-visible {
+    color: var(--accent);
+  }
+
   @media (pointer: fine) {
     nav a:hover,
-    .name:hover {
+    a.name:hover,
+    .cv:hover {
       color: var(--accent);
     }
   }
@@ -126,6 +208,19 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
 
     nav a {
       font-size: var(--fs-label);
+    }
+
+    .landing {
+      padding-block: var(--space-8) var(--space-10);
+    }
+
+    .landing .inner {
+      align-items: flex-start;
+      gap: var(--space-4) var(--space-8);
+    }
+
+    .edition {
+      display: inline;
     }
   }
 </style>

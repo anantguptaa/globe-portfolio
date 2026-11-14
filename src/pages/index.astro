@@ -1,32 +1,64 @@
 ---
 /**
- * Temporary test page for step 2 (foundations).
- * Replaced by the real landing page in step 4.
+ * Landing page (/): name and tagline in the header, four full-width menu rows, footer.
+ * The globe placeholder sits behind it (added by BaseLayout for variant="landing").
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import MenuRow from '../components/MenuRow.astro';
+import { NAV_LINKS } from '../data/site';
+
+// Globe pin each row will aim at (used from step 6).
+const pins: Record<string, string> = {
+  '/about': 'about',
+  '/projects': 'projects',
+  '/experience': 'experience',
+  '/contact': 'contact',
+};
 ---
 
 <BaseLayout variant="landing">
-  <section class="container test">
-    <p class="label">90.00°N · Test page</p>
-    <h1>Mission control</h1>
-    <p>
-      This is a placeholder page for checking the foundations: design tokens, self-hosted fonts, the header and
-      the footer. The heading uses TeX Gyre Adventor Bold, this paragraph uses Inter, and the label above uses
-      JetBrains Mono. <a href="/cv.pdf">Here is a link in the accent colour</a>.
-    </p>
-  </section>
+  <nav class="menu" aria-label="Main">
+    <ul>
+      {
+        /* One MenuRow per nav link. Each prop is set like an HTML attribute;
+           {expressions} pass any JavaScript value, such as the number i + 1. */
+        NAV_LINKS.map(({ href, label }, i) => (
+          <li>
+            <MenuRow href={href} index={i + 1} label={label} pin={pins[href]} />
+          </li>
+        ))
+      }
+    </ul>
+    <!-- TODO (step 6): true once the globe exists; until then a tap opens the page straight away. -->
+    <p class="hint label">Tap once to aim · Tap again to open</p>
+  </nav>
 </BaseLayout>
 
 <style>
-  .test {
-    display: grid;
-    gap: var(--space-4);
-    padding-block: var(--space-16);
+  /* Fills the space between header and footer; rows centred vertically on every screen size. */
+  .menu {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
-  .test p:not(.label) {
-    max-width: 65ch;
-    color: var(--text-muted);
+  ul {
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Mobile only: closes the list with a hairline and explains tap-to-aim. */
+  .hint {
+    padding: var(--space-3) var(--gutter-full);
+    border-block: 1px solid var(--border);
+    font-size: var(--fs-label-sm);
+    letter-spacing: var(--tracking-label-wide);
+  }
+
+  @media (min-width: 768px) {
+    .hint {
+      display: none;
+    }
   }
 </style>

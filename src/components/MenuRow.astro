@@ -1,0 +1,125 @@
+---
+/**
+ * MenuRow — one full-width row of the landing menu.
+ *
+ * Props are this component's inputs. The parent writes
+ *   <MenuRow href="/about" index={1} label="About" pin="about" />
+ * and the values arrive here in Astro.props. `interface Props` gives them types,
+ * so `astro check` catches a missing or wrong prop.
+ *
+ * Hover (fine pointers), keyboard focus or a tap: blue wipes left to right through
+ * the letters and the number turns blue. All CSS, no JavaScript.
+ */
+
+interface Props {
+  href: string;
+  /** Position in the menu, shown as 01, 02 … */
+  index: number;
+  /** Written in normal case; CSS uppercases it so screen readers say the word, not the letters. */
+  label: string;
+  /** Globe pin this row aims at. Unused until the globe exists (step 6). */
+  pin?: string;
+}
+
+const { href, index, label, pin } = Astro.props;
+
+// Frontmatter is plain TypeScript that runs at build time.
+const number = String(index).padStart(2, '0');
+---
+
+<a class="menu-row" href={href} data-pin={pin}>
+  <span class="num" aria-hidden="true">{number}</span>
+  <span class="word">{label}</span>
+</a>
+
+<style>
+  .menu-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    padding: var(--space-1) var(--gutter-full);
+    border-top: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  /* The row is full width, so draw the focus ring inside it. */
+  .menu-row:focus-visible {
+    outline-offset: calc(-1 * var(--focus-ring-width));
+  }
+
+  .num {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    color: var(--text-muted);
+    transition: color var(--dur-fast) var(--ease-move);
+  }
+
+  .word {
+    min-width: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-menu);
+    line-height: var(--lh-menu);
+    letter-spacing: var(--tracking-display);
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+    color: var(--text);
+  }
+
+  /*
+   * The wipe: the letters are filled with a gradient that is half blue, half white,
+   * twice as wide as the word. At rest the white half shows; on hover/focus the
+   * gradient slides so the blue half moves in from the left.
+   * Only where background-clip: text works — otherwise the word stays plain white
+   * instead of turning invisible.
+   */
+  @supports (background-clip: text) or (-webkit-background-clip: text) {
+    .word {
+      color: transparent;
+      background-image: linear-gradient(to right, var(--accent) 50%, var(--text) 50%);
+      background-size: 200% 100%;
+      background-position: 100% 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+      transition: background-position var(--dur-wipe) var(--ease-move);
+    }
+  }
+
+  /* Active state: keyboard focus everywhere, :active as the tap state on touch. */
+  .menu-row:focus-visible .word,
+  .menu-row:active .word {
+    background-position: 0 0;
+  }
+  .menu-row:focus-visible .num,
+  .menu-row:active .num {
+    color: var(--accent);
+  }
+
+  /* Hover only for mouse and trackpad. */
+  @media (pointer: fine) {
+    .menu-row:hover .word {
+      background-position: 0 0;
+    }
+    .menu-row:hover .num {
+      color: var(--accent);
+    }
+  }
+
+  /* Reduced motion: no wipe — the colour switches at once. */
+  @media (prefers-reduced-motion: reduce) {
+    .word,
+    .num {
+      transition: none;
+    }
+  }
+
+  /* Windows high-contrast mode: drop the gradient trick, use system colours. */
+  @media (forced-colors: active) {
+    .word {
+      color: LinkText;
+      background: none;
+    }
+  }
+</style>

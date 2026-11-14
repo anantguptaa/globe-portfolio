@@ -1,6 +1,7 @@
 ---
 /**
  * BaseLayout — wraps every page: <head>, header, main content and footer.
+ * A page passes its content between <BaseLayout> … </BaseLayout>; it appears at <slot />.
  * Later steps add the globe (step 5), the cursor (step 8) and <ClientRouter /> (step 7) here.
  */
 import '@fontsource/inter/latin-400.css';
@@ -18,7 +19,7 @@ interface Props {
   /** Page title; omit on the home page to show just the name. */
   title?: string;
   description?: string;
-  /** 'landing' = home page header style. */
+  /** 'landing' = home page: landing header, full-screen menu, globe behind. */
   variant?: 'landing' | 'page';
   /** Coordinates of this page's pin, shown in the footer. */
   coords?: string;
@@ -29,6 +30,7 @@ interface Props {
 const { title, description = SITE.description, variant = 'page', coords, showSocial = true } = Astro.props;
 
 const fullTitle = title ? `${title} · ${SITE.name}` : SITE.name;
+const isLanding = variant === 'landing';
 ---
 
 <!doctype html>
@@ -43,8 +45,17 @@ const fullTitle = title ? `${title} · ${SITE.name}` : SITE.name;
     <link rel="icon" href="/favicon.ico" />
     <link rel="preload" href="/fonts/TeXGyreAdventor-Bold.woff2" as="font" type="font/woff2" crossorigin />
   </head>
-  <body>
+  <body class:list={{ 'is-landing': isLanding }}>
     <a class="skip-link" href="#main">Skip to content</a>
+    {
+      /* Placeholder where the globe will go in step 5. Sized and placed as in the mockup,
+         and positioned absolutely, so the globe can replace it without moving anything. */
+      isLanding && (
+        <div class="globe-layer" aria-hidden="true">
+          <div class="globe-slot" />
+        </div>
+      )
+    }
     <Header variant={variant} />
     <main id="main" tabindex="-1">
       <slot />
@@ -52,3 +63,62 @@ const fullTitle = title ? `${title} · ${SITE.name}` : SITE.name;
     <Footer coords={coords} showSocial={showSocial} />
   </body>
 </html>
+
+<style>
+  body {
+    position: relative;
+  }
+
+  /* Landing: header, menu and footer fill exactly one screen; the menu takes the leftover height. */
+  .is-landing main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header, main and footer sit above the globe. They're rendered by child components,
+     so :global() is needed to reach them from this file's scoped styles. */
+  .is-landing > :global(header),
+  .is-landing > main,
+  .is-landing > :global(footer) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Full-page layer that clips the globe: it hangs off the right edge on desktop,
+     and that must never make the page scroll sideways. */
+  .globe-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .globe-slot {
+    position: absolute;
+    left: 5vw;
+    top: 150px;
+    width: 90vw;
+    aspect-ratio: 1 / 1;
+    pointer-events: none;
+  }
+
+  /* TEMPORARY (step 5 replaces it): faint dashed outline of where the globe's disc will be. */
+  .globe-slot::before {
+    content: '';
+    position: absolute;
+    inset: 3.5%;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-round);
+  }
+
+  @media (min-width: 768px) {
+    .globe-slot {
+      left: auto;
+      right: -4vw;
+      top: 70px;
+      width: min(780px, 70vw);
+    }
+  }
+</style>

@@ -6,6 +6,9 @@ export const SITE = {
   name: 'Anant Gupta',
   // PLACEHOLDER: one-line description used in <meta name="description">
   description: 'Anant Gupta: computer-vision research and software projects.',
+  // Shown under the name on the landing page.
+  tagline: 'cs @ ualberta · computer vision & geospatial ML',
+  cvHref: '/cv.pdf',
   // Default footer coordinates until each page has its own pin (North Pole).
   defaultCoords: '90.00°N 0.00°E',
 } as const;
@@ -25,7 +28,7 @@ export const SOCIAL_LINKS: readonly SocialLink[] = [
   { kind: 'github', href: 'https://github.com/anantguptaa', label: 'GitHub' },
   // PLACEHOLDER: your LinkedIn profile URL
   { kind: 'linkedin', href: 'https://www.linkedin.com/in/anantgupta04', label: 'LinkedIn' },
-  { kind: 'cv', href: '/cv.pdf', label: 'CV (PDF)' },
+  { kind: 'cv', href: SITE.cvHref, label: 'CV (PDF)' },
 ];
 
 export const NAV_LINKS = [

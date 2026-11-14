@@ -27,9 +27,10 @@
   --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
   /* ---------- Type scale (mobile first; desktop overrides below) ---------- */
-  --fs-menu: 40px; /* landing menu rows */
+  /* Landing menu rows: 40px at 390px wide, shrinking so "EXPERIENCE" still fits at 320px. */
+  --fs-menu: clamp(32px, 10.5vw, 40px);
   --fs-title: 40px; /* page title */
-  --fs-name-landing: 18px; /* name in header, landing */
+  --fs-name-landing: 32px; /* name in header, landing (32px on mobile too, as in the mockup) */
   --fs-name-page: 18px; /* name in header, other pages */
   --fs-section: 20px; /* card and section titles */
   --fs-stat: 32px; /* big stats */
@@ -37,11 +38,15 @@
   --fs-body-sm: 15px;
   --fs-label: 12px; /* labels, coordinates, nav */
   --fs-label-sm: 11px;
+  --fs-label-lg: 14px; /* landing tagline */
 
   --lh-body: 1.5;
   --lh-tight: 1;
+  --lh-menu: 1.08;
   --tracking-display: -0.03em;
+  --tracking-name: -0.01em;
   --tracking-label: 0.08em;
+  --tracking-label-wide: 0.1em;
 
   /* ---------- Spacing (4px base) ---------- */
   --space-1: 4px;
@@ -50,12 +55,16 @@
   --space-4: 16px;
   --space-6: 24px;
   --space-8: 32px;
+  --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
   --space-24: 96px;
 
   --page-pad: 6vw; /* page side padding */
   --content-max: 1200px; /* desktop content width (spec: 1100–1280) */
+  /* Side padding for full-width elements (like menu rows) whose content must line up
+     with .container: 6vw, or more on wide screens so the content stays 1200px wide. */
+  --gutter-full: max(var(--page-pad), calc((100% - var(--content-max)) / 2));
   --touch-min: 44px; /* minimum touch target */
 
   /* ---------- Radii ---------- */

@@ -1,8 +1,9 @@
 ---
 /**
  * Footer.
- * Desktop: © + coordinates, social icons, last-updated date, "Back to orbit ↑".
- * Mobile: icons centred, one line of text under them.
+ * Desktop: © + coordinates, social icons, "Last updated · Mon YYYY", "Back to orbit ↑".
+ * Mobile: icons centred, one line under them: © + updated date.
+ * "Back to orbit" only shows when the page is taller than the window (see script below).
  */
 import SocialIcon from './SocialIcon.astro';
 import { SITE, SOCIAL_LINKS } from '../data/site';
@@ -19,15 +20,20 @@ const { coords = SITE.defaultCoords, showSocial = true } = Astro.props;
 // Build time = last updated. Rebuilt on every deploy.
 const now = new Date();
 const year = now.getFullYear();
-const updated = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+const updated = now.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }); // "Nov 2026"
+const updatedIso = now.toISOString().slice(0, 7); // "2026-11"
 ---
 
 <footer class="site-footer">
   <div class="container inner">
     <p class="label copyright">
-      © {year} {SITE.name} <span aria-hidden="true">· </span>
-      <span class="visually-hidden">Coordinates:</span>
-      {coords}
+      © {year} {SITE.name}
+      <span class="coords"
+        ><span aria-hidden="true"> · </span><span class="visually-hidden">Coordinates:</span>{coords}</span
+      >
+      <span class="mobile-updated"
+        ><span aria-hidden="true"> · </span>Updated <time datetime={updatedIso}>{updated}</time></span
+      >
     </p>
 
     {
@@ -42,16 +48,36 @@ const updated = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short'
       )
     }
 
-    <p class="label updated">Last updated <time datetime={now.toISOString().slice(0, 10)}>{updated}</time></p>
-    <a class="label to-top" href="#top">Back to orbit <span aria-hidden="true"> ↑</span></a>
+    <p class="label updated">Last updated · <time datetime={updatedIso}>{updated}</time></p>
+    <a class="label to-top" href="#top" data-to-top>Back to orbit <span aria-hidden="true"> ↑</span></a>
   </div>
 </footer>
+
+<!--
+  is:inline = Astro leaves this script exactly where it is instead of bundling it.
+  It runs while the page is still loading, before the first paint, so the link never
+  flashes on pages that don't scroll. Without JavaScript the link simply stays visible.
+-->
+<script is:inline>
+  (() => {
+    const root = document.documentElement;
+    const update = () => {
+      const link = document.querySelector('[data-to-top]');
+      if (link) link.toggleAttribute('data-no-scroll', root.scrollHeight <= window.innerHeight + 1);
+    };
+    update();
+    addEventListener('load', update); // fonts and images can change the page height
+    addEventListener('resize', update);
+    if ('ResizeObserver' in window) new ResizeObserver(update).observe(document.body);
+  })();
+</script>
 
 <style>
   .site-footer {
     margin-top: auto;
     padding-block: var(--space-8);
     border-top: 1px solid var(--border);
+    background-color: var(--bg);
   }
 
   /* Mobile: icons first, centred; one text line under them. */
@@ -77,6 +103,7 @@ const updated = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short'
     font-size: var(--fs-label-sm);
   }
 
+  .coords,
   .updated,
   .to-top {
     display: none;
@@ -111,12 +138,22 @@ const updated = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short'
       order: 0;
     }
 
+    .coords,
     .updated {
-      display: block;
+      display: inline;
+    }
+
+    .mobile-updated {
+      display: none;
     }
 
     .to-top {
       display: inline-flex;
+    }
+
+    /* Set by the script when the page fits in the window. */
+    .to-top[data-no-scroll] {
+      display: none;
     }
   }
 </style>
