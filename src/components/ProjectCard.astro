@@ -1,0 +1,214 @@
+---
+/**
+ * ProjectCard — one featured project on the Projects page.
+ * Coordinates line, title, one line, key stat, stack (desktop only), call to action.
+ * The card itself is not a link: only the call to action is, so screen readers hear one
+ * clear link per card instead of the whole card's text.
+ * Border turns blue on hover (fine pointers) or when anything inside has keyboard focus.
+ */
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import { formatCoords } from '../lib/geo';
+import { projectLink } from '../lib/projects';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  /** Position on the page, 1-based: shown as "01", "02", … */
+  index: number;
+}
+
+const { project, index } = Astro.props;
+const { title, summary, location, stats = [], stack, cover, coverAlt } = project.data;
+
+const number = String(index).padStart(2, '0');
+const coords = formatCoords(location.lat, location.lon);
+// Key stat: the first one or two stats, e.g. "0.896 test mIoU · 2,500+ hand-labelled patches".
+const keyStat = stats
+  .slice(0, 2)
+  .map((s) => `${s.value} ${s.label}`)
+  .join(' · ');
+const link = projectLink(project);
+---
+
+{
+  /* TODO (step 6): hovering or focusing this card (and tapping it on mobile) flies the globe
+     to data-lat / data-lon and updates the page's coordinates readout. */
+}
+<article class="card" data-pin={project.id} data-lat={location.lat} data-lon={location.lon}>
+  <div class="media">
+    {
+      cover ? (
+        <Image src={cover} alt={coverAlt ?? ''} widths={[400, 800]} sizes="(min-width: 1200px) 300px, 50vw" />
+      ) : (
+        /* TEMPORARY until the project has a cover image. Decorative, so hidden from screen readers. */
+        <div class="placeholder" aria-hidden="true">[Cover image]</div>
+      )
+    }
+  </div>
+
+  <div class="body">
+    <p class="where">
+      <span aria-hidden="true">{number} · </span><span class="visually-hidden">Location: </span>{coords}
+      <span aria-hidden="true"> · </span>{location.label}
+    </p>
+    <h2 class="title">{title}</h2>
+    <p class="summary">{summary}</p>
+
+    <div class="foot">
+      {keyStat && <p class="stat">{keyStat}</p>}
+      <p class="stack"><span class="visually-hidden">Built with: </span>{stack.join(' · ')}</p>
+      {
+        link && (
+          <a
+            class="cta"
+            href={link.href}
+            {...(link.external ? { target: '_blank', rel: 'noopener' } : {})}
+          >
+            {link.label}
+            <span class="visually-hidden">: {title}</span>
+            <span aria-hidden="true">{link.external ? '↗' : '→'}</span>
+            {link.external && <span class="visually-hidden">(opens in a new tab)</span>}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</article>
+
+<style>
+  /* ---------- Mobile (default) ---------- */
+  .card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    transition: border-color var(--dur-fast) var(--ease-move);
+  }
+
+  /* Blue border: keyboard focus on the link, or a tap on it. */
+  .card:focus-within {
+    border-color: var(--accent);
+  }
+
+  @media (pointer: fine) {
+    .card:hover {
+      border-color: var(--accent);
+    }
+  }
+
+  /* The mobile mockup has no image strip. */
+  .media {
+    display: none;
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: var(--space-2);
+    padding: var(--space-4);
+  }
+
+  .where {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label-sm);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .title {
+    font-size: var(--fs-section);
+    line-height: 1.2;
+    text-transform: none;
+  }
+
+  .summary {
+    font-size: var(--fs-body-sm);
+    color: var(--text-muted);
+  }
+
+  /* Mobile: key stat on the left, call to action on the right. */
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-1) var(--space-4);
+  }
+
+  .stat,
+  .stack,
+  .cta {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+  }
+
+  .stack {
+    display: none;
+    font-size: var(--fs-label-sm);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: var(--touch-min);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  /* ---------- Desktop ---------- */
+  @media (min-width: 768px) {
+    .media {
+      display: block;
+      height: 150px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .media :global(img) {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: var(--space-3);
+      height: calc(100% - 2 * var(--space-3));
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-button);
+      font-family: var(--font-mono);
+      font-size: var(--fs-label-sm);
+      letter-spacing: var(--tracking-label);
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .body {
+      gap: var(--space-3);
+      padding: var(--space-6);
+    }
+
+    /* Stat, stack and link stack up; the link sits at the bottom so cards line up. */
+    .foot {
+      display: contents;
+    }
+
+    .stack {
+      display: block;
+    }
+
+    .cta {
+      margin-top: auto;
+    }
+  }
+</style>

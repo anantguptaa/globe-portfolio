@@ -16,7 +16,9 @@ const { variant = 'page' } = Astro.props;
 
 // Strip a trailing slash so "/projects/" and "/projects" compare equal.
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`);
+// The section's own page gets aria-current="page"; pages inside it (e.g. /projects/usa-fields)
+// get aria-current="true" ("current item in this set"). Both are shown in blue.
+const current = (href: string) => (path === href ? 'page' : path.startsWith(`${href}/`) ? 'true' : undefined);
 const year = new Date().getFullYear();
 ---
 
@@ -46,7 +48,7 @@ const year = new Date().getFullYear();
           <ul>
             {NAV_LINKS.map(({ href, label }) => (
               <li>
-                <a href={href} aria-current={isCurrent(href) ? 'page' : undefined}>
+                <a href={href} aria-current={current(href)}>
                   {label}
                 </a>
               </li>
@@ -111,7 +113,7 @@ const year = new Date().getFullYear();
     transition: color var(--dur-fast) var(--ease-move);
   }
 
-  nav a[aria-current='page'] {
+  nav a[aria-current] {
     color: var(--accent);
   }
 

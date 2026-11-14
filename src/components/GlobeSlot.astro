@@ -2,12 +2,19 @@
 /**
  * GlobeSlot — placeholder for the globe on content pages (step 5 puts the real globe here).
  * Mobile: a 250px full-width strip under the header, faded at the bottom.
- * Desktop: a 480px square beside the page title, fading into the content below.
+ * Desktop: a square beside the page title (480px by default), fading into the content below.
  * The faint dashed circle is TEMPORARY so you can see where the globe goes.
  */
+interface Props {
+  /** Desktop width in px. Experience uses 480, Projects 520 (as in the mockups). */
+  size?: number;
+}
+
+const { size = 480 } = Astro.props;
 ---
 
-<div class="globe-slot" aria-hidden="true">
+{/* The size goes in as a CSS custom property, which the desktop styles below read. */}
+<div class="globe-slot" aria-hidden="true" style={`--slot-size: ${size}px`}>
   <div class="disc"></div>
 </div>
 
@@ -44,8 +51,8 @@
 
   @media (min-width: 768px) {
     .globe-slot {
-      flex: 0 1 480px;
-      width: min(480px, 86vw);
+      flex: 0 1 var(--slot-size);
+      width: min(var(--slot-size), 86vw);
       height: auto;
       aspect-ratio: 1 / 1;
       margin-inline: auto;

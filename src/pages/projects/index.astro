@@ -1,0 +1,350 @@
+---
+/**
+ * /projects — the "mission index": featured project cards, then the "Other builds" list.
+ * The file lives at pages/projects/index.astro (not pages/projects.astro) so the project
+ * pages can sit next to it later as pages/projects/[slug].astro.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Accordion from '../../components/Accordion.astro';
+import GlobeSlot from '../../components/GlobeSlot.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { formatCoords } from '../../lib/geo';
+import { projectLink, splitProjects } from '../../lib/projects';
+
+const { featured, others } = splitProjects(await getCollection('projects'));
+
+// The first card's pin: shown in the readout and the footer until the globe can change it (step 6).
+const first = featured[0];
+const firstCoords = first ? formatCoords(first.data.location.lat, first.data.location.lon) : undefined;
+---
+
+<BaseLayout title="Projects" coords={firstCoords}>
+  <div class="container page">
+    <section class="hero">
+      <div class="intro">
+        <p class="eyebrow">Mission index</p>
+        <h1>Projects</h1>
+        {/* TODO (step 6): true once the globe flies to the hovered / tapped card. */}
+        <p class="lede lede-desktop">
+          Each project is pinned on the globe where its data comes from. Hover a card to fly there, open it for
+          the numbers, the visuals and how it was built.
+        </p>
+        <p class="lede lede-mobile">Tap a card to fly the globe to where its data comes from.</p>
+        {
+          first && (
+            // TODO (step 6): update this readout to the hovered or focused card.
+            <div class="readout" aria-live="polite">
+              <span class="readout-coords">{firstCoords}</span>
+              <span class="readout-place">
+                {first.data.title} · {first.data.location.label}
+              </span>
+            </div>
+          )
+        }
+      </div>
+      <GlobeSlot size={520} />
+    </section>
+
+    <div class="cards">
+      {featured.map((project, i) => <ProjectCard project={project} index={i + 1} />)}
+    </div>
+
+    {
+      others.length > 0 && (
+        <Accordion as="section" class="others" aria-labelledby="others-heading">
+          {/* Desktop: a plain heading over an open list. Mobile: the heading's button opens it. */}
+          <h2 class="others-heading" id="others-heading">
+            <button type="button" class="others-trigger" data-accordion-trigger>
+              <span>
+                Other builds <span class="count">({others.length})</span>
+              </span>
+              <span class="sign" data-accordion-sign aria-hidden="true" />
+            </button>
+          </h2>
+          <ul class="builds" id="other-builds" data-accordion-panel>
+            {others.map((project) => {
+              const link = projectLink(project);
+              const { title, summary, stack } = project.data;
+              const content = (
+                <>
+                  <span class="build-text">
+                    <span class="build-title">
+                      {title}
+                      {link && <span aria-hidden="true"> ↗</span>}
+                    </span>
+                    <span class="build-summary">{summary}</span>
+                  </span>
+                  <span class="build-stack">
+                    <span class="visually-hidden">Built with: </span>
+                    {stack.join(' · ')}
+                  </span>
+                  {link && <span class="visually-hidden">({link.label}, opens in a new tab)</span>}
+                </>
+              );
+              // Rows with a link are links; rows without one (yet) are plain text, so nothing dead-ends.
+              return (
+                <li>
+                  {link ? (
+                    <a class="build" href={link.href} target="_blank" rel="noopener">
+                      {content}
+                    </a>
+                  ) : (
+                    <div class="build">{content}</div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </Accordion>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: var(--space-16);
+  }
+
+  /* ---------- Top section (same pattern as Experience) ---------- */
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-block: var(--space-2) var(--space-6);
+  }
+
+  /* Mobile: the globe strip comes first, right under the header. */
+  .hero :global(.globe-slot) {
+    order: -1;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .lede {
+    max-width: 520px;
+    color: var(--text-muted);
+  }
+
+  .lede-desktop,
+  .readout {
+    display: none;
+  }
+
+  .readout {
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-top: var(--space-3);
+    font-family: var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .readout-coords {
+    font-size: var(--fs-body-sm);
+    color: var(--accent);
+  }
+
+  .readout-place {
+    font-size: var(--fs-label);
+    color: var(--text-muted);
+  }
+
+  /* ---------- Cards ---------- */
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* ---------- Other builds ---------- */
+  .others {
+    margin-top: var(--space-8);
+    border-block: 1px solid var(--border);
+  }
+
+  .others-heading {
+    font-size: inherit;
+  }
+
+  /* The button looks like a mono label with the +/− on the right (mobile). */
+  .others-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    width: 100%;
+    min-height: var(--touch-min);
+    padding: var(--space-4) 0;
+    border: 0;
+    background: none;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--accent);
+    cursor: pointer;
+  }
+
+  .sign {
+    font-size: var(--fs-section);
+  }
+
+  .builds {
+    padding: 0 0 var(--space-3);
+    list-style: none;
+  }
+
+  .build {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .build-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .build-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-item);
+    transition: color var(--dur-fast) var(--ease-move);
+  }
+
+  .build-summary {
+    font-size: var(--fs-body-sm);
+    color: var(--text-muted);
+  }
+
+  .build-stack {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label-sm);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  a.build:focus-visible .build-title {
+    color: var(--accent);
+  }
+
+  @media (pointer: fine) {
+    a.build:hover .build-title {
+      color: var(--accent);
+    }
+  }
+
+  /* ---------- Desktop ---------- */
+  @media (min-width: 768px) {
+    /* How far the cards rise over the globe's faded bottom. */
+    .page {
+      --overlap: 150px;
+    }
+
+    .hero {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0 var(--space-12);
+    }
+
+    .hero :global(.globe-slot) {
+      order: 0;
+    }
+
+    /* Bottom padding = the overlap, so the cards can only ever cover the globe, never the text. */
+    .intro {
+      flex: 1 1 380px;
+      padding-block: var(--space-16) calc(var(--overlap) + var(--space-6));
+      position: relative;
+      z-index: 1;
+    }
+
+    .lede {
+      font-size: var(--fs-body);
+    }
+
+    .lede-desktop {
+      display: block;
+    }
+    .lede-mobile {
+      display: none;
+    }
+    .readout {
+      display: flex;
+    }
+
+    /* Cards rise over the globe's faded bottom, as in the mockup. */
+    .cards {
+      position: relative;
+      z-index: 1;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--space-6);
+      margin-top: calc(-1 * var(--overlap));
+    }
+
+    .cards > :global(.card) {
+      flex: 1 1 260px;
+    }
+
+    .others {
+      margin-top: var(--space-16);
+      border-top: 0;
+    }
+
+    /* Not a toggle on desktop: just the section heading. */
+    .others-trigger {
+      cursor: default;
+      padding-block: 0 var(--space-3);
+    }
+
+    .count {
+      display: none;
+    }
+
+    .builds {
+      padding-bottom: 0;
+    }
+
+    /* Title and summary on the left, stack on the right. */
+    .build {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-2) var(--space-6);
+      padding-block: var(--space-6);
+    }
+
+    .build-text {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: var(--space-1) var(--space-4);
+    }
+  }
+</style>
