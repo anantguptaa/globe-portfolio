@@ -11,8 +11,11 @@
  *  4. aims: on the first page instantly (lookAt, settled); after a navigation, flyTo.
  * The globe itself is loaded lazily by loader.ts (tiers, WebGL check, after page load).
  * Until it's ready, and if it never is, each page's still image shows in the slot.
+ * Hover, focus and taps on the page's items (menu rows, cards, roles) are handled by
+ * interactions.ts, which this file starts once.
  */
 import type { Globe, GlobePin } from './Globe';
+import { setupInteractions } from './interactions';
 import { mountGlobe } from './loader';
 
 const root = document.documentElement;
@@ -31,6 +34,12 @@ let globe: Globe | null = null;
 let live = false;
 let current: SlotInfo | null = null;
 let firstPage = true; // the page the visitor arrived on: aim without a flight
+
+// Menu rows, cards and roles that aim the globe. Its listeners live on `document`.
+const interactions = setupInteractions({
+  getGlobe: () => globe,
+  getPins: () => current?.pins ?? [],
+});
 
 /** The current page's slot and its data, or null on pages without a globe. */
 function readSlot(): SlotInfo | null {
@@ -82,13 +91,17 @@ function place(): void {
   windowEl.style.overflow = css.overflow === 'hidden' ? 'hidden' : 'visible';
 }
 
-/** Hand the current page's pins to the globe and aim at the active one. */
+/**
+ * Hand the current page's pins to the globe and aim at the active one: the item the visitor
+ * last hovered, focused or tapped, or else the page's default pin.
+ */
 function aim(fly: boolean): void {
   if (!globe || !current) return;
+  const activeId = interactions.activeId() ?? current.active;
   globe.setPins(current.pins);
-  globe.setActive(current.active || null);
+  globe.setActive(activeId || null);
   globe.setDragSurface(current.slot);
-  const pin = current.pins.find((p) => p.id === current?.active) ?? current.pins[0];
+  const pin = current.pins.find((p) => p.id === activeId) ?? current.pins[0];
   if (!pin) return;
   if (fly) globe.flyTo(pin.lat, pin.lon);
   else globe.lookAt(pin.lat, pin.lon);
@@ -118,6 +131,7 @@ function onPageLoad(): void {
   if (current) resizeObserver.unobserve(current.slot);
   current = next;
   if (current) resizeObserver.observe(current.slot);
+  interactions.reset(current?.active || null); // new page: its default pin, nothing highlighted
   place();
   aim(!firstPage);
   firstPage = false;

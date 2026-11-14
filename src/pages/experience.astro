@@ -31,8 +31,9 @@ const entries = await Promise.all(
 // role files, so it moves by itself when a new on-site role is added. Shown in the readout.
 const first = experienceRole(roles);
 const pageCoords = formatCoords(first.data.location.lat, first.data.location.lon);
-// The globe: one pin per role's place, with that role's place active.
-const globe = await experiencePins();
+// The globe: one pin per role's place, with that role's place active. `roleTargets` gives
+// each role its pin (two roles in the same city share one).
+const { targets: roleTargets, ...globe } = await experiencePins();
 ---
 
 <BaseLayout title="Experience" coords={pageCoords}>
@@ -41,15 +42,17 @@ const globe = await experiencePins();
       <div class="intro">
         <p class="eyebrow">Flight log</p>
         <h1>Experience</h1>
-        {/* TODO (step 6b): true once the globe turns to the hovered / tapped role. */}
         <p class="lede lede-desktop">Hover a role to see where it happened.</p>
         <p class="lede lede-mobile">Tap a role to see where it happened and what I did.</p>
         {
           first && (
-            // TODO (step 6b): update this readout to the hovered or focused role.
-            <div class="readout" aria-live="polite">
-              <span class="readout-coords">{formatCoords(first.data.location.lat, first.data.location.lon)}</span>
-              <span class="readout-place">
+            // Follows the role the globe points at (src/globe/interactions.ts). Not a live
+            // region: the globe already announces its active pin to screen readers.
+            <div class="readout" data-globe-readout>
+              <span class="readout-coords" data-readout-coords>
+                {formatCoords(first.data.location.lat, first.data.location.lon)}
+              </span>
+              <span class="readout-place" data-readout-place>
                 {first.data.title} · {first.data.location.label}
               </span>
             </div>
@@ -60,7 +63,11 @@ const globe = await experiencePins();
     </section>
 
     <div class="roles">
-      {entries.map(({ role, project }) => <RoleEntry role={role} project={project} />)}
+      {
+        entries.map(({ role, project }) => (
+          <RoleEntry role={role} project={project} globeTarget={roleTargets[role.id] ?? role.id} />
+        ))
+      }
     </div>
 
     <a class="cv-button" href={SITE.cvHref} target="_blank" rel="noopener">

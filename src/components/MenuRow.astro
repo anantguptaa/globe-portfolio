@@ -8,7 +8,12 @@
  * so `astro check` catches a missing or wrong prop.
  *
  * Hover (fine pointers), keyboard focus or a tap: blue wipes left to right through
- * the letters and the number turns blue. All CSS, no JavaScript.
+ * the letters and the number turns blue. The wipe itself is all CSS.
+ *
+ * Globe (src/globe/interactions.ts): hover and focus fly the globe to the row's pin. On a
+ * touch screen the first tap only aims (the row gets data-aimed and keeps its wipe); a second
+ * tap on the same row opens the page. Mouse clicks and keyboard Enter always open directly.
+ * Without JavaScript the row is a plain link.
  */
 
 interface Props {
@@ -17,7 +22,7 @@ interface Props {
   index: number;
   /** Written in normal case; CSS uppercases it so screen readers say the word, not the letters. */
   label: string;
-  /** Globe pin this row aims at. Unused until the globe exists (step 6). */
+  /** Globe pin this row aims at (also the name of its still image). */
   pin?: string;
 }
 
@@ -27,7 +32,7 @@ const { href, index, label, pin } = Astro.props;
 const number = String(index).padStart(2, '0');
 ---
 
-<a class="menu-row" href={href} data-pin={pin}>
+<a class="menu-row" href={href} data-globe-target={pin} data-globe-still={pin} data-globe-tap={pin && 'aim-first'}>
   <span class="num" aria-hidden="true">{number}</span>
   <span class="word">{label}</span>
 </a>
@@ -87,13 +92,16 @@ const number = String(index).padStart(2, '0');
     }
   }
 
-  /* Active state: keyboard focus everywhere, :active as the tap state on touch. */
+  /* Active state: keyboard focus everywhere, :active as the tap state on touch, and
+     data-aimed for the row a first tap aimed the globe at (stays until another row is aimed). */
   .menu-row:focus-visible .word,
-  .menu-row:active .word {
+  .menu-row:active .word,
+  .menu-row[data-aimed] .word {
     background-position: 0 0;
   }
   .menu-row:focus-visible .num,
-  .menu-row:active .num {
+  .menu-row:active .num,
+  .menu-row[data-aimed] .num {
     color: var(--accent);
   }
 

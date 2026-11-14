@@ -16,7 +16,7 @@ import { projectsPins } from '../../lib/pins';
 const { featured, others } = splitProjects(await getCollection('projects'));
 
 // The first card's pin: the active one, shown in the readout and the footer.
-// The globe gets one pin per featured project (step 6b makes hovering a card switch it).
+// The globe gets one pin per featured project; hovering, focusing or tapping a card switches it.
 const first = featured[0];
 const firstCoords = first ? formatCoords(first.data.location.lat, first.data.location.lon) : undefined;
 const globe = await projectsPins();
@@ -28,7 +28,6 @@ const globe = await projectsPins();
       <div class="intro">
         <p class="eyebrow">Mission index</p>
         <h1>Projects</h1>
-        {/* TODO (step 6b): true once the globe flies to the hovered / tapped card. */}
         <p class="lede lede-desktop">
           Each project is pinned on the globe where its data comes from. Hover a card to fly there, open it for
           the numbers, the visuals and how it was built.
@@ -36,10 +35,13 @@ const globe = await projectsPins();
         <p class="lede lede-mobile">Tap a card to fly the globe to where its data comes from.</p>
         {
           first && (
-            // TODO (step 6b): update this readout to the hovered or focused card.
-            <div class="readout" aria-live="polite">
-              <span class="readout-coords">{firstCoords}</span>
-              <span class="readout-place">
+            // Follows the card the globe points at (src/globe/interactions.ts). Not a live
+            // region: the globe already announces its active pin to screen readers.
+            <div class="readout" data-globe-readout>
+              <span class="readout-coords" data-readout-coords>
+                {firstCoords}
+              </span>
+              <span class="readout-place" data-readout-place>
                 {first.data.title} · {first.data.location.label}
               </span>
             </div>

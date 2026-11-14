@@ -82,16 +82,20 @@ export function projectPins(project: CollectionEntry<'projects'>): PagePins {
 /**
  * Every role's place, newest first, each place once (id = the first role there).
  * The active pin is the Experience pin's place.
+ * `targets` maps each role id to its pin id: two roles in the same city share one pin, so a
+ * role's own id isn't always a pin id (e.g. the BSc points at the Edmonton research pin).
  */
-export async function experiencePins(): Promise<PagePins> {
+export async function experiencePins(): Promise<PagePins & { targets: Record<string, string> }> {
   const roles = await getCollection('roles');
   const seen = new Map<string, PagePin>();
+  const targets: Record<string, string> = {};
   for (const role of sortRoles(roles)) {
     const key = placeKey(role.data.location);
     if (!seen.has(key)) seen.set(key, toPin(role.id, role.data.location));
+    targets[role.id] = seen.get(key)!.id;
   }
   const active = seen.get(placeKey(experienceRole(roles).data.location))!;
-  return { pins: [...seen.values()], active: active.id };
+  return { pins: [...seen.values()], active: active.id, targets };
 }
 
 /** Landing: one pin per menu row, with ids matching the rows' data-pin. About is active. */

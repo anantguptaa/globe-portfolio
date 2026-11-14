@@ -4,7 +4,9 @@
  * Coordinates line, title, one line, key stat, stack (desktop only), call to action.
  * The card itself is not a link: only the call to action is, so screen readers hear one
  * clear link per card instead of the whole card's text.
- * Border turns blue on hover (fine pointers) or when anything inside has keyboard focus.
+ * Border turns blue on hover (fine pointers), when anything inside has keyboard focus, and
+ * while the globe points at this card (data-globe-active: set by src/globe/interactions.ts
+ * on hover, focus or a tap on the card, and kept until another card takes over).
  */
 import type { CollectionEntry } from 'astro:content';
 import { Image } from 'astro:assets';
@@ -31,10 +33,16 @@ const link = projectLink(project);
 ---
 
 {
-  /* TODO (step 6b): hovering or focusing this card (and tapping it on mobile) flies the globe
-     to data-lat / data-lon and updates the page's coordinates readout. */
+  /* data-globe-*: hovering, focusing or tapping the card flies the globe to its pin, and the
+     page's readout shows these coordinates and place (see src/globe/interactions.ts). */
 }
-<article class="card" data-pin={project.id} data-lat={location.lat} data-lon={location.lon}>
+<article
+  class="card"
+  data-globe-target={project.id}
+  data-globe-highlight
+  data-globe-coords={coords}
+  data-globe-place={`${title} · ${location.label}`}
+>
   <div class="media">
     {
       cover ? (
@@ -92,7 +100,8 @@ const link = projectLink(project);
   }
 
   /* Blue border: keyboard focus on the link, or a tap on it. */
-  .card:focus-within {
+  .card:focus-within,
+  .card[data-globe-active] {
     border-color: var(--accent);
   }
 

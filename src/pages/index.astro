@@ -11,7 +11,7 @@ import { landingPins } from '../lib/pins';
 // The globe's four menu pins (from the content files) and the active one (About).
 const globe = await landingPins();
 
-// Globe pin each row aims at; these ids match the pin ids above. Hover and tap: step 6b.
+// Globe pin each row aims at; these ids match the pin ids above (and the still images).
 const pins: Record<string, string> = {
   '/about': 'about',
   '/projects': 'projects',
@@ -33,7 +33,7 @@ const pins: Record<string, string> = {
         ))
       }
     </ul>
-    {/* TODO (step 6b): tap once to aim, tap again to open. Until then a tap opens the page straight away. */}
+    {/* Only shown with JavaScript: without it a tap simply opens the page. */}
     <p class="hint label">Tap once to aim · Tap again to open</p>
   </nav>
 </BaseLayout>
@@ -52,8 +52,14 @@ const pins: Record<string, string> = {
     list-style: none;
   }
 
-  /* Mobile only: closes the list with a hairline and explains tap-to-aim. */
+  /* Mobile only, and only with JavaScript: closes the list with a hairline and explains
+     tap-to-aim (src/globe/interactions.ts). */
   .hint {
+    display: none;
+  }
+
+  :global(.js) .hint {
+    display: block;
     padding: var(--space-3) var(--gutter-full);
     border-block: 1px solid var(--border);
     font-size: var(--fs-label-sm);
@@ -61,7 +67,7 @@ const pins: Record<string, string> = {
   }
 
   @media (min-width: 768px) {
-    .hint {
+    :global(.js) .hint {
       display: none;
     }
   }

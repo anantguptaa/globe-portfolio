@@ -3,7 +3,9 @@
  * RoleEntry — one role on the Experience page.
  * Desktop: dates + coordinates on the left; title, organisation and bullets on the right, all open.
  * Mobile: dates, title and organisation form one tap row that opens the bullets (via Accordion).
- * Hover (fine pointers), focus, or open on mobile: the title turns blue.
+ * Hover (fine pointers), focus, or open on mobile: the title turns blue. It also stays blue
+ * while the globe points at this role (data-globe-active, from src/globe/interactions.ts).
+ * Hovering, focusing or tapping the role (including opening it on mobile) flies the globe.
  */
 import type { CollectionEntry } from 'astro:content';
 import Accordion from './Accordion.astro';
@@ -15,9 +17,11 @@ interface Props {
   role: CollectionEntry<'roles'>;
   /** The linked project, if the role has one. */
   project?: { title: string; href: string };
+  /** The globe pin for this role's place (roles in the same city share one pin). */
+  globeTarget: string;
 }
 
-const { role, project } = Astro.props;
+const { role, project, globeTarget } = Astro.props;
 const { title, org, start, end, location, bullets } = role.data;
 
 const dates = formatRoleDates(start, end);
@@ -25,8 +29,15 @@ const coords = formatCoords(location.lat, location.lon);
 const panelId = `role-${role.id}`;
 ---
 
-{/* TODO (step 6b): hovering or focusing this role turns the globe to data-lat / data-lon. */}
-<Accordion as="article" class="role" data-pin={role.id} data-lat={location.lat} data-lon={location.lon}>
+{/* data-globe-*: the globe pin this role flies to, and the text for the page's readout. */}
+<Accordion
+  as="article"
+  class="role"
+  data-globe-target={globeTarget}
+  data-globe-highlight
+  data-globe-coords={coords}
+  data-globe-place={`${title} · ${location.label}`}
+>
   <div class="head">
     <p class="meta">
       <span class="dates">{dates}</span>
@@ -171,7 +182,8 @@ const panelId = `role-${role.id}`;
   /* ---------- Title turns blue ---------- */
   /* Keyboard focus anywhere in the role, or the role is open on mobile. */
   .role:focus-within .title-text,
-  .role[data-open] .title-text {
+  .role[data-open] .title-text,
+  .role[data-globe-active] .title-text {
     color: var(--accent);
   }
 
