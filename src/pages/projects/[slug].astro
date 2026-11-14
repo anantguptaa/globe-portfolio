@@ -1,0 +1,395 @@
+---
+/**
+ * /projects/<slug> — one "mission file" per featured project.
+ *
+ * [slug] in the filename makes this a dynamic route: one file, many pages. Because the site is
+ * static, Astro has to know every page at build time, so getStaticPaths() lists them. Astro
+ * then renders this file once per entry, filling in Astro.params.slug and Astro.props.
+ *
+ * Every section hides itself when its data is missing or still "TODO" (see isFilled).
+ */
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CompareSlider from '../../components/CompareSlider.astro';
+import GlobeSlot from '../../components/GlobeSlot.astro';
+import Lifecycle, { type Stage } from '../../components/Lifecycle.astro';
+import StatGrid from '../../components/StatGrid.astro';
+import { formatCoords } from '../../lib/geo';
+import { isFilled, splitProjects } from '../../lib/projects';
+
+export const getStaticPaths = (async () => {
+  const { featured } = splitProjects(await getCollection('projects'));
+  // One entry per page: `params` builds the URL, `props` is handed to that page.
+  return featured.map((project, i) => ({
+    params: { slug: project.id },
+    props: { project, number: i + 1 },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  /** Position among the featured projects: "Mission file 01". */
+  number: number;
+}
+
+const { project, number } = Astro.props;
+const { title, summary, location, role, dates, status, stats = [], stack, links = {}, compare, lifecycle } =
+  project.data;
+
+const coords = formatCoords(location.lat, location.lon);
+const missionNo = String(number).padStart(2, '0');
+
+// Header facts: only the ones that are filled in.
+const facts = [
+  { term: 'Role', value: role },
+  { term: 'Dates', value: dates },
+  { term: 'Status', value: status === 'ongoing' ? 'Ongoing' : status === 'complete' ? 'Complete' : undefined },
+].filter((f): f is { term: string; value: string } => isFilled(f.value));
+
+const shownStats = stats.filter((s) => isFilled(s.value) && isFilled(s.label));
+
+const stageTitles = { data: 'Data', model: 'Model', training: 'Training', results: 'Results' } as const;
+const stages: Stage[] = lifecycle
+  ? (Object.keys(stageTitles) as Stage['key'][])
+      .filter((key) => isFilled(lifecycle[key]))
+      .map((key) => ({ key, title: stageTitles[key], text: lifecycle[key] }))
+  : [];
+
+const shownStack = stack.filter(isFilled);
+const shownLinks = [
+  { label: 'GitHub', href: links.github },
+  { label: 'Report', href: links.report },
+  { label: 'Live demo', href: links.demo },
+].filter((l): l is { label: string; href: string } => isFilled(l.href));
+
+// The Markdown below the frontmatter. render() turns it into a component, <Content />.
+const hasWriteup = isFilled(project.body);
+const { Content } = await render(project);
+---
+
+<BaseLayout title={title} description={summary} coords={coords}>
+  <div class="container page">
+    <section class="hero">
+      <div class="intro">
+        <a class="back" href="/projects"><span aria-hidden="true">←</span> Mission index</a>
+        <p class="eyebrow">
+          Mission file {missionNo}
+          <span class="eyebrow-coords"><span aria-hidden="true"> · </span>{coords}</span>
+        </p>
+        <h1>{title}</h1>
+        <p class="lede">{summary}</p>
+        {
+          facts.length > 0 && (
+            <dl class="facts">
+              {facts.map(({ term, value }) => (
+                <div>
+                  <dt>{term}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          )
+        }
+      </div>
+      {/* TODO (step 6): the globe pins this project's location. */}
+      <GlobeSlot size={400} />
+    </section>
+
+    {shownStats.length > 0 && <StatGrid stats={shownStats} />}
+
+    {compare && <CompareSlider before={compare.before} after={compare.after} title={title} />}
+
+    {stages.length > 0 && <Lifecycle stages={stages} />}
+
+    {
+      hasWriteup && (
+        <article class="writeup">
+          <Content />
+        </article>
+      )
+    }
+
+    {
+      (shownStack.length > 0 || shownLinks.length > 0) && (
+        <section class="outro" aria-label="Stack and links">
+          {shownStack.length > 0 && (
+            <div class="stack">
+              <h2 class="section-label">Stack</h2>
+              <p class="stack-list">{shownStack.join(' · ')}</p>
+            </div>
+          )}
+          {shownLinks.length > 0 && (
+            <ul class="links">
+              {shownLinks.map(({ label, href }) => (
+                <li>
+                  <a class="link-button" href={href} target="_blank" rel="noopener">
+                    {label} <span aria-hidden="true">↗</span>
+                    <span class="visually-hidden">(opens in a new tab)</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    padding-bottom: var(--space-16);
+  }
+
+  /* ---------- Top section ---------- */
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  /* Mobile: the globe strip comes first, right under the header. */
+  .hero :global(.globe-slot) {
+    order: -1;
+  }
+
+  .back {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: var(--touch-min);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-move);
+  }
+
+  .back:focus-visible {
+    color: var(--accent);
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* The mobile mockup shows just "Mission file 01". */
+  .eyebrow-coords {
+    display: none;
+  }
+
+  .lede {
+    max-width: 680px;
+    color: var(--text-muted);
+  }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-12);
+    margin-top: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+  }
+
+  .facts div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .facts dt {
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* ---------- Write-up (Markdown body) ---------- */
+  /* The Markdown is rendered by <Content />, a child, so :global() is needed to style it. */
+  .writeup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 720px;
+  }
+
+  .writeup :global(h2) {
+    margin-top: var(--space-4);
+    font-size: var(--fs-section);
+  }
+
+  .writeup :global(h3) {
+    font-size: var(--fs-item);
+  }
+
+  .writeup :global(p),
+  .writeup :global(li) {
+    color: var(--text-muted);
+  }
+
+  .writeup :global(ul),
+  .writeup :global(ol) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-left: var(--space-6);
+  }
+
+  .writeup :global(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-card);
+  }
+
+  .writeup :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  /* ---------- Stack and links ---------- */
+  .outro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--border);
+  }
+
+  /* When nothing sits between the stats and this section, the stats' bottom line is enough. */
+  .page > :global(.stat-grid) + .outro {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .stack-list {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Mobile: buttons share the row equally. */
+  .links li {
+    flex: 1 1 0;
+  }
+
+  .link-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    min-height: var(--touch-min);
+    padding: var(--space-3) var(--space-6);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-button);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      border-color var(--dur-fast) var(--ease-move),
+      color var(--dur-fast) var(--ease-move);
+  }
+
+  .link-button:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  @media (pointer: fine) {
+    .back:hover {
+      color: var(--accent);
+    }
+
+    .link-button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  }
+
+  /* ---------- Desktop ---------- */
+  @media (min-width: 768px) {
+    .page {
+      gap: var(--space-16);
+    }
+
+    .hero {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-12);
+    }
+
+    .hero :global(.globe-slot) {
+      order: 0;
+    }
+
+    .intro {
+      flex: 1 1 0;
+      min-width: 0;
+      padding-top: var(--space-10);
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow-coords {
+      display: inline;
+    }
+
+    .lede {
+      font-size: var(--fs-item);
+    }
+
+    .outro {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .links li {
+      flex: 0 0 auto;
+    }
+  }
+</style>

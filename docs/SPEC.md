@@ -238,7 +238,8 @@ posts (later): { title: string; date: string; summary: string; tags: string[]; d
 
 - Featured projects are `featured: true`, sorted by `order`; the rest go in "Other builds", also sorted by `order`.
 - Every project has a globe pin. A file without `location` gets Point Nemo (48.88°S 123.39°W).
-- A featured project gets its own page at `/projects/[slug]` once its Markdown body has a write-up. Its card links there; otherwise to GitHub, then a demo, otherwise no link.
+- Every featured project gets its own page at `/projects/[slug]`, and its card links there. "Other builds" rows link to GitHub, then a demo, otherwise no link.
+- On a project page, any field that is missing or starts with `TODO` hides its section.
 - Roles sort by `start`, newest first, with education last.
 - An entry's id is its filename (`usa-fields.md` → `usa-fields`); it is the URL slug for `/projects/[slug]` and the value `reference()` fields use. There is no `slug` field.
 - Role dates are `YYYY-MM` or `YYYY-MM-DD` and stay quoted in YAML, so they are read as strings, not dates.

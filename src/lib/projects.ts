@@ -16,13 +16,19 @@ export function splitProjects(projects: Project[]) {
   };
 }
 
-/**
- * A featured project gets its own page (/projects/<id>) once its Markdown file has a write-up
- * below the frontmatter. Only USA_FIELDS has one so far. The project page step will use this
- * same check to decide which pages to build, so a card's link and its page always match.
- */
+/** Every featured project gets its own page at /projects/<id>. */
 export function hasDetailPage(project: Project): boolean {
-  return project.data.featured && Boolean(project.body?.trim());
+  return project.data.featured;
+}
+
+/**
+ * True when a field has real content: not missing, not blank, and not a "TODO" placeholder.
+ * Pages use it to hide sections that aren't written yet, so unfinished projects still look clean.
+ */
+export function isFilled(text: string | undefined | null): text is string {
+  if (!text) return false;
+  const trimmed = text.trim();
+  return trimmed !== '' && !/^TODO\b/i.test(trimmed);
 }
 
 /** Where a card or list row should send people: its page, else GitHub, else a demo, else nowhere. */

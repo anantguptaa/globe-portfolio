@@ -1,0 +1,163 @@
+---
+/**
+ * Lifecycle — how a project was built: Data → Model → Training → Results.
+ * Desktop: four columns, each under a hairline (blue over Results).
+ * Mobile: each stage is a tap-to-open row, using the same Accordion as the Experience page.
+ * The page passes only the stages that are written; they're numbered in the order shown.
+ */
+import Accordion from './Accordion.astro';
+
+export interface Stage {
+  key: 'data' | 'model' | 'training' | 'results';
+  title: string;
+  text: string;
+}
+
+interface Props {
+  stages: Stage[];
+}
+
+const { stages } = Astro.props;
+---
+
+<section class="lifecycle" aria-labelledby="lifecycle-heading">
+  <h2 class="section-label" id="lifecycle-heading">Mission lifecycle</h2>
+  <ol class="stages">
+    {
+      stages.map((stage, i) => (
+        <Accordion as="li" class:list={['stage', { final: stage.key === 'results' }]}>
+          <h3 class="stage-title">
+            <button type="button" class="trigger" data-accordion-trigger>
+              <span class="num" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span class="name">{stage.title}</span>
+              <span class="sign" data-accordion-sign aria-hidden="true" />
+            </button>
+          </h3>
+          <div class="panel" id={`lifecycle-${stage.key}`} data-accordion-panel>
+            <p>{stage.text}</p>
+          </div>
+        </Accordion>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .lifecycle {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* ---------- Mobile: stacked tap rows ---------- */
+  .stages {
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stage {
+    border-top: 1px solid var(--border);
+  }
+
+  .stage-title {
+    font-size: inherit;
+  }
+
+  /* The button looks like the row itself: number, title, then the +/− on the right. */
+  .trigger {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    width: 100%;
+    min-height: var(--touch-min);
+    padding: var(--space-4) 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label-sm);
+    color: var(--text-muted);
+  }
+
+  .name {
+    flex-grow: 1;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-item);
+  }
+
+  .sign {
+    font-family: var(--font-mono);
+    font-size: var(--fs-section);
+    line-height: var(--lh-tight);
+    color: var(--accent);
+  }
+
+  .panel {
+    padding-bottom: var(--space-4);
+    font-size: var(--fs-body-sm);
+    color: var(--text-muted);
+  }
+
+  /* ---------- Desktop: four columns ---------- */
+  @media (min-width: 768px) {
+    .lifecycle {
+      gap: var(--space-6);
+    }
+
+    .stages {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-6);
+      border-bottom: 0;
+    }
+
+    .stage {
+      flex: 1 1 200px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      padding-top: var(--space-4);
+      border-top: 2px solid var(--text);
+    }
+
+    .stage.final {
+      border-top-color: var(--accent);
+    }
+
+    /* Not a toggle on desktop: number above the title, normal cursor. */
+    .trigger {
+      flex-direction: column;
+      gap: var(--space-3);
+      min-height: 0;
+      padding: 0;
+      cursor: default;
+    }
+
+    .name {
+      font-size: var(--fs-section);
+    }
+
+    .panel {
+      padding-bottom: 0;
+    }
+  }
+</style>
