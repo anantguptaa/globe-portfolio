@@ -1,31 +1,58 @@
 ---
 /**
- * GlobeSlot — placeholder for the globe on content pages (step 5 puts the real globe here).
- * Mobile: a 250px full-width strip under the header, faded at the bottom.
- * Desktop: a square beside the page title (480px by default), fading into the content below.
- * The faint dashed circle is TEMPORARY so you can see where the globe goes.
+ * GlobeSlot — where the globe sits on this page, and what it points at.
+ *
+ * The live globe isn't inside this box: it lives once in BaseLayout (so it survives page
+ * changes) and is moved over this slot by src/globe/site-globe.ts. The slot provides:
+ *  - the place and size, through ordinary CSS below (so layout stays in one place);
+ *  - the still image, shown straight away and whenever there's no live globe;
+ *  - the page's pins and active pin, as data attributes the globe reads;
+ *  - the area you can drag to turn the globe.
+ *
+ * Placement:
+ *  - page    mobile: a 250px full-width strip under the header, faded at the bottom.
+ *            desktop: a square beside the page title (size px), fading into the content.
+ *  - landing large, behind the menu: below the header on mobile, off the right edge on desktop.
+ * The fade (mask-image) and clipping set here are copied onto the live globe's window.
  */
-interface Props {
-  /** Desktop width in px. Experience uses 480, Projects 520 (as in the mockups). */
+import type { PagePins } from '../lib/pins';
+
+export type StillName = 'landing' | 'about' | 'projects' | 'experience' | 'contact';
+
+interface Props extends PagePins {
+  /** Which pre-rendered still to show (public/globe/still-<name>.webp). */
+  still: StillName;
+  variant?: 'page' | 'landing';
+  /** Desktop width in px (page variant). Experience 480, Projects 520, as in the mockups. */
   size?: number;
 }
 
-const { size = 480 } = Astro.props;
+const { pins, active, still, variant = 'page', size = 480 } = Astro.props;
+const activePin = pins.find((p) => p.id === active);
+const alt = activePin ? `Dotted globe pinned at ${activePin.label}` : 'Dotted globe of the Earth';
 ---
 
 {/* The size goes in as a CSS custom property, which the desktop styles below read. */}
-<div class="globe-slot" aria-hidden="true" style={`--slot-size: ${size}px`}>
-  <div class="disc"></div>
+<div
+  class:list={['globe-slot', variant]}
+  style={`--slot-size: ${size}px`}
+  data-globe-slot
+  data-pins={JSON.stringify(pins)}
+  data-active={active}
+>
+  {/* The disc: the square the globe is drawn in. The live globe's canvas is placed exactly here. */}
+  <div class="disc" data-globe-disc>
+    <img class="globe-still" src={`/globe/still-${still}.webp`} alt={alt} decoding="async" draggable="false" />
+  </div>
 </div>
 
 <style>
-  /* Mobile: full-bleed strip (cancels the container's side padding). */
+  /* ---------- Page: mobile strip (default) ---------- */
   .globe-slot {
     position: relative;
     height: 250px;
-    margin-inline: calc(-1 * var(--page-pad));
+    margin-inline: calc(-1 * var(--page-pad)); /* full bleed: cancels the container's padding */
     overflow: hidden;
-    pointer-events: none;
     /* Masks only use opacity, so any solid colour works here; var(--text) avoids a hex value. */
     -webkit-mask-image: linear-gradient(to bottom, var(--text) 60%, transparent 100%);
     mask-image: linear-gradient(to bottom, var(--text) 60%, transparent 100%);
@@ -40,17 +67,32 @@ const { size = 480 } = Astro.props;
     transform: translateX(-50%);
   }
 
-  /* TEMPORARY: dashed outline where the globe's disc will be. */
-  .disc::before {
-    content: '';
-    position: absolute;
-    inset: 4%;
-    border: 1px dashed var(--border-strong);
-    border-radius: var(--radius-round);
+  /* The still fills the disc. Stills are square screenshots of the live globe at the same
+     framing, so the live globe lands exactly on top. */
+  .globe-still {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+    transition: opacity var(--dur-base) var(--ease-settle);
   }
 
+  /* Live globe ready (set by site-globe.ts on <html>): the still fades out as the globe
+     fades in. On later pages it is simply never shown. */
+  :global(html[data-globe='live']) .globe-still {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .globe-still {
+      transition-duration: var(--dur-fast);
+    }
+  }
+
+  /* ---------- Page: desktop ---------- */
   @media (min-width: 768px) {
-    .globe-slot {
+    .globe-slot.page {
       flex: 0 1 var(--slot-size);
       width: min(var(--slot-size), 86vw);
       height: auto;
@@ -61,11 +103,43 @@ const { size = 480 } = Astro.props;
       mask-image: linear-gradient(to bottom, var(--text) 45%, transparent 92%);
     }
 
-    .disc {
+    .page .disc {
       top: 0;
       left: 0;
       width: 100%;
       transform: none;
+    }
+  }
+
+  /* ---------- Landing ---------- */
+  /* Placed absolutely inside BaseLayout's landing clip box; no fade. */
+  .globe-slot.landing {
+    position: absolute;
+    left: 5vw;
+    top: 150px;
+    width: 90vw;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    margin: 0;
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+    pointer-events: auto; /* draggable where the menu rows don't cover it */
+  }
+
+  .landing .disc {
+    top: 0;
+    left: 0;
+    width: 100%;
+    transform: none;
+  }
+
+  @media (min-width: 768px) {
+    .globe-slot.landing {
+      left: auto;
+      right: -4vw;
+      top: 70px;
+      width: min(780px, 70vw);
     }
   }
 </style>

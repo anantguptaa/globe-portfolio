@@ -148,7 +148,7 @@ Six routes, each with its own globe pin. Canvas artboards are the reference for 
 | `/about`                | 03, M2         | Current location (North Pole until set)                                                                                        | Photo, bio, looking for, interests                                                                                     |
 | `/projects`             | 04, M3         | Each card's data location                                                                                                      | Title, intro, 4 featured cards, "Other builds" list                                                                    |
 | `/projects/[slug]`      | 05, M4         | The project's data location                                                                                                    | Header facts, StatGrid, CompareSlider, Lifecycle, stack, links                                                         |
-| `/experience`           | 06, M5         | Each role's location                                                                                                           | Role entries newest first, education last, CV button                                                                   |
+| `/experience`           | 06, M5         | Each role's location; active: newest non-remote role (not education) | Role entries newest first, education last, CV button                                                                   |
 | `/contact`              | 07, M6         | Point Nemo                                                                                                                     | "Open a channel.", 4 channel rows. Desktop: hovering a row sends a signal arc from the pin                             |
 | `/blog`, `/blog/[slug]` | not designed   | none                                                                                                                           | Later: post list + post layout in mission-file style                                                                   |
 
@@ -192,6 +192,23 @@ One Three.js points globe, created once in the base layout and kept alive across
 - The live globe fades in over the still when ready; if WebGL is missing or errors, the still stays.
 - Without the live globe, hover crossfades between stills and the zoom becomes a crossfade. Coordinates and labels are normal HTML, so nothing important depends on WebGL.
 
+**Globe test page (dev only)**
+
+A playground for the globe on its own: a button for every pin, drag to turn, scroll to spin, and a readout of the globe's state. It is never part of the live site.
+
+| How to open it | Address | Use it for |
+| --- | --- | --- |
+| `npm run dev` | <http://localhost:4321/dev/globe> | Day-to-day checks while changing the globe |
+| `npm run globe:preview` (stop any running preview first: `npx astro preview stop`) | <http://localhost:4321/dev/globe> | Realistic loading: the production build, e.g. with Chrome DevTools set to Slow 4G and 4× CPU slowdown |
+
+The terminal prints the exact port if 4321 is taken. Add to the address:
+
+- `?globe=off`: still image only (the fallback); the pin buttons swap between stills
+- `?globe=lite` or `?globe=full`: force a device tier
+- `?still=<page>`: what the stills script captures (landing, about, projects, experience, contact)
+
+Related commands: `npm run globe:stills` (regenerate the stills), `npm run globe:mask` (regenerate the land mask).
+
 ## Transitions and motion
 
 Entering the site from the landing page zooms into the pin; moving between inner pages morphs the clicked word into the title.
@@ -210,6 +227,10 @@ The zoom (accent) is the signature move and plays only when leaving the landing 
 **Implementation notes**
 
 - `<ClientRouter />` in BaseLayout; the globe container uses `transition:persist` so one Three.js scene survives navigation.
+- Each page places a `GlobeSlot` (landing: BaseLayout from the `globe` prop) carrying its pins, active pin and still image. `src/globe/site-globe.ts` moves the persisted globe over the current slot on every `astro:page-load`, copying the slot's fade and clipping, and aims it: `lookAt` on the first page, `flyTo` after a navigation. Dragging is handled on the slot, so content over the globe stays clickable.
+- Pins come from the content collections (`src/lib/pins.ts`); no coordinates are hard-coded in pages.
+- Scripts must survive in-page navigation: bundled scripts run once per visit and set up each new page on `astro:page-load`; nothing that runs per page may add listeners twice.
+- Project pages have no still of their own yet; they show the Projects still until the live globe is ready.
 - Header word and page title share a `transition:name` per page (`title-projects`, …) for the morph.
 - The zoom runs in JS on the persisted globe around Astro's navigation events (`astro:before-preparation`, `astro:after-swap`); keep it under the 4s view-transition timeout.
 - Direct visits and refreshes skip transitions and show the page settled.
@@ -236,6 +257,7 @@ roles: {
   title: string; org: string; start: string; end?: string;  // ISO dates, end empty = present
   location: { lat: number; lon: number; label: string };
   kind: 'research' | 'work' | 'freelance' | 'volunteer' | 'education';
+  remote?: boolean;                // default false; remote roles never set the Experience pin
   bullets: string[]; project?: reference('projects');
 }
 pages: {                       // one file per page: about.md, contact.md; body = main text

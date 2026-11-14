@@ -8,6 +8,7 @@
 import { getEntry, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GlobeSlot from '../components/GlobeSlot.astro';
+import { contactPins } from '../lib/pins';
 import { SOCIAL_LINKS, linkDisplay } from '../data/site';
 import { formatCoords } from '../lib/geo';
 
@@ -17,6 +18,8 @@ if (!contact) throw new Error('Missing src/content/pages/contact.md');
 const { location } = contact.data;
 const { Content } = await render(contact);
 const coords = formatCoords(location.lat, location.lon);
+// The globe's pin: contact.md's location (Point Nemo).
+const globe = await contactPins();
 ---
 
 <BaseLayout title="Contact" coords={coords} showSocial={false}>
@@ -40,7 +43,7 @@ const coords = formatCoords(location.lat, location.lon);
           Channel open · Standing by
         </p>
       </div>
-      <GlobeSlot />
+      <GlobeSlot still="contact" {...globe} />
     </section>
 
     <ul class="channels" aria-label="Contact channels">

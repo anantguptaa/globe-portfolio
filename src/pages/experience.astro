@@ -9,6 +9,7 @@ import GlobeSlot from '../components/GlobeSlot.astro';
 import RoleEntry from '../components/RoleEntry.astro';
 import { SITE } from '../data/site';
 import { formatCoords } from '../lib/geo';
+import { experiencePins, experienceRole } from '../lib/pins';
 import { sortRoles } from '../lib/roles';
 
 // 1. Read every role file. Each entry has an id (the filename) and typed data (the frontmatter).
@@ -26,9 +27,12 @@ const entries = await Promise.all(
   }),
 );
 
-// Newest role, shown in the readout until the globe can change it (step 6).
-const first = roles[0];
-const pageCoords = formatCoords(53.52, -113.53); // Experience page pin: Edmonton (spec)
+// The page's pin: the newest role that isn't remote (or education), worked out from the
+// role files, so it moves by itself when a new on-site role is added. Shown in the readout.
+const first = experienceRole(roles);
+const pageCoords = formatCoords(first.data.location.lat, first.data.location.lon);
+// The globe: one pin per role's place, with that role's place active.
+const globe = await experiencePins();
 ---
 
 <BaseLayout title="Experience" coords={pageCoords}>
@@ -37,12 +41,12 @@ const pageCoords = formatCoords(53.52, -113.53); // Experience page pin: Edmonto
       <div class="intro">
         <p class="eyebrow">Flight log</p>
         <h1>Experience</h1>
-        {/* TODO (step 6): true once the globe turns to the hovered / tapped role. */}
+        {/* TODO (step 6b): true once the globe turns to the hovered / tapped role. */}
         <p class="lede lede-desktop">Hover a role to see where it happened.</p>
         <p class="lede lede-mobile">Tap a role to see where it happened and what I did.</p>
         {
           first && (
-            // TODO (step 6): update this readout to the hovered or focused role.
+            // TODO (step 6b): update this readout to the hovered or focused role.
             <div class="readout" aria-live="polite">
               <span class="readout-coords">{formatCoords(first.data.location.lat, first.data.location.lon)}</span>
               <span class="readout-place">
@@ -52,7 +56,7 @@ const pageCoords = formatCoords(53.52, -113.53); // Experience page pin: Edmonto
           )
         }
       </div>
-      <GlobeSlot />
+      <GlobeSlot still="experience" {...globe} />
     </section>
 
     <div class="roles">

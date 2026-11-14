@@ -73,20 +73,21 @@
   border: 0;
 }
 
-/* ----- Dragging (Globe.ts sets these data attributes) ----- */
+/* ----- Dragging. Globe.ts marks the drag surface (the canvas, or a page's globe slot)
+   with data-globe-drag, and adds data-over / data-dragging while the pointer is on it. ----- */
 
 /* Touch: a sideways swipe turns the globe; an up/down swipe still scrolls the page. */
-.globe-canvas[data-draggable='true'] {
+[data-globe-drag='true'] {
   touch-action: pan-y;
 }
 
-/* Mouse only: a grab hand over the globe's disc (not the empty corners of the canvas). */
+/* Mouse only: a grab hand over the globe's disc (not the empty corners around it). */
 @media (pointer: fine) {
-  .globe-canvas[data-over='true'] {
+  [data-globe-drag='true'][data-over='true'] {
     cursor: grab;
   }
 
-  .globe-canvas[data-dragging='true'] {
+  [data-globe-drag='true'][data-dragging='true'] {
     cursor: grabbing;
   }
 }

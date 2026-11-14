@@ -87,6 +87,8 @@ const roles = defineCollection({
     end: isoDate.optional(), // leave out for "present"
     location,
     kind: z.enum(['research', 'work', 'freelance', 'volunteer', 'education']),
+    // Remote roles have no real place, so they never set the Experience page's globe pin.
+    remote: z.boolean().default(false),
     bullets: z.array(z.string()),
     project: reference('projects').optional(), // links the role to a project by its id
   }),

@@ -94,6 +94,10 @@ const { as: Tag = 'div', class: className, ...rest } = Astro.props;
   });
 
   mobile.addEventListener('change', applyMode); // rotate / resize across 768px
+  // This script runs once per visit, but with in-page navigation (ClientRouter) each new
+  // page brings new accordions, so set them up on every astro:page-load as well. Running
+  // applyMode twice is harmless, and the click listener above is on `document`, which
+  // persists, so it is never added twice.
   applyMode();
-  // TODO (step 7): with view transitions, also run applyMode on 'astro:page-load'.
+  document.addEventListener('astro:page-load', applyMode);
 </script>

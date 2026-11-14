@@ -10,6 +10,7 @@ location:
   lon: -123.39
   label: Remote
 kind: freelance
+remote: true # never used for the Experience page's globe pin
 bullets:
   - 'TODO'
 ---

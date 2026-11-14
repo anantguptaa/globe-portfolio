@@ -1,13 +1,17 @@
 ---
 /**
  * Landing page (/): name and tagline in the header, four full-width menu rows, footer.
- * The globe placeholder sits behind it (added by BaseLayout for variant="landing").
+ * The globe sits behind it (BaseLayout places the landing GlobeSlot from the `globe` prop).
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import MenuRow from '../components/MenuRow.astro';
 import { NAV_LINKS } from '../data/site';
+import { landingPins } from '../lib/pins';
 
-// Globe pin each row will aim at (used from step 6).
+// The globe's four menu pins (from the content files) and the active one (About).
+const globe = await landingPins();
+
+// Globe pin each row aims at; these ids match the pin ids above. Hover and tap: step 6b.
 const pins: Record<string, string> = {
   '/about': 'about',
   '/projects': 'projects',
@@ -16,7 +20,7 @@ const pins: Record<string, string> = {
 };
 ---
 
-<BaseLayout variant="landing">
+<BaseLayout variant="landing" globe={globe}>
   <nav class="menu" aria-label="Main">
     <ul>
       {
@@ -29,7 +33,7 @@ const pins: Record<string, string> = {
         ))
       }
     </ul>
-    {/* TODO (step 6): true once the globe exists; until then a tap opens the page straight away. */}
+    {/* TODO (step 6b): tap once to aim, tap again to open. Until then a tap opens the page straight away. */}
     <p class="hint label">Tap once to aim · Tap again to open</p>
   </nav>
 </BaseLayout>

@@ -2,8 +2,14 @@
 /**
  * BaseLayout — wraps every page: <head>, header, main content and footer.
  * A page passes its content between <BaseLayout> … </BaseLayout>; it appears at <slot />.
- * Later steps add the globe (step 5), the cursor (step 8) and <ClientRouter /> (step 7) here.
+ *
+ * Step 6: <ClientRouter /> makes navigation happen inside the page instead of a full reload,
+ * and the globe lives here once, in a layer marked transition:persist, so the same Three.js
+ * scene survives every page change. Each page says where the globe sits with a GlobeSlot
+ * (the landing page passes its slot's pins through the `globe` prop instead).
+ * The cursor (step 8) goes here later.
  */
+import { ClientRouter } from 'astro:transitions';
 import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
@@ -11,9 +17,11 @@ import '@fontsource/jetbrains-mono/latin-400.css';
 import '@fontsource/jetbrains-mono/latin-500.css';
 import '../styles/global.css';
 
+import GlobeSlot from '../components/GlobeSlot.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE } from '../data/site';
+import type { PagePins } from '../lib/pins';
 
 interface Props {
   /** Page title; omit on the home page to show just the name. */
@@ -25,9 +33,11 @@ interface Props {
   coords?: string;
   /** Hide footer social icons (Contact page). */
   showSocial?: boolean;
+  /** Landing only: the globe's pins. Other pages place their own GlobeSlot. */
+  globe?: PagePins;
 }
 
-const { title, description = SITE.description, variant = 'page', coords, showSocial = true } = Astro.props;
+const { title, description = SITE.description, variant = 'page', coords, showSocial = true, globe } = Astro.props;
 
 const fullTitle = title ? `${title} · ${SITE.name}` : SITE.name;
 const isLanding = variant === 'landing';
@@ -46,28 +56,54 @@ const isLanding = variant === 'landing';
     <link rel="preload" href="/fonts/TeXGyreAdventor-Bold.woff2" as="font" type="font/woff2" crossorigin />
     {
       /* Marks that JavaScript is running, before anything paints. CSS uses .js to start
-         mobile accordions closed without a flash; without JS everything stays open. */
+         mobile accordions closed without a flash; without JS everything stays open.
+         ClientRouter copies the new page's <html> attributes on each navigation, which would
+         drop the class, so it's put back after every swap. The flag stops a second listener
+         if this script ever runs again. */
     }
     <script is:inline>
       document.documentElement.classList.add('js');
+      if (!window.__jsClassListener) {
+        window.__jsClassListener = true;
+        document.addEventListener('astro:after-swap', function () {
+          document.documentElement.classList.add('js');
+        });
+      }
     </script>
+    {/* In-page navigation; the default animation is a quick crossfade until step 7. */}
+    <ClientRouter />
   </head>
   <body class:list={{ 'is-landing': isLanding }}>
     <a class="skip-link" href="#main">Skip to content</a>
     {
-      /* Placeholder where the globe will go in step 5. Sized and placed as in the mockup,
-         and positioned absolutely, so the globe can replace it without moving anything. */
-      isLanding && (
-        <div class="globe-layer" aria-hidden="true">
-          <div class="globe-slot" />
+      /* Landing: the globe's slot hangs off the right edge on desktop, so it sits in a
+         full-page box that clips it (the page must never scroll sideways). */
+      isLanding && globe && (
+        <div class="landing-globe">
+          <GlobeSlot variant="landing" still="landing" pins={globe.pins} active={globe.active} />
         </div>
       )
     }
+    {
+      /* The one live globe, kept across page changes (transition:persist). It sits behind
+         the page and is moved over the current page's GlobeSlot by site-globe.ts:
+           window = the slot's box (with its fade), stage = the square the globe is drawn in. */
+    }
+    <div class="globe-layer" data-globe-layer transition:persist="globe">
+      <div class="globe-window" data-globe-window hidden>
+        <div class="globe-stage" data-globe-stage></div>
+      </div>
+    </div>
     <Header variant={variant} />
     <main id="main" tabindex="-1">
       <slot />
     </main>
     <Footer coords={coords} showSocial={showSocial} />
+
+    <script>
+      // Bundled, so it runs once per visit; it re-aims the globe on every page change itself.
+      import '../globe/site-globe';
+    </script>
   </body>
 </html>
 
@@ -83,17 +119,37 @@ const isLanding = variant === 'landing';
     flex-direction: column;
   }
 
-  /* Header, main and footer sit above the globe. They're rendered by child components,
-     so :global() is needed to reach them from this file's scoped styles. */
-  .is-landing > :global(header),
-  .is-landing > main,
-  .is-landing > :global(footer) {
+  /* Landing: the menu area lets presses through to the globe behind it, except on the rows
+     and other controls, so the globe can be dragged where the rows don't cover it. */
+  .is-landing main {
+    pointer-events: none;
+  }
+
+  .is-landing main :global(a),
+  .is-landing main :global(button) {
+    pointer-events: auto;
+  }
+
+  /* Header, main and footer sit above the globe on every page. They're rendered by child
+     components, so :global() is needed to reach them from this file's scoped styles. */
+  body > :global(header),
+  body > main,
+  body > :global(footer) {
     position: relative;
     z-index: 1;
   }
 
-  /* Full-page layer that clips the globe: it hangs off the right edge on desktop,
-     and that must never make the page scroll sideways. */
+  /* Landing slot's clip box: full page, clips the slot's overflow, lets presses through. */
+  .landing-globe {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* The live globe's layer: full page, behind the content, clips anything that hangs off
+     the edge. Nothing in it takes presses: dragging is handled on the page's slot. */
   .globe-layer {
     position: absolute;
     inset: 0;
@@ -102,30 +158,30 @@ const isLanding = variant === 'landing';
     pointer-events: none;
   }
 
-  .globe-slot {
+  /* Position and size are set by site-globe.ts to match the page's slot. */
+  .globe-window,
+  .globe-stage {
     position: absolute;
-    left: 5vw;
-    top: 150px;
-    width: 90vw;
-    aspect-ratio: 1 / 1;
-    pointer-events: none;
   }
 
-  /* TEMPORARY (step 5 replaces it): faint dashed outline of where the globe's disc will be. */
-  .globe-slot::before {
-    content: '';
-    position: absolute;
-    inset: 3.5%;
-    border: 1px dashed var(--border-strong);
-    border-radius: var(--radius-round);
+  .globe-window[hidden] {
+    display: none;
   }
 
-  @media (min-width: 768px) {
-    .globe-slot {
-      left: auto;
-      right: -4vw;
-      top: 70px;
-      width: min(780px, 70vw);
+  /* The canvas fades in over the still once the globe is ready (data-globe on <html>);
+     the still fades out at the same time (GlobeSlot.astro). */
+  .globe-stage :global(canvas) {
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-settle);
+  }
+
+  :global(html[data-globe='live']) .globe-stage :global(canvas) {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .globe-stage :global(canvas) {
+      transition-duration: var(--dur-fast);
     }
   }
 </style>

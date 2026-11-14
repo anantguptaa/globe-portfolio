@@ -16,6 +16,7 @@ import GlobeSlot from '../../components/GlobeSlot.astro';
 import Lifecycle, { type Stage } from '../../components/Lifecycle.astro';
 import StatGrid from '../../components/StatGrid.astro';
 import { formatCoords } from '../../lib/geo';
+import { projectPins } from '../../lib/pins';
 import { isFilled, splitProjects } from '../../lib/projects';
 
 export const getStaticPaths = (async () => {
@@ -38,6 +39,8 @@ const { title, summary, location, role, dates, status, stats = [], stack, links 
   project.data;
 
 const coords = formatCoords(location.lat, location.lon);
+// The globe's pin: this project's location.
+const globe = projectPins(project);
 const missionNo = String(number).padStart(2, '0');
 
 // Header facts: only the ones that are filled in.
@@ -92,8 +95,11 @@ const { Content } = await render(project);
           )
         }
       </div>
-      {/* TODO (step 6): the globe pins this project's location. */}
-      <GlobeSlot size={400} />
+      {
+        /* There's no still per project yet, so the Projects still stands in until the live
+           globe is ready (it shows the USA_FIELDS pin). */
+      }
+      <GlobeSlot still="projects" size={400} {...globe} />
     </section>
 
     {shownStats.length > 0 && <StatGrid stats={shownStats} />}

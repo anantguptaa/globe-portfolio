@@ -11,12 +11,15 @@ import GlobeSlot from '../../components/GlobeSlot.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { formatCoords } from '../../lib/geo';
 import { projectLink, splitProjects } from '../../lib/projects';
+import { projectsPins } from '../../lib/pins';
 
 const { featured, others } = splitProjects(await getCollection('projects'));
 
-// The first card's pin: shown in the readout and the footer until the globe can change it (step 6).
+// The first card's pin: the active one, shown in the readout and the footer.
+// The globe gets one pin per featured project (step 6b makes hovering a card switch it).
 const first = featured[0];
 const firstCoords = first ? formatCoords(first.data.location.lat, first.data.location.lon) : undefined;
+const globe = await projectsPins();
 ---
 
 <BaseLayout title="Projects" coords={firstCoords}>
@@ -25,7 +28,7 @@ const firstCoords = first ? formatCoords(first.data.location.lat, first.data.loc
       <div class="intro">
         <p class="eyebrow">Mission index</p>
         <h1>Projects</h1>
-        {/* TODO (step 6): true once the globe flies to the hovered / tapped card. */}
+        {/* TODO (step 6b): true once the globe flies to the hovered / tapped card. */}
         <p class="lede lede-desktop">
           Each project is pinned on the globe where its data comes from. Hover a card to fly there, open it for
           the numbers, the visuals and how it was built.
@@ -33,7 +36,7 @@ const firstCoords = first ? formatCoords(first.data.location.lat, first.data.loc
         <p class="lede lede-mobile">Tap a card to fly the globe to where its data comes from.</p>
         {
           first && (
-            // TODO (step 6): update this readout to the hovered or focused card.
+            // TODO (step 6b): update this readout to the hovered or focused card.
             <div class="readout" aria-live="polite">
               <span class="readout-coords">{firstCoords}</span>
               <span class="readout-place">
@@ -43,7 +46,7 @@ const firstCoords = first ? formatCoords(first.data.location.lat, first.data.loc
           )
         }
       </div>
-      <GlobeSlot size={520} />
+      <GlobeSlot still="projects" size={520} {...globe} />
     </section>
 
     <div class="cards">

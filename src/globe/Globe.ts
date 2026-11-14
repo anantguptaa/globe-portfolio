@@ -65,6 +65,8 @@ export interface GlobeOptions {
   draggable?: boolean;
   /** Called when the globe starts moving (false) and when it comes to rest (true). */
   onSettle?: (settled: boolean) => void;
+  /** Called after each rendered frame. */
+  onFrame?: () => void;
   /** Called once, when the land mask has loaded and the first full frame is on screen. */
   onReady?: () => void;
 }
@@ -196,9 +198,12 @@ export class Globe {
   private readonly reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   private readonly scrollSpin: boolean;
   private readonly onSettle?: (settled: boolean) => void;
+  private readonly onFrame?: () => void;
   private onReady?: () => void; // cleared once called
   private readonly intersectionObserver: IntersectionObserver;
   private readonly draggable: boolean;
+  /** The element that receives drag gestures: the canvas, or a page's globe slot. */
+  private dragSurface: HTMLElement | null = null;
 
   // The label (HTML) and the text for screen readers.
   private readonly labelEl: HTMLDivElement;
@@ -265,12 +270,14 @@ export class Globe {
       scrollSpin = true,
       draggable = true,
       onSettle,
+      onFrame,
       onReady,
     } = options;
 
     this.container = container;
     this.scrollSpin = scrollSpin;
     this.onSettle = onSettle;
+    this.onFrame = onFrame;
     this.onReady = onReady;
     this.draggable = draggable;
 
@@ -407,12 +414,7 @@ export class Globe {
     }
     this.reducedMotionQuery.addEventListener('change', this.handleMotionPreference);
     if (this.draggable) {
-      this.canvas.dataset.draggable = 'true';
-      this.canvas.addEventListener('pointerdown', this.handlePointerDown);
-      this.canvas.addEventListener('pointermove', this.handlePointerMove);
-      this.canvas.addEventListener('pointerup', this.handlePointerUp);
-      this.canvas.addEventListener('pointercancel', this.handlePointerUp);
-      this.canvas.addEventListener('pointerleave', this.handlePointerLeave);
+      this.setDragSurface(this.canvas);
     }
 
     // ----- Keep the canvas the size of its container -----
@@ -473,6 +475,39 @@ export class Globe {
     this.jumpTo(lat, lon);
   }
 
+  /**
+   * Choose which element turns the globe when dragged. By default it's the canvas. On the
+   * site the canvas sits behind the page, so each page's globe slot (over the same spot)
+   * is passed in instead; content on top of the slot stays clickable. null turns drag off.
+   * Only presses on the globe's visible disc start a drag (see isOverGlobe).
+   */
+  setDragSurface(surface: HTMLElement | null): void {
+    const old = this.dragSurface;
+    if (old === surface) return;
+    if (old) {
+      old.removeEventListener('pointerdown', this.handlePointerDown);
+      old.removeEventListener('pointermove', this.handlePointerMove);
+      old.removeEventListener('pointerup', this.handlePointerUp);
+      old.removeEventListener('pointercancel', this.handlePointerUp);
+      old.removeEventListener('pointerleave', this.handlePointerLeave);
+      delete old.dataset.globeDrag;
+      delete old.dataset.over;
+      delete old.dataset.dragging;
+    }
+    // A drag in progress on the old surface ends here.
+    this.pointerId = null;
+    this.dragging = false;
+    this.dragSurface = this.draggable ? surface : null;
+    const next = this.dragSurface;
+    if (!next) return;
+    next.dataset.globeDrag = 'true';
+    next.addEventListener('pointerdown', this.handlePointerDown);
+    next.addEventListener('pointermove', this.handlePointerMove);
+    next.addEventListener('pointerup', this.handlePointerUp);
+    next.addEventListener('pointercancel', this.handlePointerUp);
+    next.addEventListener('pointerleave', this.handlePointerLeave);
+  }
+
   setOcean(mode: OceanMode): void {
     this.points.material.uniforms.uOceanAlpha.value = mode === 'dim' ? OCEAN_ALPHA : 0;
     this.requestRender();
@@ -492,11 +527,7 @@ export class Globe {
     clearTimeout(this.returnTimer);
     window.removeEventListener('scroll', this.handleScroll);
     this.reducedMotionQuery.removeEventListener('change', this.handleMotionPreference);
-    this.canvas.removeEventListener('pointerdown', this.handlePointerDown);
-    this.canvas.removeEventListener('pointermove', this.handlePointerMove);
-    this.canvas.removeEventListener('pointerup', this.handlePointerUp);
-    this.canvas.removeEventListener('pointercancel', this.handlePointerUp);
-    this.canvas.removeEventListener('pointerleave', this.handlePointerLeave);
+    this.setDragSurface(null);
     this.resizeObserver.disconnect();
     this.intersectionObserver.disconnect();
     document.removeEventListener('visibilitychange', this.updatePaused);
@@ -628,13 +659,13 @@ export class Globe {
     clearTimeout(this.returnTimer);
     this.advanceFlight(performance.now());
     this.flight = null;
-    this.canvas.setPointerCapture(event.pointerId); // keep receiving moves outside the canvas
+    this.dragSurface?.setPointerCapture(event.pointerId); // keep receiving moves outside it
   };
 
   private readonly handlePointerMove = (event: PointerEvent): void => {
     // Not pressed: just show the grab cursor over the disc (styled in globe.css).
     if (this.pointerId === null) {
-      this.canvas.dataset.over = String(this.isOverGlobe(event.clientX, event.clientY));
+      if (this.dragSurface) this.dragSurface.dataset.over = String(this.isOverGlobe(event.clientX, event.clientY));
       return;
     }
     if (event.pointerId !== this.pointerId) return;
@@ -643,7 +674,7 @@ export class Globe {
       const moved = Math.hypot(event.clientX - this.dragStartX, event.clientY - this.dragStartY);
       if (moved < DRAG_THRESHOLD) return;
       this.dragging = true;
-      this.canvas.dataset.dragging = 'true';
+      if (this.dragSurface) this.dragSurface.dataset.dragging = 'true';
       // Tilt limits: ±60°, widened if the globe already sits further out (e.g. at the North
       // Pole for About), so starting a drag never makes it jump.
       this.dragLatLimits = [Math.min(-DRAG_TILT_LIMIT, this.baseLat), Math.max(DRAG_TILT_LIMIT, this.baseLat)];
@@ -673,11 +704,11 @@ export class Globe {
 
   private readonly handlePointerUp = (event: PointerEvent): void => {
     if (event.pointerId !== this.pointerId) return;
-    if (this.canvas.hasPointerCapture(event.pointerId)) this.canvas.releasePointerCapture(event.pointerId);
+    if (this.dragSurface?.hasPointerCapture(event.pointerId)) this.dragSurface.releasePointerCapture(event.pointerId);
     const wasDragging = this.dragging;
     this.pointerId = null;
     this.dragging = false;
-    delete this.canvas.dataset.dragging;
+    if (this.dragSurface) delete this.dragSurface.dataset.dragging;
     if (!wasDragging) return; // a plain click: nothing to do
 
     // A pause before letting go means no flick: no momentum.
@@ -699,7 +730,7 @@ export class Globe {
   };
 
   private readonly handlePointerLeave = (): void => {
-    if (this.pointerId === null) delete this.canvas.dataset.over;
+    if (this.pointerId === null && this.dragSurface) delete this.dragSurface.dataset.over;
   };
 
   private readonly handleScroll = (): void => {
@@ -840,6 +871,7 @@ export class Globe {
     this.earth.rotation.set(this.baseLat * DEG, -(this.baseLon + this.scrollCurrent) * DEG, 0, 'XYZ');
     this.earth.updateMatrixWorld();
     this.renderer.render(this.scene, this.camera);
+    this.onFrame?.();
     this.updateLabel();
 
     // First full frame (dots visible, so the mask is in): tell the loader it can fade us in.
