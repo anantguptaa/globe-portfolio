@@ -58,18 +58,22 @@ const link = projectLink(project);
       {keyStat && <p class="stat">{keyStat}</p>}
       <p class="stack"><span class="visually-hidden">Built with: </span>{stack.join(' · ')}</p>
       {
-        link && (
-          <a
-            class="cta"
-            href={link.href}
-            {...(link.external ? { target: '_blank', rel: 'noopener' } : {})}
-          >
-            {link.label}
-            <span class="visually-hidden">: {title}</span>
-            <span aria-hidden="true">{link.external ? '↗' : '→'}</span>
-            {link.external && <span class="visually-hidden">(opens in a new tab)</span>}
-          </a>
-        )
+        <div class="cta-row">
+          {
+            link && (
+              <a
+                class="cta"
+                href={link.href}
+                {...(link.external ? { target: '_blank', rel: 'noopener' } : {})}
+              >
+                {link.label}
+                <span class="visually-hidden">: {title}</span>
+                <span aria-hidden="true">{link.external ? '↗' : '→'}</span>
+                {link.external && <span class="visually-hidden">(opens in a new tab)</span>}
+              </a>
+            )
+          }
+        </div>
       }
     </div>
   </div>
@@ -130,13 +134,19 @@ const link = projectLink(project);
     color: var(--text-muted);
   }
 
-  /* Mobile: key stat on the left, call to action on the right. */
+  /* Mobile: reserve a separate row for the call to action. */
   .foot {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-1);
+  }
+
+  .cta-row {
+    display: flex;
     align-items: center;
-    gap: var(--space-1) var(--space-4);
+    width: 100%;
+    min-height: var(--touch-min);
   }
 
   .stat,
@@ -200,6 +210,10 @@ const link = projectLink(project);
 
     /* Stat, stack and link stack up; the link sits at the bottom so cards line up. */
     .foot {
+      display: contents;
+    }
+
+    .cta-row {
       display: contents;
     }
 
