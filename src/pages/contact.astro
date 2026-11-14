@@ -1,0 +1,243 @@
+---
+/**
+ * /contact — "ground station": headline, status line and one row per channel.
+ * The intro text lives in src/content/pages/contact.md; the links come from SOCIAL_LINKS
+ * (the same list the footer icons use), so each link is written down only once.
+ * The footer hides its icons here: these rows already link to every channel.
+ */
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GlobeSlot from '../components/GlobeSlot.astro';
+import { SOCIAL_LINKS, linkDisplay } from '../data/site';
+import { formatCoords } from '../lib/geo';
+
+const contact = await getEntry('pages', 'contact');
+if (!contact) throw new Error('Missing src/content/pages/contact.md');
+
+const { location } = contact.data;
+const { Content } = await render(contact);
+const coords = formatCoords(location.lat, location.lon);
+---
+
+<BaseLayout title="Contact" coords={coords} showSocial={false}>
+  <div class="container page">
+    <section class="hero">
+      <div class="intro">
+        <p class="eyebrow">
+          Ground station<span class="eyebrow-coords"><span aria-hidden="true"> · </span>{coords}</span><span
+            aria-hidden="true"> · </span>{location.label}
+        </p>
+        <h1>Open a channel.</h1>
+        <div class="lede">
+          <Content />
+        </div>
+        {
+          /* TODO (step 8): while a row is hovered or focused, the dot turns blue, the text reads
+             "Transmitting · <channel>", and a signal arc leaves the pin on the globe. */
+        }
+        <p class="status">
+          <span class="dot" aria-hidden="true"></span>
+          Channel open · Standing by
+        </p>
+      </div>
+      <GlobeSlot />
+    </section>
+
+    <ul class="channels" aria-label="Contact channels">
+      {
+        SOCIAL_LINKS.map((link, i) => {
+          const newTab = link.kind === 'cv';
+          return (
+            <li>
+              <a
+                class="channel"
+                href={link.href}
+                data-channel={link.kind}
+                {...(newTab ? { target: '_blank', rel: 'noopener' } : {})}
+              >
+                <span class="channel-name">
+                  CH {String(i + 1).padStart(2, '0')} · {link.label}
+                </span>
+                <span class="channel-value">
+                  {/* &nbsp; keeps the arrow on the same line as the end of the address. */}
+                  {linkDisplay(link)}&nbsp;<span aria-hidden="true">↗</span>
+                  {newTab && <span class="visually-hidden">(opens in a new tab)</span>}
+                </span>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: var(--space-16);
+  }
+
+  /* ---------- Top section (same pattern as the other pages) ---------- */
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-block: var(--space-2) var(--space-6);
+  }
+
+  .hero :global(.globe-slot) {
+    order: -1;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* The mobile mockup shows just "Ground station · Point Nemo". */
+  .eyebrow-coords {
+    display: none;
+  }
+
+  /* The headline keeps its sentence case and full stop, unlike other page titles. */
+  h1 {
+    text-transform: none;
+  }
+
+  .lede {
+    max-width: 480px;
+    color: var(--text-muted);
+  }
+
+  .status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-round);
+    background-color: var(--ok);
+  }
+
+  /* ---------- Channel rows ---------- */
+  .channels {
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+  }
+
+  /* Mobile: channel name above the address. The whole row is one link. */
+  .channel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-height: var(--touch-min);
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .channel-name {
+    font-size: var(--fs-label-sm);
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .channel-value {
+    font-size: var(--fs-body);
+    overflow-wrap: anywhere; /* long addresses never push the page sideways */
+    transition: color var(--dur-fast) var(--ease-move);
+  }
+
+  .channel:focus-visible .channel-value {
+    color: var(--accent);
+  }
+
+  @media (pointer: fine) {
+    .channel:hover .channel-value {
+      color: var(--accent);
+    }
+  }
+
+  /* ---------- Desktop ---------- */
+  @media (min-width: 768px) {
+    .page {
+      --overlap: 130px; /* how far the rows rise over the globe's faded bottom */
+    }
+
+    .hero {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0 var(--space-12);
+    }
+
+    .hero :global(.globe-slot) {
+      order: 0;
+    }
+
+    .intro {
+      flex: 1 1 380px;
+      padding-block: var(--space-16) calc(var(--overlap) + var(--space-6));
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow-coords {
+      display: inline;
+    }
+
+    .lede {
+      font-size: var(--fs-body);
+    }
+
+    .channels {
+      position: relative;
+      z-index: 1;
+      margin-top: calc(-1 * var(--overlap));
+      padding-top: var(--space-10);
+      background: linear-gradient(to bottom, transparent, var(--bg) 120px);
+    }
+
+    /* Desktop: name on the left, address on the right. */
+    .channel {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-2) var(--space-6);
+      padding-block: var(--space-6);
+    }
+
+    .channel-name {
+      font-size: var(--fs-label);
+    }
+
+    .channel-value {
+      font-size: var(--fs-item);
+    }
+  }
+</style>

@@ -1,0 +1,255 @@
+---
+/**
+ * /about — "current position": photo, bio, what I'm looking for, interests.
+ * All the wording lives in src/content/pages/about.md; this file is only layout.
+ */
+import { getEntry, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GlobeSlot from '../components/GlobeSlot.astro';
+import { formatCoords } from '../lib/geo';
+
+// getEntry(collection, id): one entry, by its filename. Fails the build if about.md is missing.
+const about = await getEntry('pages', 'about');
+if (!about) throw new Error('Missing src/content/pages/about.md');
+
+const { location, photo, photoAlt, lookingFor = [], interests = [] } = about.data;
+const { Content } = await render(about);
+const coords = formatCoords(location.lat, location.lon);
+
+const facts = [
+  { term: 'Looking for', items: lookingFor },
+  { term: 'Interests', items: interests },
+].filter((f) => f.items.length > 0);
+---
+
+<BaseLayout title="About" coords={coords}>
+  <div class="container page">
+    <section class="hero">
+      <div class="intro">
+        <p class="eyebrow">Current position</p>
+        <h1>About</h1>
+        {/* TODO (step 6): the globe pins this location. */}
+        <div class="readout">
+          <span class="readout-coords"><span class="visually-hidden">Location: </span>{coords}</span>
+          <span class="readout-place">{location.label}</span>
+        </div>
+      </div>
+      <GlobeSlot />
+    </section>
+
+    <div class="details">
+      {
+        photo ? (
+          <Image class="photo" src={photo} alt={photoAlt ?? ''} widths={[240, 480]} sizes="200px" />
+        ) : (
+          /* TEMPORARY until about.md has a photo. Decorative, so hidden from screen readers. */
+          <div class="photo placeholder" aria-hidden="true">[Photo]</div>
+        )
+      }
+
+      <div class="text">
+        <div class="bio">
+          <Content />
+        </div>
+        {
+          facts.length > 0 && (
+            <dl class="facts">
+              {facts.map(({ term, items }) => (
+                <div>
+                  <dt>{term}</dt>
+                  <dd>{items.join(' · ')}</dd>
+                </div>
+              ))}
+            </dl>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: var(--space-16);
+  }
+
+  /* ---------- Top section (same pattern as Projects and Experience) ---------- */
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-block: var(--space-2) var(--space-6);
+  }
+
+  .hero :global(.globe-slot) {
+    order: -1;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .readout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-family: var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .readout-coords {
+    font-size: var(--fs-body-sm);
+    color: var(--accent);
+  }
+
+  .readout-place {
+    font-size: var(--fs-label);
+    color: var(--text-muted);
+  }
+
+  /* ---------- Photo, bio, facts ---------- */
+  .details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .photo {
+    width: 120px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: var(--radius-card);
+  }
+
+  .placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--border-strong);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label-sm);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    max-width: 680px;
+  }
+
+  /* The bio comes from about.md through <Content />, a child, hence :global(). */
+  .bio {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .bio :global(p) {
+    color: var(--text-muted);
+  }
+
+  /* First paragraph: larger and white, as in the mockup. */
+  .bio :global(p:first-child) {
+    font-size: var(--fs-section);
+    line-height: var(--lh-body);
+    color: var(--text);
+  }
+
+  .facts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+  }
+
+  .facts div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .facts dt {
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ---------- Desktop ---------- */
+  @media (min-width: 768px) {
+    .page {
+      --overlap: 130px; /* how far the details rise over the globe's faded bottom */
+    }
+
+    .hero {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0 var(--space-12);
+    }
+
+    .hero :global(.globe-slot) {
+      order: 0;
+    }
+
+    /* Bottom padding = the overlap, so the details can only cover the globe, never the text. */
+    .intro {
+      flex: 1 1 360px;
+      padding-block: var(--space-16) calc(var(--overlap) + var(--space-6));
+      position: relative;
+      z-index: 1;
+    }
+
+    .details {
+      position: relative;
+      z-index: 1;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--space-10) var(--space-12);
+      margin-top: calc(-1 * var(--overlap));
+      padding-top: var(--space-10);
+      border-top: 1px solid var(--border);
+      background: linear-gradient(to bottom, transparent, var(--bg) 120px);
+    }
+
+    .photo {
+      flex: 0 0 200px;
+      width: 200px;
+      height: 240px;
+    }
+
+    .text {
+      flex: 1 1 420px;
+    }
+
+    .bio :global(p) {
+      font-size: var(--fs-body);
+    }
+
+    .bio :global(p:first-child) {
+      font-size: var(--fs-section);
+    }
+
+    .facts {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--space-6) var(--space-12);
+    }
+  }
+</style>

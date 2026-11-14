@@ -92,4 +92,27 @@ const roles = defineCollection({
   }),
 });
 
-export const collections = { projects, roles };
+/**
+ * Editable text for single pages: one Markdown file per page (about.md, contact.md).
+ * The body is the page's main text; the frontmatter holds the short extras.
+ */
+const pages = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/pages' }),
+  schema: ({ image }) =>
+    z
+      .object({
+        // The page's globe pin. About: where you are now (North Pole until set). Contact: Point Nemo.
+        location: location.default({ lat: 90, lon: 0, label: 'North Pole' }),
+        photo: image().optional(), // About: your photo, path relative to the Markdown file
+        photoAlt: z.string().optional(),
+        lookingFor: z.array(z.string()).optional(), // About: shown joined with " · "
+        interests: z.array(z.string()).optional(),
+      })
+      .superRefine((p, ctx) => {
+        if (p.photo && !p.photoAlt) {
+          ctx.addIssue({ code: 'custom', path: ['photoAlt'], message: 'Add photoAlt to describe the photo' });
+        }
+      }),
+});
+
+export const collections = { projects, roles, pages };

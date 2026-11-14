@@ -63,6 +63,7 @@ portfolio/
 │  ├─ content.config.ts         # collection schemas (Astro 5+ location)
 │  ├─ content/
 │  │  ├─ projects/*.md(x)
+│  │  ├─ pages/about.md, pages/contact.md
 │  │  ├─ roles/*.md
 │  │  └─ posts/*.mdx            # later
 │  └─ pages/
@@ -232,6 +233,10 @@ roles: {
   location: { lat: number; lon: number; label: string };
   kind: 'research' | 'work' | 'freelance' | 'volunteer' | 'education';
   bullets: string[]; project?: reference('projects');
+}
+pages: {                       // one file per page: about.md, contact.md; body = main text
+  location: { lat: number; lon: number; label: string };   // defaults to the North Pole
+  photo?: Image; photoAlt?: string; lookingFor?: string[]; interests?: string[];
 }
 posts (later): { title: string; date: string; summary: string; tags: string[]; draft: boolean }
 ```
