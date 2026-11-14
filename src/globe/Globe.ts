@@ -482,6 +482,21 @@ export class Globe {
   }
 
   /**
+   * Where a pin is on screen right now, in CSS pixels from the container's top-left corner,
+   * or null if there's no such pin or it's on the far side. Uses the globe's current rotation
+   * (as last drawn), so it's correct mid-flight. The page-change zoom anchors on this.
+   */
+  pinScreenPoint(id: string): { x: number; y: number } | null {
+    const pin = this.pins.find((p) => p.id === id);
+    if (!pin || !this.width || !this.height) return null;
+    const position = latLonToVector3(pin.lat, pin.lon).applyMatrix4(this.earth.matrixWorld);
+    const toCamera = this.camera.position.clone().sub(position).normalize();
+    if (position.clone().normalize().dot(toCamera) <= 0) return null; // far side
+    position.project(this.camera);
+    return { x: ((position.x + 1) / 2) * this.width, y: ((1 - position.y) / 2) * this.height };
+  }
+
+  /**
    * Choose which element turns the globe when dragged. By default it's the canvas. On the
    * site the canvas sits behind the page, so each page's globe slot (over the same spot)
    * is passed in instead; content on top of the slot stays clickable. null turns drag off.

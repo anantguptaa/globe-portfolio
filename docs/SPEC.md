@@ -234,6 +234,8 @@ The zoom (accent) is the signature move and plays only when leaving the landing 
 - Project pages have no still of their own yet; they show the Projects still until the live globe is ready.
 - Header word and page title share a `transition:name` per page (`title-projects`, …) for the morph.
 - The zoom runs in JS on the persisted globe around Astro's navigation events (`astro:before-preparation`, `astro:after-swap`); keep it under the 4s view-transition timeout.
+- Built in `src/globe/zoom.ts`: on `astro:before-preparation` (landing, menu row, push navigation, not reduced motion) `html[data-zoom="out"]` fades the landing page and the globe's stage scales ×9 into the clicked pin's on-screen position (following it if the globe is still flying there); the loader is wrapped so the swap waits for the page and the dive. On `astro:after-swap` the globe is placed in the new slot and settles ×3 → ×1 while `html[data-zoom="in"]` fades the content in; the browser's own root crossfade is off for this navigation. Durations are tokens (`--dur-fade-out`, `--dur-zoom`, `--dur-settle`, `--dur-fade-in`). Without a live globe only the content and stills fade.
+- After any page change, hover is ignored until the mouse actually moves, so content swapped in under a still cursor doesn't steal the active pin.
 - Direct visits and refreshes skip transitions and show the page settled.
 
 ## Content model

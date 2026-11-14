@@ -17,6 +17,7 @@
 import type { Globe, GlobePin } from './Globe';
 import { setupInteractions } from './interactions';
 import { mountGlobe } from './loader';
+import { setupZoom } from './zoom';
 
 const root = document.documentElement;
 const layer = document.querySelector<HTMLElement>('[data-globe-layer]');
@@ -32,7 +33,8 @@ interface SlotInfo {
 
 let globe: Globe | null = null;
 let live = false;
-let current: SlotInfo | null = null;
+let current: SlotInfo | null = null; // the slot the globe is placed over
+let setUpSlot: HTMLElement | null = null; // the slot whose page has been set up (pins, aim)
 let firstPage = true; // the page the visitor arrived on: aim without a flight
 
 // Menu rows, cards and roles that aim the globe. Its listeners live on `document`.
@@ -121,21 +123,30 @@ document.addEventListener('astro:after-swap', () => {
   if (live) root.dataset.globe = 'live';
 });
 
+/** Point `current` at the page's slot and move the globe over it. */
+function relayout(): void {
+  const next = readSlot();
+  if (next?.slot !== current?.slot) {
+    if (current) resizeObserver.unobserve(current.slot);
+    if (next) resizeObserver.observe(next.slot);
+  }
+  current = next;
+  place();
+}
+
 /** Set up for the page now showing. Safe to call twice for the same page. */
 function onPageLoad(): void {
-  const next = readSlot();
-  if (next && current && next.slot === current.slot) {
-    place(); // same page as last time (the first-load double call): just realign
-    return;
-  }
-  if (current) resizeObserver.unobserve(current.slot);
-  current = next;
-  if (current) resizeObserver.observe(current.slot);
+  relayout();
+  if (current && current.slot === setUpSlot) return; // already set up (first-load double call)
+  setUpSlot = current?.slot ?? null;
   interactions.reset(current?.active || null); // new page: its default pin, nothing highlighted
-  place();
   aim(!firstPage);
   firstPage = false;
 }
+
+// The landing → page zoom. It moves the globe into the new page's slot itself, during the
+// swap, so the settle animation starts in the right place.
+if (stage) setupZoom({ getGlobe: () => globe, stage, relayout });
 
 // Fires after the first load and after every navigation. This script may also run after
 // the first one has already fired, so it sets up the current page itself as well.

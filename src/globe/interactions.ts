@@ -42,6 +42,14 @@ export function setupInteractions(ctx: Context): Interactions {
   let aimedEl: HTMLElement | null = null; // landing row aimed by a first tap
   // How the latest press started: 'mouse', 'touch', 'pen', or '' after a key press.
   let pressType = '';
+  // After a page change the mouse is still wherever the last click was, now over something on
+  // the new page, and the browser reports a hover there without the mouse moving. Hover only
+  // counts again once the mouse has really moved.
+  let mouseX = -1;
+  let mouseY = -1;
+  let hoverArmed = true;
+  let armedFromX = -1;
+  let armedFromY = -1;
 
   const targetOf = (node: EventTarget | null): HTMLElement | null =>
     node instanceof Element ? node.closest<HTMLElement>('[data-globe-target]') : null;
@@ -128,9 +136,21 @@ export function setupInteractions(ctx: Context): Interactions {
   document.addEventListener('pointerdown', (event) => (pressType = event.pointerType), { capture: true });
   document.addEventListener('keydown', () => (pressType = ''), { capture: true });
 
+  document.addEventListener('pointermove', (event) => {
+    if (event.pointerType !== 'mouse') return;
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+    if (!hoverArmed && Math.hypot(mouseX - armedFromX, mouseY - armedFromY) > 2) hoverArmed = true;
+  });
+
   // Hover: mouse only. Touch screens fire pointerover on a tap too; taps are handled by click.
   document.addEventListener('pointerover', (event) => {
     if (event.pointerType !== 'mouse') return;
+    if (!hoverArmed) {
+      // Content moved under a still mouse (e.g. a new page swapped in): not a real hover yet.
+      if (Math.hypot(event.clientX - armedFromX, event.clientY - armedFromY) <= 2) return;
+      hoverArmed = true;
+    }
     const el = targetOf(event.target);
     if (el) activate(el);
   });
@@ -167,6 +187,10 @@ export function setupInteractions(ctx: Context): Interactions {
       activeId = defaultId;
       activeEl = null; // the previous page's elements are gone
       aimedEl = null;
+      // Ignore hovers until the mouse moves away from where it is now.
+      hoverArmed = false;
+      armedFromX = mouseX;
+      armedFromY = mouseY;
     },
     activeId: () => activeId,
   };

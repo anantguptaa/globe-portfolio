@@ -184,4 +184,46 @@ const isLanding = variant === 'landing';
       transition-duration: var(--dur-fast);
     }
   }
+
+  /* ---------- Landing → page zoom (src/globe/zoom.ts sets data-zoom on <html>) ---------- */
+
+  /* Dive: the whole landing page fades out and stops taking clicks; only the globe stays. */
+  :global(html[data-zoom='out']) body > :global(header),
+  :global(html[data-zoom='out']) body > main,
+  :global(html[data-zoom='out']) body > :global(footer),
+  :global(html[data-zoom='out']) .landing-globe {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-fade-out) linear;
+  }
+
+  /* Settle: the new page's content fades in. */
+  :global(html[data-zoom='in']) body > :global(header),
+  :global(html[data-zoom='in']) body > main,
+  :global(html[data-zoom='in']) body > :global(footer) {
+    animation: zoom-content-in var(--dur-fade-in) var(--ease-settle) both;
+  }
+
+  @keyframes zoom-content-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* The pin label would be scaled up with the globe: hide it until the zoom is over. */
+  :global(html[data-zoom]) .globe-stage :global(.globe-label) {
+    visibility: hidden;
+  }
+</style>
+
+{
+  /* Not scoped: view-transition pseudo-elements belong to the document. During the zoom the
+     old page is already faded out and the new page fades itself in (above), so the browser's
+     own page crossfade is switched off; the swap is then instant underneath. */
+}
+<style is:global>
+  html[data-zoom]::view-transition-old(root),
+  html[data-zoom]::view-transition-new(root) {
+    animation: none;
+  }
 </style>

@@ -83,6 +83,11 @@
   --dur-wipe: 0.55s; /* menu wipe */
   --dur-spin: 0.6s; /* icon flip */
   --dur-page: 1s; /* page transitions (0.8–1.2s) */
+  /* Landing → page zoom (src/globe/zoom.ts reads these) */
+  --dur-fade-out: 0.25s; /* old page content fades out */
+  --dur-zoom: 0.62s; /* globe dives ×9 into the pin (with --ease-zoom-in) */
+  --dur-settle: 0.6s; /* globe settles ×3 → ×1 on the new page (with --ease-settle) */
+  --dur-fade-in: 0.45s; /* new page content fades in */
 
   --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-zoom-in: cubic-bezier(0.7, 0, 0.84, 0);
