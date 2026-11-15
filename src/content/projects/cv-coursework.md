@@ -8,7 +8,7 @@ location:
   lat: 47.32
   lon: 5.04
   label: ACDC cardiac MRI, Dijon
-dates: 'TODO: e.g. Jan – Apr 2025'
+dates: 'Sept – Dec 2025'
 stats:
   - value: '0.902'
     label: IoU

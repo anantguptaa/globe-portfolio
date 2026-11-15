@@ -18,10 +18,6 @@ stack:
   - Optuna
   - timm
 links: {}
-lifecycle: # no results stage: the results aren't published
-  data: 'TODO: dataset and preprocessing'
-  model: 'TODO: architecture'
-  training: 'TODO: training setup'
 ---
 
 Detailed results are not included here because they form part of another researcher's thesis and are not available for publication on this website.

@@ -8,4 +8,4 @@ location:
 # (A note here rather than in the text: comments in the Markdown body are sent to the browser.)
 ---
 
-Open to MSc positions in computer vision and to internships. Available from May 2028
+Open to MSc positions in computer vision and to internships. Available from May 2028.

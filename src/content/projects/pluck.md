@@ -2,7 +2,7 @@
 title: pLUCK
 order: 4
 featured: true
-summary: Android event lottery app, built by a team of six.
+summary: Android event lottery app for managing high-demand community events., built by a team of six.
 location:
   lat: 53.52
   lon: -113.53
@@ -15,7 +15,8 @@ stack:
   - Kotlin
   - Jetpack Compose
   - Firebase
-links: {https://github.com/CMPUT301F25vertex/vertex-event-lottery.git} 
+links:
+  github: https://github.com/CMPUT301F25vertex/vertex-event-lottery.git
 cover: ./pluck/cover.png
 coverAlt: 'pLUCK sign-up screen: Create Your Account, with fields for display name, email and phone number, an auto-login switch and a Create Account button'
 ---
