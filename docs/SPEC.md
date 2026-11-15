@@ -29,7 +29,7 @@ Astro with TypeScript renders static pages; only the globe and a few interaction
 | Animation       | CSS transitions + Web Animations API                                                 | Add GSAP only if needed                               |
 | Images          | `astro:assets`                                                                       | Auto resize and compress tiles and screenshots        |
 | Icons           | Inline SVG components                                                                | Email, GitHub, LinkedIn, CV                           |
-| SEO             | `@astrojs/sitemap`, per-page title, description and canonical, Open Graph and Twitter tags, one share image (`public/og.png`, `npm run og:build`), robots.txt | Good previews on LinkedIn. The site address is one constant, `SITE_URL` in `astro.config.mjs` |
+| SEO             | `@astrojs/sitemap` (active), per-page title, description and canonical, Open Graph and Twitter tags, one share image (`public/og.png`, `npm run og:build`), robots.txt | Good previews on LinkedIn. The site address is one constant, `SITE_URL` in `astro.config.mjs` |
 | Quality         | Prettier + `prettier-plugin-astro`, `astro check`                                    | Run before each deploy                                |
 | Hosting         | Vercel free tier                                                                     | Preview URL per branch                                |
 | Later (blog)    | `@astrojs/rss`, giscus comments                                                      | Only if a blog is added                               |
@@ -340,5 +340,4 @@ Placeholders and decisions still to fill; none block the build.
 - [ ] Mission files for EDSS Navigator, pLUCK and Computer Vision Coursework
 - [ ] Make the CMPUT 328 repo public
 - [ ] CV PDF
-- [ ] Domain name
 - [ ] Later: mask reveal when opening a project; blog

@@ -61,7 +61,7 @@ Replace each `- 'TODO'` with one or more real bullets, e.g. `- 'Built …'`.
 
 - [ ] `public/cv.pdf`: replace with your current CV
 - [ ] Make the CMPUT 328 repo public (the Computer Vision Coursework page links to it)
-- [ ] Domain name
+- [x] Domain name: www.anantgupta.org (set as `SITE_URL` in `astro.config.mjs`)
 
 ## Adding images (photo, covers)
 
@@ -70,11 +70,11 @@ Put the image in a folder next to its Markdown file and use a `./` path, e.g.
 Don't put these in `public/`: Astro only finds and compresses images next to the Markdown
 (a 700 KB PNG becomes 10–30 KB WebP files). `public/` is only for files linked directly, like `cv.pdf`.
 
-## When the real domain is ready
+## If the domain changes again
 
-- [ ] Change `SITE_URL` at the top of `astro.config.mjs` (it feeds canonical links, share previews and the sitemap), then `npm run build`
+- [ ] Change `SITE_URL` at the top of `astro.config.mjs` (it feeds canonical links, share previews, the sitemap and robots.txt), then `npm run build`
 - [ ] Update the live link in `README.md`
-- [ ] Optional: per-page search text lives in `src/content/pages/about.md` and `contact.md` (`description:`), and in `src/data/site.ts` for Projects and Experience
+- [ ] Per-page search text lives in `src/content/pages/about.md` and `contact.md` (`description:`), and in `src/data/site.ts` for Projects and Experience
 
 ## After editing
 

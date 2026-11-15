@@ -2,7 +2,7 @@
 
 My personal portfolio: computer vision and geospatial ML, presented as a mission-control globe. Every page is pinned to a place on Earth, and moving around the site flies a 3D dot globe there.
 
-**Live:** [globe-portfolio-theta.vercel.app](https://globe-portfolio-theta.vercel.app)
+**Live:** [www.anantgupta.org](https://www.anantgupta.org)
 
 ![Anant Gupta: computer vision and geospatial ML, next to a dotted globe](./public/og.png)
 

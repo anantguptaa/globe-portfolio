@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 
 import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
 
 /**
  * Adds the globe test page (/dev/globe) only under `npm run dev`, or when GLOBE_TEST_PAGE=1
@@ -25,12 +26,14 @@ const globeTestPage = {
  * The site's public address, used for canonical links, share previews and the sitemap.
  * One constant: change it here when the real domain is ready (pages read it as Astro.site).
  */
-const SITE_URL = 'https://globe-portfolio-theta.vercel.app';
+const SITE_URL = 'https://www.anantgupta.org';
 
 // https://astro.build/config
 export default defineConfig({
   site: SITE_URL,
-  integrations: [mdx(), globeTestPage],
+  // sitemap() writes sitemap-index.xml and sitemap-0.xml at build time, listing every page
+  // under SITE_URL (it leaves out the 404 page).
+  integrations: [mdx(), sitemap(), globeTestPage],
   build: {
     // Put each page's CSS straight into its HTML instead of separate files. The CSS is small
     // (a few KB per page), and as files it blocked rendering for one or two extra round trips
