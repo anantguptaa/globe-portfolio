@@ -5,9 +5,8 @@
 #   lon: -113.53
 #   label: Edmonton, Canada
 
-# TODO: add your photo next to this file and uncomment these two lines.
-# photo: ./about/photo.webp
-# photoAlt: 'Anant Gupta, smiling, in front of …'
+photo: ./about/headshot.jpg # path relative to this file (Astro resizes and compresses it)
+photoAlt: 'Anant Gupta'
 
 lookingFor:
   - MSc in computer vision

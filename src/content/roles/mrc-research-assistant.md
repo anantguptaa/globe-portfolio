@@ -12,6 +12,11 @@ kind: research
 bullets:
   # The schema has no supervisor field, so the supervisor goes in a bullet.
   - 'Supervisor: Prof. Irene Cheng.'
-  - 'TODO'
+  - 'Contributed to AI-assisted crop mapping from remotely sensed imagery, working across data curation, annotation, model training and evaluation.'
+  - 'Used Google Earth Engine and QGIS to download, explore and prepare geospatial datasets.'
+  - 'Built PyTorch Lightning pipelines for agricultural field segmentation.'
+  - 'Trained classical machine-learning models on foundation-model embeddings for crop classification.'
+  - 'Produced written and visual reports documenting methods, results and analysis.'
+  - 'Worked independently, delivered tasks on schedule and communicated findings clearly with supervisors and research collaborators.'
 project: usa-fields
 ---

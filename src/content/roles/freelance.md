@@ -12,5 +12,6 @@ location:
 kind: freelance
 remote: true # never used for the Experience page's globe pin
 bullets:
-  - 'TODO'
+  - Designed the frontend for a sanitaryware company to showcase its product catalogue.
+  - Started building the website 
 ---

@@ -10,5 +10,7 @@ location:
   label: Noida, India
 kind: work
 bullets:
-  - 'TODO'
+  - 'Built a computer vision detection pipeline in PyTorch and YOLOv8, improving model accuracy by 20%.'
+  - 'Assembled and prepared a 1,200-image training dataset, using OpenCV for preprocessing.'
+  - 'Containerized the pipeline with Docker, cutting environment setup by about 2 hours.'
 ---

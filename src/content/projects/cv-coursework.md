@@ -20,6 +20,6 @@ stack:
   - U-Net
 links:
   github: https://github.com/anantguptaa/cmput328_coursework
-# cover: TODO: e.g. ./cv-coursework/cover.webp (U-Net mask on a cardiac MRI slice)
-# coverAlt: TODO
+cover: ./cv-coursework/cover.png
+coverAlt: 'Cardiac MRI slices used for U-Net segmentation coursework'
 ---

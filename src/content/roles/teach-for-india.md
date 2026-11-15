@@ -10,5 +10,7 @@ location:
   label: Delhi, India
 kind: volunteer
 bullets:
-  - 'TODO'
+  - 'Taught Mathematics and Social Science to Class 7 students.'
+  - 'Worked with the class teacher to develop study materials for classroom teaching.'
+  - 'Facilitated doubt-clearing sessions for students in the assigned class.'
 ---
