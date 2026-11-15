@@ -185,45 +185,99 @@ const isLanding = variant === 'landing';
     }
   }
 
-  /* ---------- Landing → page zoom (src/globe/zoom.ts sets data-zoom on <html>) ---------- */
+  /* ---------- Page transitions (src/globe/transitions.ts) ----------
+     <html data-nav="zoom|move|glide|crossfade" data-phase="out|in"> during a navigation;
+     "out" before the swap, "in" after it. */
 
-  /* Dive: the whole landing page fades out and stops taking clicks; only the globe stays. */
-  :global(html[data-zoom='out']) body > :global(header),
-  :global(html[data-zoom='out']) body > main,
-  :global(html[data-zoom='out']) body > :global(footer),
-  :global(html[data-zoom='out']) .landing-globe {
+  /* Zoom, before the swap: the whole landing page fades out and stops taking clicks. */
+  :global(html[data-nav='zoom'][data-phase='out']) body > :global(header),
+  :global(html[data-nav='zoom'][data-phase='out']) body > main,
+  :global(html[data-nav='zoom'][data-phase='out']) body > :global(footer),
+  :global(html[data-nav='zoom'][data-phase='out']) .landing-globe {
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--dur-fade-out) linear;
   }
 
-  /* Settle: the new page's content fades in. */
-  :global(html[data-zoom='in']) body > :global(header),
-  :global(html[data-zoom='in']) body > main,
-  :global(html[data-zoom='in']) body > :global(footer) {
-    animation: zoom-content-in var(--dur-fade-in) var(--ease-settle) both;
+  /* Zoom, after the swap: the new page's content fades in while the globe settles. */
+  :global(html[data-nav='zoom'][data-phase='in']) body > :global(header),
+  :global(html[data-nav='zoom'][data-phase='in']) body > main,
+  :global(html[data-nav='zoom'][data-phase='in']) body > :global(footer) {
+    animation: nav-fade-in var(--dur-fade-in) var(--ease-settle) both;
   }
 
-  @keyframes zoom-content-in {
-    from {
-      opacity: 0;
-    }
+  /* Page → page: new content fades in after a short delay. The header is the same on every
+     inner page, so it doesn't fade; only its "current" link changes. */
+  :global(html[data-nav='move'][data-phase='in']) body > main,
+  :global(html[data-nav='move'][data-phase='in']) body > :global(footer) {
+    animation: nav-fade-in var(--dur-fade-in) var(--ease-settle) var(--delay-fade-in) both;
   }
 
-  /* The pin label would be scaled up with the globe: hide it until the zoom is over. */
-  :global(html[data-zoom]) .globe-stage :global(.globe-label) {
+  /* Page → landing: the landing page (header, menu, footer) fades in as the globe glides. */
+  :global(html[data-nav='glide'][data-phase='in']) body > :global(header),
+  :global(html[data-nav='glide'][data-phase='in']) body > main,
+  :global(html[data-nav='glide'][data-phase='in']) body > :global(footer) {
+    animation: nav-fade-in var(--dur-landing-in) var(--ease-settle) both;
+  }
+
+  /* The pin label would be carried around with the moving globe: hide it until it's over. */
+  :global(html[data-nav]) .globe-stage :global(.globe-label) {
     visibility: hidden;
   }
 </style>
 
 {
-  /* Not scoped: view-transition pseudo-elements belong to the document. During the zoom the
-     old page is already faded out and the new page fades itself in (above), so the browser's
-     own page crossfade is switched off; the swap is then instant underneath. */
+  /* Not scoped: view-transition pseudo-elements and their keyframes belong to the document.
+     The browser shows the old page as a snapshot on top of the live new page during a
+     transition. Here the snapshot fades out on top (old content fades away) while the live
+     page underneath does its own fades (above), so the globe, which is part of the live page,
+     stays visible and in its place throughout. */
 }
 <style is:global>
-  html[data-zoom]::view-transition-old(root),
-  html[data-zoom]::view-transition-new(root) {
+  @keyframes nav-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes nav-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  /* Zoom: the old page has already faded out before the swap; swap instantly underneath. */
+  html[data-nav='zoom']::view-transition-old(root),
+  html[data-nav='zoom']::view-transition-new(root) {
     animation: none;
+  }
+
+  /* Move and glide: the old page's snapshot fades out on top of the live new page. */
+  html[data-nav='move']::view-transition-old(root),
+  html[data-nav='glide']::view-transition-old(root) {
+    z-index: 1;
+    animation: nav-fade-out var(--dur-fade-out) linear both;
+  }
+
+  html[data-nav='move']::view-transition-new(root),
+  html[data-nav='glide']::view-transition-new(root) {
+    animation: none;
+  }
+
+  /* The header word flying into the title (only the clicked word and the new title are named). */
+  html[data-nav='move']::view-transition-group(*) {
+    animation-duration: var(--dur-word);
+    animation-timing-function: var(--ease-move);
+  }
+
+  /* Reduced motion and low-end devices: a plain, short crossfade. !important so it also wins
+     over any reduced-motion rule that turns view-transition animations off entirely. */
+  html[data-nav='crossfade']::view-transition-old(root) {
+    z-index: 1;
+    animation: nav-fade-out var(--dur-crossfade) linear both !important;
+  }
+
+  html[data-nav='crossfade']::view-transition-new(root) {
+    animation: none !important;
   }
 </style>

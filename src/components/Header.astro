@@ -113,7 +113,8 @@ const year = new Date().getFullYear();
     transition: color var(--dur-fast) var(--ease-move);
   }
 
-  nav a[aria-current] {
+  nav a[aria-current],
+  nav a[data-morph-word] {
     color: var(--accent);
   }
 

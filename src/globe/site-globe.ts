@@ -17,7 +17,7 @@
 import type { Globe, GlobePin } from './Globe';
 import { setupInteractions } from './interactions';
 import { mountGlobe } from './loader';
-import { setupZoom } from './zoom';
+import { setupTransitions } from './transitions';
 
 const root = document.documentElement;
 const layer = document.querySelector<HTMLElement>('[data-globe-layer]');
@@ -144,9 +144,9 @@ function onPageLoad(): void {
   firstPage = false;
 }
 
-// The landing → page zoom. It moves the globe into the new page's slot itself, during the
-// swap, so the settle animation starts in the right place.
-if (stage) setupZoom({ getGlobe: () => globe, stage, relayout });
+// Page transitions (zoom, move, glide, crossfade). They move the globe into the new page's
+// slot themselves, during the swap, so their animations start from the right place.
+if (stage) setupTransitions({ getGlobe: () => globe, stage, relayout });
 
 // Fires after the first load and after every navigation. This script may also run after
 // the first one has already fired, so it sets up the current page itself as well.
