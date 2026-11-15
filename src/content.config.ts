@@ -42,7 +42,7 @@ const projects = defineCollection({
         role: z.string().optional(),
         dates: z.string().optional(), // display text, e.g. "Jan 2025 – present"
         status: z.enum(['ongoing', 'complete']).optional(),
-        // Optional for small builds; featured projects must have at least one (see below).
+        // Optional: a project without stats simply shows none (on its card and its page).
         stats: z.array(stat).min(1).max(4).optional(),
         stack: z.array(z.string()),
         links: z
@@ -55,23 +55,23 @@ const projects = defineCollection({
         // Card image (about 800×400), path relative to the Markdown file.
         cover: image().optional(),
         coverAlt: z.string().optional(),
-        // Satellite tile and predicted mask for the CompareSlider.
+        // Satellite tile and predicted mask. Not shown anywhere: the compare slider was dropped
+        // (no published results). Kept optional in case it's added later.
         // Paths are relative to the Markdown file; Astro optimises the images.
         compare: z.object({ before: image(), after: image() }).optional(),
+        // Each stage is optional: leave one out (e.g. results, for unpublished research) and the
+        // project page shows only the others.
         lifecycle: z
           .object({
-            data: z.string(),
-            model: z.string(),
-            training: z.string(),
-            results: z.string(),
+            data: z.string().optional(),
+            model: z.string().optional(),
+            training: z.string().optional(),
+            results: z.string().optional(),
           })
           .optional(),
       })
       // Rules that compare fields with each other. Each failure stops the build with this message.
       .superRefine((p, ctx) => {
-        if (p.featured && !p.stats) {
-          ctx.addIssue({ code: 'custom', path: ['stats'], message: 'Featured projects need at least one stat' });
-        }
         if (p.cover && !p.coverAlt) {
           ctx.addIssue({ code: 'custom', path: ['coverAlt'], message: 'Add coverAlt to describe the cover image' });
         }

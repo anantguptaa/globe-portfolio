@@ -53,7 +53,7 @@ portfolio/
 │  ├─ components/
 │  │  ├─ Header.astro, Footer.astro, SocialIcon.astro
 │  │  ├─ MenuRow.astro          # landing row with colour wipe
-│  │  ├─ ProjectCard.astro, StatGrid.astro, CompareSlider.astro
+│  │  ├─ ProjectCard.astro, StatGrid.astro
 │  │  ├─ Lifecycle.astro, Accordion.astro, RoleEntry.astro
 │  │  └─ Cursor.astro
 │  ├─ globe/
@@ -122,7 +122,7 @@ Two layouts: desktop at 768px and wider, mobile below it. Design and test at 144
 
 ## Components
 
-Each component is one Astro file with scoped styles; only Cursor, CompareSlider and Accordion need scripts.
+Each component is one Astro file with scoped styles; only Cursor and Accordion need scripts.
 
 | Component     | Behaviour                                                                                                                                             | Notes                                                         |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
@@ -133,7 +133,7 @@ Each component is one Astro file with scoped styles; only Cursor, CompareSlider 
 | MenuRow       | Full-width row, hairline dividers. Hover/focus: blue wipes left to right through the letters (0.55s), number turns blue, globe turns to the row's pin | Text uses `background-clip: text`; still a real link          |
 | ProjectCard   | Coordinates line, title, one line, key stat, stack, link. Hover/focus or tap: border turns blue, globe flies to the card's pin                        | Whole card is not a link; the CTA is                          |
 | StatGrid      | Big numbers with mono labels. Desktop row of 3, mobile 2 × 2                                                                                          |                                                               |
-| CompareSlider | Satellite tile vs predicted mask, clipped at a draggable split                                                                                        | Real `<input type="range">` with a label                      |
+| CompareSlider | Dropped (no published results)                                                                                                        |                                                               |
 | Lifecycle     | Data → Model → Training → Results. Desktop: 4 columns. Mobile: accordion                                                                              |                                                               |
 | Accordion     | `<button aria-expanded>` row, +/− sign, content shown on tap                                                                                          | Mobile roles, lifecycle, other builds                         |
 | RoleEntry     | Dates + coordinates, title, organisation, bullets. Hover or tap: title turns blue, globe turns to its pin                                             |                                                               |
@@ -147,7 +147,7 @@ Six routes, each with its own globe pin. Canvas artboards are the reference for 
 | `/`                     | 01 Landing, M1 | About: North Pole (90.00°N) · Projects: 41.88°N 93.10°W · Experience: 53.52°N 113.53°W · Contact: Point Nemo, 48.88°S 123.39°W | Name + tagline, CV link, 4 menu rows, footer. Pin label floats above the pin. Mobile: first tap aims, second tap opens |
 | `/about`                | 03, M2         | Current location (North Pole until set)                                                                                        | Photo, bio, looking for, interests                                                                                     |
 | `/projects`             | 04, M3         | Each card's data location                                                                                                      | Title, intro, 4 featured cards, "Other builds" list                                                                    |
-| `/projects/[slug]`      | 05, M4         | The project's data location                                                                                                    | Header facts, StatGrid, CompareSlider, Lifecycle, stack, links                                                         |
+| `/projects/[slug]`      | 05, M4         | The project's data location                                                                                                    | Header facts, StatGrid, Lifecycle, stack, links                                                         |
 | `/experience`           | 06, M5         | Each role's location; active: newest non-remote role (not education) | Role entries newest first, education last, CV button                                                                   |
 | `/contact`              | 07, M6         | Point Nemo                                                                                                                     | "Contact" title, 4 channel rows. Desktop: hovering a row sends a signal arc from the pin                             |
 | `/blog`, `/blog/[slug]` | not designed   | none                                                                                                                           | Later: post list + post layout in mission-file style                                                                   |
@@ -253,12 +253,12 @@ projects: {
   summary: string;                 // one line for cards
   location: { lat: number; lon: number; label: string };   // defaults to Point Nemo if left out
   role?: string; dates?: string; status?: 'ongoing' | 'complete';
-  stats?: { value: string; label: string }[];  // 1–4; required when featured
+  stats?: { value: string; label: string }[];  // 1–4; optional (none shown when left out)
   stack: string[];
   links?: { github?: string; report?: string; demo?: string };
   cover?: Image; coverAlt?: string;            // card image; coverAlt required with cover
-  compare?: { before: Image; after: Image };   // tile + mask
-  lifecycle?: { data: string; model: string; training: string; results: string };
+  compare?: { before: Image; after: Image };   // tile + mask; not shown (compare slider dropped)
+  lifecycle?: { data?: string; model?: string; training?: string; results?: string };  // stages left out are hidden
 }
 roles: {
   title: string; org: string; start: string; end?: string;  // ISO dates, end empty = present
@@ -316,7 +316,7 @@ Ship a live site on day one, then add one layer at a time; each step ends deploy
 5. **Globe:** Three.js scene with points shader, pins, labels, `flyTo`, scroll spin, still-image fallback.
 6. **Hook pages to the globe:** hover and tap targets, per-page positions, persistence across navigation.
 7. **Transitions:** zoom from the landing, word becomes title between pages, reduced-motion crossfade.
-8. **Polish:** Cursor, contact signal arc, CompareSlider, accordions, performance pass against the budgets.
+8. **Polish:** Cursor, contact signal arc, CompareSlider (dropped: no published results), accordions, performance pass against the budgets.
 9. **Content and launch:** real text, images and tiles; other mission files; domain; share image; a final pass at 390px and 1440px.
 
 Target for reading week: steps 1–5.
@@ -329,9 +329,7 @@ Placeholders and decisions still to fill; none block the build.
 - [ ] Your real location for About (currently North Pole)
 - [ ] Start dates for the research assistant and freelance roles; freelance client location
 - [ ] Rough location of the USA\_FIELDS tiles (pin is a placeholder at 41.88°N 93.10°W)
-- [ ] Real NAIP tile and predicted mask for the compare slider
 - [ ] Mission files for EDSS Navigator, pLUCK and Computer Vision Coursework
-- [ ] Prof. Cheng's OK to publish USA\_FIELDS numbers and imagery
 - [ ] Make the CMPUT 328 repo public
 - [ ] CV PDF
 - [ ] Domain name

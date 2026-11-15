@@ -11,26 +11,16 @@ location:
 role: 'TODO: your role on the project'
 dates: 'TODO: e.g. Jan 2025 – present'
 status: ongoing # TODO: ongoing or complete
-stats:
-  - value: '0.896'
-    label: test mIoU
-  - value: '2,500+'
-    label: hand-labelled patches
+# No stats, results or imagery: this research isn't published, so none are shown.
 stack:
   - PyTorch Lightning
   - Optuna
   - timm
 links: {} # TODO: github / report / demo URLs
-# cover: TODO: card image (about 800×400), e.g. ./usa-fields/cover.webp
-# coverAlt: TODO: describe the image
-# compare: TODO: add tile + mask images (paths relative to this file), e.g.
-#   before: ./usa-fields/tile.webp
-#   after: ./usa-fields/mask.webp
-lifecycle:
+lifecycle: # no results stage: the results aren't published
   data: 'TODO: dataset and preprocessing'
   model: 'TODO: architecture'
   training: 'TODO: training setup'
-  results: 'TODO: results'
 ---
 
 TODO: mission file write-up for USA_FIELDS.
