@@ -1,0 +1,168 @@
+---
+/**
+ * Cursor — a blue dot that follows the mouse (spec: Cursor row).
+ *
+ * - 28px --accent dot; over links, buttons and form controls it grows to 56px at 55% opacity.
+ * - Mouse and trackpad only: it exists only under (pointer: fine) and hides for pen or touch
+ *   input. The system cursor stays visible underneath (no `cursor: none`), so if this script
+ *   fails nothing is lost. Decorative: aria-hidden, never takes clicks.
+ * - Follows with a slight lag; under reduced motion it follows exactly.
+ * - No work while the mouse is still: a frame loop runs only while the dot is catching up.
+ * - Mounted once in BaseLayout and kept across page changes (transition:persist).
+ */
+---
+
+<div class="cursor" data-cursor aria-hidden="true" transition:persist="cursor">
+  <div class="dot"></div>
+</div>
+
+<style>
+  /* Not shown at all unless the main pointer is a mouse or trackpad. */
+  .cursor {
+    display: none;
+  }
+
+  @media (pointer: fine) {
+    /* The outer box only moves (transform set by the script); the inner dot changes size. */
+    .cursor {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      width: var(--cursor-size);
+      height: var(--cursor-size);
+      margin: calc(var(--cursor-size) / -2) 0 0 calc(var(--cursor-size) / -2);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity var(--dur-fast) var(--ease-move);
+      will-change: transform;
+      /* Its own layer in page transitions, so the old page's snapshot doesn't show a second,
+         fading copy of the dot (the transition styles are in BaseLayout). */
+      view-transition-name: cursor;
+    }
+
+    .cursor[data-visible] {
+      opacity: 1;
+    }
+
+    .dot {
+      width: 100%;
+      height: 100%;
+      border-radius: var(--radius-round);
+      background-color: var(--accent);
+      transition:
+        transform var(--dur-fast) var(--ease-move),
+        opacity var(--dur-fast) var(--ease-move);
+    }
+
+    /* Over something clickable. */
+    .cursor[data-hot] .dot {
+      transform: scale(var(--cursor-hot-scale));
+      opacity: var(--cursor-hot-opacity);
+    }
+  }
+
+  @media (pointer: fine) and (prefers-reduced-motion: reduce) {
+    .cursor,
+    .dot {
+      transition: none;
+    }
+  }
+
+  /* Windows high-contrast mode: no decorative dot. */
+  @media (forced-colors: active) {
+    .cursor {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // Bundled, so it runs once per visit; the element is kept across navigations.
+  const cursor = document.querySelector<HTMLElement>('[data-cursor]');
+  const fine = window.matchMedia('(pointer: fine)');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /** Things that grow the dot. */
+  const HOT = 'a[href], button, input, select, textarea, label, summary, [role="button"]';
+  /** How quickly the dot catches up: each frame closes this share of the gap (at 60 fps). */
+  const FOLLOW = 0.35;
+
+  let targetX = 0;
+  let targetY = 0;
+  let x = 0;
+  let y = 0;
+  let frame = 0;
+  let lastTime = 0;
+  let visible = false;
+
+  const write = () => {
+    if (cursor) cursor.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+  };
+
+  /** One frame of catching up; stops by itself once the dot is on the pointer. */
+  const step = (now: number) => {
+    const dt = lastTime ? Math.min(now - lastTime, 50) : 16;
+    lastTime = now;
+    const k = 1 - Math.pow(1 - FOLLOW, dt / 16.7); // same feel at 60 and 120 fps
+    x += (targetX - x) * k;
+    y += (targetY - y) * k;
+    if (Math.abs(targetX - x) < 0.3 && Math.abs(targetY - y) < 0.3) {
+      x = targetX;
+      y = targetY;
+      write();
+      frame = 0;
+      lastTime = 0;
+      return;
+    }
+    write();
+    frame = requestAnimationFrame(step);
+  };
+
+  const hide = () => {
+    visible = false;
+    delete cursor?.dataset.visible;
+  };
+
+  if (cursor) {
+    document.addEventListener(
+      'pointermove',
+      (event) => {
+        if (event.pointerType !== 'mouse' || !fine.matches) {
+          hide();
+          return;
+        }
+        targetX = event.clientX;
+        targetY = event.clientY;
+        if (!visible) {
+          // Appearing: start exactly on the pointer, no slide in from the corner.
+          x = targetX;
+          y = targetY;
+          write();
+          visible = true;
+          cursor.dataset.visible = '';
+        }
+        const target = event.target instanceof Element ? event.target : null;
+        cursor.toggleAttribute('data-hot', !!target?.closest(HOT));
+
+        if (reduce.matches) {
+          x = targetX;
+          y = targetY;
+          write();
+        } else if (!frame) {
+          frame = requestAnimationFrame(step);
+        }
+      },
+      { passive: true },
+    );
+
+    // Pointer left the window, or a touch or pen took over.
+    document.addEventListener('pointerout', (event) => {
+      if (!event.relatedTarget) hide();
+    });
+    document.addEventListener('pointerdown', (event) => {
+      if (event.pointerType !== 'mouse') hide();
+    });
+  }
+</script>

@@ -32,6 +32,9 @@ interface SlotInfo {
 }
 
 let globe: Globe | null = null;
+
+/** The live globe, or null (not loaded yet, low-end tier, no WebGL). For page scripts. */
+export const getSiteGlobe = (): Globe | null => globe;
 let live = false;
 let current: SlotInfo | null = null; // the slot the globe is placed over
 let setUpSlot: HTMLElement | null = null; // the slot whose page has been set up (pins, aim)

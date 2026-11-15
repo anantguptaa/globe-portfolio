@@ -45,6 +45,8 @@ const alt = activePin ? `Dotted globe pinned at ${activePin.label}` : 'Dotted gl
   {/* The disc: the square the globe is drawn in. The live globe's canvas is placed exactly here. */}
   <div class="disc" data-globe-disc>
     <img class="globe-still" src={`/globe/still-${still}.webp`} alt={alt} decoding="async" draggable="false" />
+    {/* Optional overlay drawn over the globe, in the disc's box (e.g. Contact's signal arc). */}
+    <slot />
   </div>
 </div>
 

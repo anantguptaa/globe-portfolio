@@ -35,15 +35,24 @@ const globe = await contactPins();
           <Content />
         </div>
         {
-          /* TODO (step 8): while a row is hovered or focused, the dot turns blue, the text reads
-             "Transmitting · <channel>", and a signal arc leaves the pin on the globe. */
+          /* While a channel row is hovered or focused, the dot turns blue and the text reads
+             "Transmitting · <channel>"; on desktop a signal arc leaves the pin (script below). */
         }
-        <p class="status">
+        <p class="status" data-signal-status>
           <span class="dot" aria-hidden="true"></span>
-          Channel open · Standing by
+          <span data-signal-text>Channel open · Standing by</span>
         </p>
       </div>
-      <GlobeSlot still="contact" {...globe} />
+      <GlobeSlot still="contact" {...globe}>
+        {
+          /* The signal arc: an SVG laid over the globe, in the globe disc's box (0–100 both
+             ways). Cheaper than drawing on the globe: the browser animates one path, and the
+             globe's render loop isn't involved. Decorative, so hidden from screen readers. */
+        }
+        <svg class="signal" viewBox="0 0 100 100" aria-hidden="true" focusable="false" data-signal-arc>
+          <path pathLength="1" data-signal-path></path>
+        </svg>
+      </GlobeSlot>
     </section>
 
     <ul class="channels" aria-label="Contact channels">
@@ -56,6 +65,8 @@ const globe = await contactPins();
                 class="channel"
                 href={link.href}
                 data-channel={link.kind}
+                data-signal-index={i}
+                data-signal-label={link.label}
                 {...(newTab ? { target: '_blank', rel: 'noopener' } : {})}
               >
                 <span class="channel-name">
@@ -74,6 +85,144 @@ const globe = await contactPins();
     </ul>
   </div>
 </BaseLayout>
+
+<script>
+  // Bundled, so it runs once per visit. Listeners are on `document` (it survives page changes),
+  // so they're never added twice; on other pages there are simply no channel rows.
+  import { getSiteGlobe } from '../globe/site-globe';
+
+  const fine = window.matchMedia('(pointer: fine)');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /** Arc direction for each channel row, in degrees (0 = right, negative = up): a fan. */
+  const ANGLES = [-100, -55, -15, 25];
+  /** One arc: drawn over the first part, faded over the next, then a pause before the next. */
+  const CYCLE = 1200; // ms
+  const DRAW_END = 0.42; // ≈0.5s of drawing
+  const FADE_END = 0.67; // ≈0.3s of fading
+
+  let activeRow: HTMLElement | null = null;
+  let arc: Animation | null = null;
+  // After a page change the mouse may already sit where a row now is, and the browser reports
+  // a hover there without the mouse moving. So the first position seen after a page change is
+  // a reference point, and hover counts only once the mouse has moved away from it.
+  let hoverArmed = true;
+  let refX: number | null = null;
+  let refY: number | null = null;
+
+  /** False while the mouse hasn't moved since the page changed. */
+  function moved(event: PointerEvent): boolean {
+    if (hoverArmed) return true;
+    if (refX === null || refY === null) {
+      refX = event.clientX;
+      refY = event.clientY;
+      return false;
+    }
+    if (Math.hypot(event.clientX - refX, event.clientY - refY) <= 2) return false;
+    hoverArmed = true;
+    return true;
+  }
+
+  const rowOf = (node: EventTarget | null) =>
+    node instanceof Element ? node.closest<HTMLElement>('.channel[data-signal-index]') : null;
+
+  function setStatus(row: HTMLElement | null): void {
+    const status = document.querySelector<HTMLElement>('[data-signal-status]');
+    const text = status?.querySelector('[data-signal-text]');
+    if (!status || !text) return;
+    status.toggleAttribute('data-transmitting', !!row);
+    text.textContent = row ? `Transmitting · ${row.dataset.signalLabel}` : 'Channel open · Standing by';
+  }
+
+  /** Where the pin is, in the disc's 0–100 box: the live globe's real pin, or the centre. */
+  function pinPoint(disc: HTMLElement): { x: number; y: number } {
+    const globe = document.documentElement.dataset.globe === 'live' ? getSiteGlobe() : null;
+    const id = disc.closest<HTMLElement>('[data-globe-slot]')?.dataset.active ?? '';
+    const p = globe?.pinScreenPoint(id);
+    const size = disc.clientWidth;
+    return p && size ? { x: (p.x / size) * 100, y: (p.y / size) * 100 } : { x: 50, y: 50 };
+  }
+
+  /** Send one arc for the active row; when it's done, send the next while the row stays active. */
+  function sendArc(row: HTMLElement): void {
+    const svg = document.querySelector<SVGSVGElement>('[data-signal-arc]');
+    const path = svg?.querySelector<SVGPathElement>('[data-signal-path]');
+    const disc = svg?.parentElement;
+    if (!svg || !path || !disc) return;
+
+    // From the pin, curving outward to just past the globe's edge in this channel's direction.
+    const start = pinPoint(disc);
+    const angle = (ANGLES[Number(row.dataset.signalIndex) % ANGLES.length] ?? 0) * (Math.PI / 180);
+    const end = { x: 50 + 50 * Math.cos(angle), y: 50 + 50 * Math.sin(angle) };
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const length = Math.hypot(dx, dy) || 1;
+    const bend = 0.22 * length; // sideways pull of the curve
+    const control = { x: (start.x + end.x) / 2 - (dy / length) * bend, y: (start.y + end.y) / 2 + (dx / length) * bend };
+    path.setAttribute('d', `M ${start.x} ${start.y} Q ${control.x} ${control.y} ${end.x} ${end.y}`);
+
+    const ease = getComputedStyle(document.documentElement).getPropertyValue('--ease-move').trim() || 'ease';
+    arc = path.animate(
+      [
+        { strokeDashoffset: 1, opacity: 1, offset: 0, easing: ease },
+        { strokeDashoffset: 0, opacity: 1, offset: DRAW_END },
+        { strokeDashoffset: 0, opacity: 0, offset: FADE_END },
+        { strokeDashoffset: 0, opacity: 0, offset: 1 },
+      ],
+      { duration: CYCLE },
+    );
+    arc.onfinish = () => {
+      if (activeRow === row) sendArc(row); // still transmitting: next arc, from the pin's current spot
+    };
+  }
+
+  function start(row: HTMLElement): void {
+    if (row === activeRow) return;
+    arc?.cancel();
+    activeRow = row;
+    setStatus(row);
+    if (fine.matches && !reduce.matches) sendArc(row); // desktop only; reduced motion: no arc
+  }
+
+  function stop(): void {
+    if (!activeRow) return;
+    activeRow = null;
+    setStatus(null);
+    arc?.cancel(); // the path's resting style is invisible
+    arc = null;
+  }
+
+  // The first real move after a page change also starts a row the mouse is already on.
+  document.addEventListener('pointermove', (event) => {
+    if (event.pointerType !== 'mouse' || hoverArmed) return;
+    if (moved(event)) {
+      const row = rowOf(event.target);
+      if (row) start(row);
+    }
+  });
+
+  document.addEventListener('pointerover', (event) => {
+    if (event.pointerType === 'mouse' && !moved(event)) return; // content moved under a still mouse
+    const row = rowOf(event.target);
+    if (row) start(row);
+    else if (activeRow && !rowOf(document.activeElement)) stop(); // left the rows (and none has focus)
+  });
+  document.addEventListener('focusin', (event) => {
+    const row = rowOf(event.target);
+    if (row) start(row);
+  });
+  document.addEventListener('focusout', (event) => {
+    if (!rowOf(event.relatedTarget)) stop();
+  });
+  // A new page: forget the old rows, and ignore hovers until the mouse moves.
+  document.addEventListener('astro:page-load', () => {
+    activeRow = null;
+    arc = null;
+    hoverArmed = false;
+    refX = null;
+    refY = null;
+  });
+</script>
 
 <style>
   .page {
@@ -135,6 +284,43 @@ const globe = await contactPins();
     height: 8px;
     border-radius: var(--radius-round);
     background-color: var(--ok);
+    transition: background-color var(--dur-fast) var(--ease-move);
+  }
+
+  /* A channel row is hovered or focused: transmitting. */
+  .status {
+    transition: color var(--dur-fast) var(--ease-move);
+  }
+
+  .status[data-transmitting] {
+    color: var(--accent);
+  }
+
+  .status[data-transmitting] .dot {
+    background-color: var(--accent);
+  }
+
+  /* ---------- Signal arc (over the globe) ---------- */
+  .signal {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  /* Drawn by the script: the dash offset goes 1 → 0 (the line grows), then it fades. */
+  /* stroke-width is in the SVG's 0–100 units (about 2px on a 480px globe). pathLength="1"
+     makes the dash maths simple: one dash as long as the whole path. */
+  .signal path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 0.45;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0;
   }
 
   /* ---------- Channel rows ---------- */

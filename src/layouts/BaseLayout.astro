@@ -7,7 +7,7 @@
  * and the globe lives here once, in a layer marked transition:persist, so the same Three.js
  * scene survives every page change. Each page says where the globe sits with a GlobeSlot
  * (the landing page passes its slot's pins through the `globe` prop instead).
- * The cursor (step 8) goes here later.
+ * The dot cursor is mounted here once too, and also kept across page changes.
  */
 import { ClientRouter } from 'astro:transitions';
 import '@fontsource/inter/latin-400.css';
@@ -17,6 +17,7 @@ import '@fontsource/jetbrains-mono/latin-400.css';
 import '@fontsource/jetbrains-mono/latin-500.css';
 import '../styles/global.css';
 
+import Cursor from '../components/Cursor.astro';
 import GlobeSlot from '../components/GlobeSlot.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -99,6 +100,7 @@ const isLanding = variant === 'landing';
       <slot />
     </main>
     <Footer coords={coords} showSocial={showSocial} />
+    <Cursor />
 
     <script>
       // Bundled, so it runs once per visit; it re-aims the globe on every page change itself.
@@ -268,6 +270,16 @@ const isLanding = variant === 'landing';
   html[data-nav='move']::view-transition-group(*) {
     animation-duration: var(--dur-word);
     animation-timing-function: var(--ease-move);
+  }
+
+  /* The dot cursor has its own layer: no old copy, no animation; it just stays on the pointer. */
+  ::view-transition-old(cursor) {
+    display: none;
+  }
+
+  ::view-transition-group(cursor),
+  ::view-transition-new(cursor) {
+    animation: none;
   }
 
   /* Reduced motion and low-end devices: a plain, short crossfade. !important so it also wins

@@ -73,6 +73,11 @@
   --radius-button: 4px;
   --radius-round: 50%;
 
+  /* ---------- Cursor (Cursor.astro) ---------- */
+  --cursor-size: 28px;
+  --cursor-hot-scale: 2; /* 56px over links and buttons */
+  --cursor-hot-opacity: 0.55;
+
   /* ---------- Focus ring ---------- */
   --focus-ring-width: 2px;
   --focus-ring-offset: 3px;

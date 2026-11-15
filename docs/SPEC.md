@@ -239,6 +239,8 @@ The zoom (accent) is the signature move and plays only when leaving the landing 
 - The `data-nav` styles stay until the browser's view transition has finished (from `astro:before-swap`'s `viewTransition.finished`); removing them early would restart the browser's default crossfade.
 - Durations are tokens: `--dur-fade-out`, `--dur-zoom`, `--dur-settle`, `--dur-fade-in`, `--delay-fade-in`, `--dur-word`, `--dur-move`, `--dur-glide`, `--dur-landing-in`, `--dur-crossfade`. All well under the 4s view-transition timeout.
 - After any page change, hover is ignored until the mouse actually moves, so content swapped in under a still cursor doesn't steal the active pin.
+- Cursor (`Cursor.astro`, persisted in BaseLayout): moved with transforms; a frame loop runs only while the dot catches up, so a still mouse costs nothing. Its own `view-transition-name: cursor` (no animation) avoids a ghost copy during page transitions. The system cursor is never hidden.
+- Contact signal arc: an SVG path over the globe (in the Contact page's GlobeSlot), not drawn in WebGL: the browser animates one path, and the globe's render loop isn't involved. It starts at the pin's on-screen position (`Globe.pinScreenPoint`, or the centre with the still), fans out in a different direction per channel, draws in 0.5s, fades in 0.3s, and repeats every 1.2s while a row is hovered or focused. `pointer: fine` only; none under reduced motion. The status line reads "Transmitting · <channel>" with a blue dot meanwhile.
 
 ## Content model
 
