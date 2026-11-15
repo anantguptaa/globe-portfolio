@@ -24,4 +24,10 @@ const globeTestPage = {
 // https://astro.build/config
 export default defineConfig({
   integrations: [mdx(), globeTestPage],
+  build: {
+    // Put each page's CSS straight into its HTML instead of separate files. The CSS is small
+    // (a few KB per page), and as files it blocked rendering for one or two extra round trips
+    // before the page, and its globe still, could appear on a slow phone connection.
+    inlineStylesheets: 'always',
+  },
 });

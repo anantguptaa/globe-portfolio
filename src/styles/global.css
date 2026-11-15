@@ -8,10 +8,13 @@
 /* ---------- Display font (self-hosted from public/fonts) ---------- */
 @font-face {
   font-family: 'TeX Gyre Adventor';
-  src: url('/fonts/TeXGyreAdventor-Bold.woff2') format('woff2');
+  /* Subset to Latin (scripts/subset-fonts.mjs, npm run fonts:subset): ~18 KB instead of ~74 KB.
+     unicode-range matches the subset, so any other character uses the fallback font. */
+  src: url('/fonts/TeXGyreAdventor-Bold-subset.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
+  unicode-range: U+0020-007E, U+00A0-00FF, U+2013-2014, U+2018-2019, U+201C-201D, U+2022, U+2026, U+2190-2193, U+2197;
 }
 
 /* ---------- Reset ---------- */

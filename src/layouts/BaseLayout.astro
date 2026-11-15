@@ -54,7 +54,12 @@ const isLanding = variant === 'landing';
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href="/ag-monogram.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/ag-monogram-32x32.png" />
-    <link rel="preload" href="/fonts/TeXGyreAdventor-Bold.woff2" as="font" type="font/woff2" crossorigin />
+    {
+      /* Only the display font is preloaded: it sets the name and page title, the largest text
+         above the fold. Inter and JetBrains Mono are smaller in impact and load from the CSS;
+         preloading them too would compete with the globe's still image (the page's LCP). */
+    }
+    <link rel="preload" href="/fonts/TeXGyreAdventor-Bold-subset.woff2" as="font" type="font/woff2" crossorigin />
     {
       /* Marks that JavaScript is running, before anything paints. CSS uses .js to start
          mobile accordions closed without a flash; without JS everything stays open.

@@ -65,6 +65,9 @@ export interface GlobeOptions {
   landMaskUrl?: string;
   /** Text alternative for the canvas (it is announced as one image). */
   label?: string;
+  /** A canvas and WebGL 2 context created beforehand (loader.ts); otherwise Three.js makes them. */
+  canvas?: HTMLCanvasElement;
+  context?: WebGL2RenderingContext;
   /** Turn the globe a little as the page scrolls. Default: true. */
   scrollSpin?: boolean;
   /** Let people turn the globe by dragging its visible disc. Default: true. */
@@ -291,7 +294,12 @@ export class Globe {
     if (getComputedStyle(container).position === 'static') container.style.position = 'relative';
 
     // ----- Renderer: transparent background, smooth edges, pixel ratio capped at 2 -----
-    this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    this.renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      // Reuse the loader's context when given one: creating a second can take a long time.
+      ...(options.canvas && options.context ? { canvas: options.canvas, context: options.context } : {}),
+    });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO));
     this.renderer.setClearColor(0x000000, 0); // fully transparent: the page shows through
 

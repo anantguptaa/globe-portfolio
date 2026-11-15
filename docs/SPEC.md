@@ -43,7 +43,7 @@ One layout wraps every page; the globe lives in that layout so it survives page 
 ```
 portfolio/
 ├─ public/
-│  ├─ fonts/TeXGyreAdventor-Bold.woff2
+│  ├─ fonts/TeXGyreAdventor-Bold-subset.woff2   (from src/fonts/…full.woff2 by npm run fonts:subset)
 │  ├─ globe/elevation.webp, landmask.webp
 │  ├─ globe/still-*.webp        # fallback stills, one per page pin
 │  └─ cv.pdf
@@ -304,6 +304,13 @@ The site must be fully usable with no JavaScript animations, by keyboard, and on
 | Globe bundle (Three.js + scene)         | loaded after first paint |
 | Globe textures                          | under 300 KB total       |
 | Lighthouse (performance, accessibility) | 90+ each                 |
+
+**How the budgets are met** (measured in step 8c; re-check with Lighthouse mobile against `npm run preview`)
+
+- The display font is subset to Latin by `scripts/subset-fonts.mjs` (`npm run fonts:subset`): about 18 KB instead of 74 KB; the original stays in `src/fonts/` and is never served. Only this font is preloaded; Inter and JetBrains Mono load from the CSS.
+- Page CSS is inlined into each page's HTML (`build.inlineStylesheets: 'always'`), so no stylesheet blocks rendering.
+- Each page's globe still (its LCP element) is fetched with `fetchpriority="high"`.
+- The WebGL context is created once, only after page load and idle time, and handed to Three.js (creating one can take over a second without a GPU, which Lighthouse counts as blocking time).
 
 ## Build order
 

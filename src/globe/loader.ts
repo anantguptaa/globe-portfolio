@@ -6,10 +6,12 @@
  *  1. The still image is already showing: it's a plain <img> in the page's HTML
  *     (see GlobeStage.astro), so it appears even without JavaScript.
  *  2. Pick the tier (tier.ts). 'still' stops here: Three.js is never downloaded.
- *  3. Check WebGL 2 with a throwaway canvas. No WebGL: stop here, quietly.
- *  4. Wait until the page has fully loaded (text, fonts and the still image are in), then
+ *  3. Wait until the page has fully loaded (text, fonts and the still image are in), then
  *     for the browser to be idle, so the globe never competes with the page's own content
  *     for the network or the processor.
+ *  4. Create the WebGL 2 context. No WebGL: stop here, quietly, before downloading anything.
+ *     Creating a context can be slow (over a second without a graphics card), so it happens
+ *     only now, and only once: the same context is handed to Three.js.
  *  5. Download Globe.ts + Three.js, create the globe, and when its first full frame is drawn,
  *     set data-globe="live" on the stage: CSS fades the canvas in over the still.
  * Any failure along the way leaves the still in place, without errors in the console.
@@ -26,15 +28,29 @@ export interface MountResult {
   globe: Globe | null;
 }
 
-/** Can this browser draw WebGL 2 (which Three.js needs)? Checked without loading Three.js. */
-function hasWebGL2(): boolean {
+/** The context settings Three.js's renderer asks for (see Globe.ts), so it can reuse ours. */
+const CONTEXT_ATTRIBUTES: WebGLContextAttributes = {
+  alpha: true,
+  antialias: true,
+  depth: true,
+  stencil: false,
+  premultipliedAlpha: true,
+  preserveDrawingBuffer: false,
+  powerPreference: 'default',
+  failIfMajorPerformanceCaveat: false,
+};
+
+/**
+ * A canvas with a WebGL 2 context (which Three.js needs), or null if the browser can't.
+ * Checked without loading Three.js; the result is then given to the globe, not thrown away.
+ */
+function createContext(): { canvas: HTMLCanvasElement; context: WebGL2RenderingContext } | null {
   try {
-    const gl = document.createElement('canvas').getContext('webgl2');
-    if (!gl) return false;
-    gl.getExtension('WEBGL_lose_context')?.loseContext(); // free it straight away
-    return true;
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('webgl2', CONTEXT_ATTRIBUTES);
+    return context ? { canvas, context } : null;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -69,15 +85,20 @@ export async function mountGlobe(
 ): Promise<MountResult> {
   const tier = getGlobeTier();
   stage.dataset.globeTier = tier;
-  if (tier === 'still' || !hasWebGL2()) return { tier, globe: null };
+  if (tier === 'still') return { tier, globe: null };
 
   await afterPageLoadAndIdle();
+
+  const gl = createContext();
+  if (!gl) return { tier, globe: null }; // no WebGL: keep the still
 
   try {
     // import() makes Globe.ts and Three.js a separate file, fetched only now.
     const { Globe } = await import('./Globe');
     const globe = new Globe(stage, {
       ...options,
+      canvas: gl.canvas,
+      context: gl.context,
       detail: TIER_DETAIL[tier],
       onReady: () => {
         stage.dataset.globe = 'live'; // CSS fades the canvas in over the still
