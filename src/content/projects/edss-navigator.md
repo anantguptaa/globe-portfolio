@@ -18,9 +18,9 @@ stack:
   - FastAPI
   - Firebase
   - AWS
-links: {} # TODO: github / demo URLs
-# cover: TODO: e.g. ./edss-navigator/cover.webp (app screenshots)
-# coverAlt: TODO
+links: {} # No link, private repo
+cover: ./edss-navigator/cover.png
+coverAlt: 'Edmonton Down Syndrome Society flower logo: petals in teal, coral and mint around a blue centre'
 ---
 - Owned the app’s UI/UX end to end, from Figma wireframes to the React Native screens, including a redesigned Home screen with a collapsible category grid.
 - Set up the team’s CI when we ran out of free GitHub Actions minutes: a self-hosted runner on a Cybera server, running every test on each pull request, with merges to main blocked until tests pass.
