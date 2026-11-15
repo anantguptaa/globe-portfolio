@@ -35,14 +35,11 @@
  *   setActive(id | null) choose the active pin (the others dim to 55%)
  *   flyTo(lat, lon)      eased turn to a place, shortest way round
  *   lookAt(lat, lon)     instant turn to a place
- *   setOcean(mode)       'dim' or 'hidden' ocean dots
  *   dispose()            free everything
  */
 import * as THREE from 'three';
 import './globe.css';
 import { fragmentShader, pinFragmentShader, pinVertexShader, vertexShader } from './shaders';
-
-export type OceanMode = 'hidden' | 'dim';
 
 /** A place marked on the globe. */
 export interface GlobePin {
@@ -59,8 +56,6 @@ export interface GlobePin {
 export interface GlobeOptions {
   /** Icosahedron detail. The loader passes 80 or 40 from the device tier (see tier.ts). */
   detail?: number;
-  /** 'dim' (default) draws faint ocean dots; 'hidden' draws land only. */
-  ocean?: OceanMode;
   /** URL of the equirectangular land mask. */
   landMaskUrl?: string;
   /** Text alternative for the canvas (it is announced as one image). */
@@ -74,8 +69,6 @@ export interface GlobeOptions {
   draggable?: boolean;
   /** Called when the globe starts moving (false) and when it comes to rest (true). */
   onSettle?: (settled: boolean) => void;
-  /** Called after each rendered frame. */
-  onFrame?: () => void;
   /** Called once, when the land mask has loaded and the first full frame is on screen. */
   onReady?: () => void;
 }
@@ -207,7 +200,6 @@ export class Globe {
   private readonly reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   private readonly scrollSpin: boolean;
   private readonly onSettle?: (settled: boolean) => void;
-  private readonly onFrame?: () => void;
   private onReady?: () => void; // cleared once called
   private readonly intersectionObserver: IntersectionObserver;
   private readonly draggable: boolean;
@@ -273,20 +265,17 @@ export class Globe {
   constructor(container: HTMLElement, options: GlobeOptions = {}) {
     const {
       detail = 80,
-      ocean = 'dim',
       landMaskUrl = '/globe/landmask.webp',
       label = 'Dotted globe of the Earth',
       scrollSpin = true,
       draggable = true,
       onSettle,
-      onFrame,
       onReady,
     } = options;
 
     this.container = container;
     this.scrollSpin = scrollSpin;
     this.onSettle = onSettle;
-    this.onFrame = onFrame;
     this.onReady = onReady;
     this.draggable = draggable;
 
@@ -371,7 +360,7 @@ export class Globe {
           uPixelRatio: { value: pixelRatio },
           uLandColor: { value: tokenColor('--text') },
           uOceanColor: { value: tokenColor('--text-muted') },
-          uOceanAlpha: { value: ocean === 'dim' ? OCEAN_ALPHA : 0 },
+          uOceanAlpha: { value: OCEAN_ALPHA }, // faint ocean dots: the sphere reads as round
         },
         transparent: true,
         depthTest: false, // far-side dots are dropped in the shader, so no depth sorting is needed
@@ -535,11 +524,6 @@ export class Globe {
     next.addEventListener('pointerup', this.handlePointerUp);
     next.addEventListener('pointercancel', this.handlePointerUp);
     next.addEventListener('pointerleave', this.handlePointerLeave);
-  }
-
-  setOcean(mode: OceanMode): void {
-    this.points.material.uniforms.uOceanAlpha.value = mode === 'dim' ? OCEAN_ALPHA : 0;
-    this.requestRender();
   }
 
   /** Make sure a frame is drawn soon. The loop then keeps itself going while anything is moving. */
@@ -900,7 +884,6 @@ export class Globe {
     this.earth.rotation.set(this.baseLat * DEG, -(this.baseLon + this.scrollCurrent) * DEG, 0, 'XYZ');
     this.earth.updateMatrixWorld();
     this.renderer.render(this.scene, this.camera);
-    this.onFrame?.();
     this.updateLabel();
 
     // First full frame (dots visible, so the mask is in): tell the loader it can fade us in.

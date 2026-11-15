@@ -1,11 +1,12 @@
 /**
- * Site-wide constants. Values marked PLACEHOLDER must be replaced before launch.
+ * Site-wide constants.
  */
 
 export const SITE = {
   name: 'Anant Gupta',
-  // PLACEHOLDER: one-line description used in <meta name="description">
-  description: 'Anant Gupta: computer-vision research and software projects.',
+  // The default <meta name="description"> and share-preview text (keep it under 160 characters).
+  description:
+    'Anant Gupta: software developer who has shipped mobile apps, and a University of Alberta computer science student working on computer vision and geospatial ML.',
   // Shown under the name on the landing page.
   tagline: 'cs @ ualberta · computer vision & geospatial ML',
   cvHref: '/cv.pdf',
@@ -47,3 +48,17 @@ export function linkDisplay(link: SocialLink): string {
     .replace(/^https?:\/\/(www\.)?/, '')
     .replace(/\/$/, '');
 }
+
+/** Descriptions for pages that have no description of their own (about.md and contact.md have one). */
+export const PAGE_DESCRIPTIONS = {
+  projects: 'Computer vision, geospatial machine learning and mobile app projects, each pinned on the globe to where its data comes from.',
+  experience: 'Research, internship, freelance and volunteer roles, newest first, each pinned on the globe to where it happened.',
+} as const;
+
+/** The share image used on every page, relative to the site root (made by npm run og:build). */
+export const OG_IMAGE = {
+  path: '/og.png',
+  width: 1200,
+  height: 630,
+  alt: 'Anant Gupta, computer vision and geospatial ML, next to a dotted globe',
+} as const;

@@ -15,14 +15,14 @@ import { formatCoords } from '../lib/geo';
 const contact = await getEntry('pages', 'contact');
 if (!contact) throw new Error('Missing src/content/pages/contact.md');
 
-const { location } = contact.data;
+const { location, description } = contact.data;
 const { Content } = await render(contact);
 const coords = formatCoords(location.lat, location.lon);
 // The globe's pin: contact.md's location (Point Nemo).
 const globe = await contactPins();
 ---
 
-<BaseLayout title="Contact" coords={coords} showSocial={false}>
+<BaseLayout title="Contact" description={description} coords={coords} showSocial={false}>
   <div class="container page">
     <section class="hero">
       <div class="intro">

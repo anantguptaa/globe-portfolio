@@ -8,6 +8,7 @@
  *   project     that project's location
  *   experience  each role's place (same place listed once); the Experience pin active
  *   contact     src/content/pages/contact.md → location
+ *   404         Null Island (0°N 0°E), the empty spot where bad coordinates end up
  */
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
 import { formatCoords } from './geo';
@@ -33,7 +34,7 @@ export interface PagePins {
 
 type Location = { lat: number; lon: number; label: string };
 
-export function toPin(id: string, location: Location): PagePin {
+function toPin(id: string, location: Location): PagePin {
   return { id, lat: location.lat, lon: location.lon, label: location.label, coords: formatCoords(location.lat, location.lon) };
 }
 
@@ -111,4 +112,10 @@ export async function landingPins(): Promise<PagePins> {
     await pagePin('contact'),
   ];
   return { pins, active: 'about' };
+}
+
+/** The 404 page's pin: Null Island, 0°N 0°E, in the Gulf of Guinea. Nowhere useful, on purpose. */
+export function notFoundPins(): PagePins {
+  const pin = toPin('404', { lat: 0, lon: 0, label: 'Null Island' });
+  return { pins: [pin], active: pin.id };
 }

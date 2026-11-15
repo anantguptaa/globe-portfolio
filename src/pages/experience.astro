@@ -7,7 +7,7 @@ import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GlobeSlot from '../components/GlobeSlot.astro';
 import RoleEntry from '../components/RoleEntry.astro';
-import { SITE } from '../data/site';
+import { PAGE_DESCRIPTIONS, SITE } from '../data/site';
 import { formatCoords } from '../lib/geo';
 import { experiencePins, experienceRole } from '../lib/pins';
 import { sortRoles } from '../lib/roles';
@@ -36,7 +36,7 @@ const pageCoords = formatCoords(first.data.location.lat, first.data.location.lon
 const { targets: roleTargets, ...globe } = await experiencePins();
 ---
 
-<BaseLayout title="Experience" coords={pageCoords}>
+<BaseLayout title="Experience" description={PAGE_DESCRIPTIONS.experience} coords={pageCoords}>
   <div class="container page">
     <section class="hero">
       <div class="intro">

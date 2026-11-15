@@ -72,6 +72,7 @@ const STILLS = [
   { page: 'projects', size: 520 },
   { page: 'experience', size: 520 },
   { page: 'contact', size: 520 },
+  { page: '404', size: 520 },
 ];
 
 /** Runs a command and resolves when it exits successfully. */

@@ -15,7 +15,7 @@ Replace each `- 'TODO'` with one or more real bullets, e.g. `- 'Built …'`.
 
 ## 2. Visible, but as a placeholder
 
-- [ ] `src/data/site.ts` (line 8): `description`, the one line search engines and link previews show
+- [x] `src/data/site.ts`: `description`, the one line search engines and link previews show (done in step 9)
 - [ ] `src/content/pages/about.md` (line 8): your photo. Put the image next to the file, then uncomment `photo:` and `photoAlt:`. Until then About shows a dashed "[Photo]" box.
 - [ ] Project covers (optional): desktop cards show a dashed "[Cover image]" strip until a project has `cover:` and `coverAlt:` (see section 3)
 
@@ -69,6 +69,12 @@ Put the image in a folder next to its Markdown file and use a `./` path, e.g.
 `cover: ./pluck/cover.png` for a file at `src/content/projects/pluck/cover.png`.
 Don't put these in `public/`: Astro only finds and compresses images next to the Markdown
 (a 700 KB PNG becomes 10–30 KB WebP files). `public/` is only for files linked directly, like `cv.pdf`.
+
+## When the real domain is ready
+
+- [ ] Change `SITE_URL` at the top of `astro.config.mjs` (it feeds canonical links, share previews and the sitemap), then `npm run build`
+- [ ] Update the live link in `README.md`
+- [ ] Optional: per-page search text lives in `src/content/pages/about.md` and `contact.md` (`description:`), and in `src/data/site.ts` for Projects and Experience
 
 ## After editing
 

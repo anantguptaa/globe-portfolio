@@ -1,4 +1,5 @@
 ---
+description: 'Computing science student at the University of Alberta, software developer who has shipped mobile apps, and research assistant in geospatial machine learning.'
 # Where you are now: the About page's globe pin. Leave it out to use the North Pole.
 # location:
 #   lat: 53.52

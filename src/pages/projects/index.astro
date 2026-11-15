@@ -9,6 +9,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Accordion from '../../components/Accordion.astro';
 import GlobeSlot from '../../components/GlobeSlot.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
+import { PAGE_DESCRIPTIONS } from '../../data/site';
 import { formatCoords } from '../../lib/geo';
 import { projectLink, splitProjects } from '../../lib/projects';
 import { projectsPins } from '../../lib/pins';
@@ -22,7 +23,7 @@ const firstCoords = first ? formatCoords(first.data.location.lat, first.data.loc
 const globe = await projectsPins();
 ---
 
-<BaseLayout title="Projects" coords={firstCoords}>
+<BaseLayout title="Projects" description={PAGE_DESCRIPTIONS.projects} coords={firstCoords}>
   <div class="container page">
     <section class="hero">
       <div class="intro">

@@ -21,13 +21,16 @@ import Cursor from '../components/Cursor.astro';
 import GlobeSlot from '../components/GlobeSlot.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { SITE } from '../data/site';
+import { OG_IMAGE, SITE } from '../data/site';
 import type { PagePins } from '../lib/pins';
 
 interface Props {
   /** Page title; omit on the home page to show just the name. */
   title?: string;
+  /** For search results and share previews; cut to 160 characters. Default: the site description. */
   description?: string;
+  /** Ask search engines to leave this page out (the 404 page). It also gets no canonical URL. */
+  noindex?: boolean;
   /** 'landing' = home page: landing header, full-screen menu, globe behind. */
   variant?: 'landing' | 'page';
   /** Coordinates of this page's pin, shown in the footer. */
@@ -38,9 +41,24 @@ interface Props {
   globe?: PagePins;
 }
 
-const { title, description = SITE.description, variant = 'page', coords, showSocial = true, globe } = Astro.props;
+const {
+  title,
+  description = SITE.description,
+  noindex = false,
+  variant = 'page',
+  coords,
+  showSocial = true,
+  globe,
+} = Astro.props;
 
 const fullTitle = title ? `${title} · ${SITE.name}` : SITE.name;
+// Search engines show about 160 characters; cut at a word boundary with an ellipsis.
+const metaDescription =
+  description.length <= 160 ? description : `${description.slice(0, 157).replace(/\s+\S*$/, '')}…`;
+// Absolute URLs for the canonical link and share previews. Astro.site is the `site` constant in
+// astro.config.mjs. The path keeps its trailing slash, matching the sitemap.
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL(OG_IMAGE.path, Astro.site).href;
 const isLanding = variant === 'landing';
 ---
 
@@ -50,7 +68,26 @@ const isLanding = variant === 'landing';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={metaDescription} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    {
+      /* Open Graph (link previews on LinkedIn, Slack and others) and Twitter/X: the same title,
+         description and share image on every page. */
+    }
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content={String(OG_IMAGE.width)} />
+    <meta property="og:image:height" content={String(OG_IMAGE.height)} />
+    <meta property="og:image:alt" content={OG_IMAGE.alt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={metaDescription} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={OG_IMAGE.alt} />
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href="/ag-monogram.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/ag-monogram-32x32.png" />

@@ -13,7 +13,6 @@ stack:
 links:
   github: https://github.com/Rakshit-or-shadow/AI-Crytocurrency-Trading-Assistant
 ---
-
 - Built the React dashboard for a paper-trading application that displays simulated balances, holdings and portfolio activity.
 - Developed the interactive cryptocurrency price chart and trade panel for placing simulated buy and sell orders.
 - Integrated frontend views with FastAPI endpoints for market data, paper-account state and AI trader controls.

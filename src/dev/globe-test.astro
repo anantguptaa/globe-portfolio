@@ -18,17 +18,26 @@ import '@fontsource/jetbrains-mono/latin-400.css';
 import '../styles/global.css';
 import GlobeStage from './GlobeStage.astro';
 import { formatCoords } from '../lib/geo';
+import { landingPins, notFoundPins } from '../lib/pins';
 
-// Every pin the real pages will use. `still` = which still image belongs to it.
+// The page pins (About, Projects, Experience, Contact) come from the content files, exactly as
+// on the real pages, so the stills script always draws the current locations. The 404 pin is
+// the 404 page's; the last three are extra places for testing. `still` = the still image of
+// that pin (none for the extras).
+const pagePins = [...(await landingPins()).pins, ...notFoundPins().pins];
 const places = [
-  { id: 'about', button: 'About', label: 'North Pole', lat: 90, lon: 0, still: 'about' },
-  { id: 'projects', button: 'Projects', label: 'USA', lat: 41.88, lon: -93.1, still: 'projects' },
-  { id: 'experience', button: 'Experience', label: 'Edmonton', lat: 53.52, lon: -113.53, still: 'experience' },
-  { id: 'contact', button: 'Contact', label: 'Point Nemo', lat: -48.88, lon: -123.39, still: 'contact' },
+  ...pagePins.map((p) => ({
+    id: p.id,
+    button: p.id === '404' ? '404' : p.id[0]!.toUpperCase() + p.id.slice(1),
+    label: p.label,
+    lat: p.lat,
+    lon: p.lon,
+    still: p.id as string | null,
+  })),
   { id: 'noida', button: 'Noida', label: 'Noida, India', lat: 28.54, lon: 77.39, still: null },
   { id: 'delhi', button: 'Delhi', label: 'Delhi, India', lat: 28.61, lon: 77.21, still: null },
   { id: 'dijon', button: 'Dijon', label: 'ACDC cardiac MRI, Dijon', lat: 47.32, lon: 5.04, still: null },
-] as const;
+];
 
 // The shape Globe.setPins() expects, plus the still name. Coordinates are formatted at build time.
 const pins = places.map(({ id, label, lat, lon, still }) => ({ id, lat, lon, label, still, coords: formatCoords(lat, lon) }));

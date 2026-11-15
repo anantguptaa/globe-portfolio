@@ -1,0 +1,130 @@
+---
+/**
+ * 404 — "Lost in orbit". Astro builds this to 404.html, which the host (Vercel) serves for any
+ * address that doesn't exist. The globe points at Null Island (0°N 0°E), the empty spot in the
+ * Atlantic where bad coordinates end up: nowhere useful, on purpose.
+ * Not for search engines: noindex, and no canonical link.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GlobeSlot from '../components/GlobeSlot.astro';
+import { notFoundPins } from '../lib/pins';
+
+const globe = notFoundPins();
+const pin = globe.pins[0]!;
+---
+
+<BaseLayout title="Lost in orbit" description="This page doesn't exist." noindex coords={pin.coords}>
+  <div class="container page">
+    <section class="hero">
+      <div class="intro">
+        <p class="eyebrow">
+          Signal lost<span aria-hidden="true"> · </span><span class="visually-hidden">Location: </span>{pin.coords}<span
+            aria-hidden="true"> · </span>{pin.label}
+        </p>
+        <h1>Lost in orbit</h1>
+        <p class="lede">
+          That page doesn't exist, or it has moved. The globe is pointing at Null Island, the empty spot in the
+          Atlantic where bad coordinates end up.
+        </p>
+        <a class="back" href="/"><span aria-hidden="true">←</span> Back to base</a>
+      </div>
+      <GlobeSlot still="404" {...globe} />
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: var(--space-16);
+  }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-block: var(--space-2) var(--space-6);
+  }
+
+  /* Mobile: the globe strip comes first, right under the header. */
+  .hero :global(.globe-slot) {
+    order: -1;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label-wide);
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .lede {
+    max-width: 480px;
+    color: var(--text-muted);
+  }
+
+  /* A real link, large enough to tap. */
+  .back {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: var(--touch-min);
+    margin-top: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-button);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+    transition:
+      border-color var(--dur-fast) var(--ease-move),
+      color var(--dur-fast) var(--ease-move);
+  }
+
+  .back:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  @media (pointer: fine) {
+    .back:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  }
+
+  /* Globe beside the text from 1100px, as on the other inner pages. */
+  @media (min-width: 1100px) {
+    .hero {
+      flex-direction: row;
+      align-items: center;
+      gap: 0 var(--space-12);
+    }
+
+    .hero :global(.globe-slot) {
+      order: 0;
+    }
+
+    .intro {
+      flex: 1 1 380px;
+      padding-block: var(--space-16);
+      position: relative;
+      z-index: 1;
+    }
+
+    .lede {
+      font-size: var(--fs-body);
+    }
+  }
+</style>

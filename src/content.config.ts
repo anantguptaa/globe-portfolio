@@ -103,6 +103,9 @@ const pages = defineCollection({
   schema: ({ image }) =>
     z
       .object({
+        // One or two sentences for search results and share previews (under 160 characters).
+        // Leave it out to use the site-wide description.
+        description: z.string().max(200).optional(),
         // The page's globe pin. About: where you are now (North Pole until set). Contact: Point Nemo.
         location: location.default({ lat: 90, lon: 0, label: 'North Pole' }),
         photo: image().optional(), // About: your photo, path relative to the Markdown file

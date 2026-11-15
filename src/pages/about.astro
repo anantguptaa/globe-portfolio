@@ -14,7 +14,7 @@ import { formatCoords } from '../lib/geo';
 const about = await getEntry('pages', 'about');
 if (!about) throw new Error('Missing src/content/pages/about.md');
 
-const { location, photo, photoAlt, lookingFor = [], interests = [] } = about.data;
+const { location, photo, photoAlt, lookingFor = [], interests = [], description } = about.data;
 const { Content } = await render(about);
 const coords = formatCoords(location.lat, location.lon);
 
@@ -27,7 +27,7 @@ const facts = [
 const globe = await aboutPins();
 ---
 
-<BaseLayout title="About" coords={coords}>
+<BaseLayout title="About" description={description} coords={coords}>
   <div class="container page">
     <section class="hero">
       <div class="intro">

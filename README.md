@@ -2,14 +2,14 @@
 
 My personal portfolio: computer vision and geospatial ML, presented as a mission-control globe. Every page is pinned to a place on Earth, and moving around the site flies a 3D dot globe there.
 
-**Live:** [anantgupta.com](https://globe-portfolio-theta.vercel.app) <!-- TODO: replace once deployed -->
+**Live:** [globe-portfolio-theta.vercel.app](https://globe-portfolio-theta.vercel.app)
 
-![Screenshot of the landing page](./docs/screenshot.png) <!-- TODO: add a screenshot -->
+![Anant Gupta: computer vision and geospatial ML, next to a dotted globe](./public/og.png)
 
 ## Features
 
 - **Interactive 3D globe** built with Three.js and a custom points shader; it turns to each page's location and spins as you scroll.
-- **Mission-file project pages** with key stats, a satellite-vs-prediction compare slider, and a data → model → training → results breakdown.
+- **Mission-file project pages** with key stats and a data → model → training → results breakdown; sections with no content are hidden.
 - **Page transitions**: zoom into the pin from the landing page, and the clicked word becomes the page title between pages (Astro view transitions).
 - **Accessible and fast**: works without JavaScript or WebGL (static fallback), full keyboard support, respects reduced-motion settings, and targets Lighthouse 90+.
 - **Content in Markdown**: each project and role is one file in a typed content collection.
@@ -24,27 +24,40 @@ My personal portfolio: computer vision and geospatial ML, presented as a mission
 
 ## Getting started
 
-Requires Node.js 20 or later.
+Requires Node.js 22 or later.
 
 ```bash
 npm install          # install dependencies
 npm run dev          # start the dev server at http://localhost:4321
 npm run build        # build the production site into dist/
 npm run preview      # preview the production build
-npm run astro check  # type and template checks
+npm run check        # type and template checks
 ```
+
+One-off scripts (each is documented at the top of its file in `scripts/`):
+
+```bash
+npm run globe:mask    # redraw the land mask from Natural Earth data
+npm run globe:stills  # redraw the globe's fallback still images (needs Google Chrome)
+npm run og:build      # redraw the share image, public/og.png (needs Google Chrome)
+npm run fonts:subset  # rebuild the subset display font
+```
+
+Re-run `globe:stills` and then `og:build` after changing a page's globe location or the globe's look.
 
 ## Project structure
 
 ```
-public/          fonts, globe textures and fallback images, cv.pdf
+public/          fonts, globe mask and still images, share image, cv.pdf
+scripts/         one-off scripts for the files above
 src/
   styles/        design tokens and global CSS
   layouts/       BaseLayout (header, footer, globe, page transitions)
   components/    UI components
   globe/         Three.js scene, shaders, pin coordinates
-  content/       projects and roles as Markdown
-  pages/         routes
+  content/       projects, roles and page text as Markdown
+  pages/         routes (including the 404 page and robots.txt)
+  dev/           the globe test page (dev only; never in the production build)
 docs/            build spec and design references
 ```
 
@@ -53,7 +66,9 @@ docs/            build spec and design references
 - **A project:** add a Markdown file to `src/content/projects/` with its title, location (lat/lon), stats and stack in the frontmatter. Set `featured: true` to show it as a card.
 - **A role:** add a Markdown file to `src/content/roles/` with its dates, location and bullets.
 
-The frontmatter fields are defined in `src/content/config.ts`.
+- **Page text:** `src/content/pages/about.md` and `contact.md` hold each page's text, location and search description.
+
+The frontmatter fields are defined in `src/content.config.ts`. Images go in a folder next to the Markdown file that uses them (for example `src/content/projects/pluck/cover.png`), not in `public/`, so Astro can compress them.
 
 ## Credits
 

@@ -1,4 +1,5 @@
 ---
+description: 'Open to MSc positions in computer vision and to internships. Contact Anant Gupta by email, GitHub or LinkedIn, or download the CV.'
 # The Contact page's globe pin: Point Nemo, the most remote spot in the ocean.
 location:
   lat: -48.88

@@ -17,7 +17,7 @@ export function splitProjects(projects: Project[]) {
 }
 
 /** Every featured project gets its own page at /projects/<id>. */
-export function hasDetailPage(project: Project): boolean {
+function hasDetailPage(project: Project): boolean {
   return project.data.featured;
 }
 

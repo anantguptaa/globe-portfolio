@@ -21,8 +21,15 @@ const globeTestPage = {
   },
 };
 
+/**
+ * The site's public address, used for canonical links, share previews and the sitemap.
+ * One constant: change it here when the real domain is ready (pages read it as Astro.site).
+ */
+const SITE_URL = 'https://globe-portfolio-theta.vercel.app';
+
 // https://astro.build/config
 export default defineConfig({
+  site: SITE_URL,
   integrations: [mdx(), globeTestPage],
   build: {
     // Put each page's CSS straight into its HTML instead of separate files. The CSS is small

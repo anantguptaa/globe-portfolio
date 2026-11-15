@@ -29,7 +29,7 @@ Astro with TypeScript renders static pages; only the globe and a few interaction
 | Animation       | CSS transitions + Web Animations API                                                 | Add GSAP only if needed                               |
 | Images          | `astro:assets`                                                                       | Auto resize and compress tiles and screenshots        |
 | Icons           | Inline SVG components                                                                | Email, GitHub, LinkedIn, CV                           |
-| SEO             | `@astrojs/sitemap`, Open Graph meta, one share image                                 | Good previews on LinkedIn                             |
+| SEO             | `@astrojs/sitemap`, per-page title, description and canonical, Open Graph and Twitter tags, one share image (`public/og.png`, `npm run og:build`), robots.txt | Good previews on LinkedIn. The site address is one constant, `SITE_URL` in `astro.config.mjs` |
 | Quality         | Prettier + `prettier-plugin-astro`, `astro check`                                    | Run before each deploy                                |
 | Hosting         | Vercel free tier                                                                     | Preview URL per branch                                |
 | Later (blog)    | `@astrojs/rss`, giscus comments                                                      | Only if a blog is added                               |
@@ -150,6 +150,7 @@ Six routes, each with its own globe pin. Canvas artboards are the reference for 
 | `/projects/[slug]`      | 05, M4         | The project's data location                                                                                                    | Header facts, StatGrid, Lifecycle, stack, links                                                         |
 | `/experience`           | 06, M5         | Each role's location; active: newest non-remote role (not education) | Role entries newest first, education last, CV button                                                                   |
 | `/contact`              | 07, M6         | Point Nemo                                                                                                                     | "Contact" title, 4 channel rows. Desktop: hovering a row sends a signal arc from the pin                             |
+| `404`                   | not designed   | Null Island (0°N 0°E)                                                                                                          | "Lost in orbit", a line of text and a link home; noindex |
 | `/blog`, `/blog/[slug]` | not designed   | none                                                                                                                           | Later: post list + post layout in mission-file style                                                                   |
 
 All page titles are uppercase so the menu word can become the title during transitions.

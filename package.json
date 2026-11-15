@@ -15,7 +15,8 @@
     "globe:mask": "node scripts/build-landmask.mjs",
     "globe:stills": "node scripts/build-stills.mjs",
     "globe:preview": "GLOBE_TEST_PAGE=1 astro build && GLOBE_TEST_PAGE=1 astro preview",
-    "fonts:subset": "node scripts/subset-fonts.mjs"
+    "fonts:subset": "node scripts/subset-fonts.mjs",
+    "og:build": "node scripts/build-og.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.10",
