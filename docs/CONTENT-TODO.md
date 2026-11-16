@@ -23,7 +23,8 @@ Nothing here shows the word "TODO" on the live site: the site hides a field that
 - [x] `public/cv.pdf`: replace with your current CV, if it has changed
 - [x] Make the CMPUT 328 repo public (the Computer Vision Coursework page and card link to `github.com/anantguptaa/cmput328_coursework`)
 - [x] Vercel: make `anantgupta.org` redirect to `www.anantgupta.org` (the canonical address), so each page has one address
-- [ ] After deploying, submit `https://www.anantgupta.org/sitemap-index.xml` in Google Search Console
+- [x] Google Search Console: submitted the sitemap and requested indexing for the home page. For a Domain property, enter the full address `https://www.anantgupta.org/sitemap-index.xml` (a bare file name is rejected as an invalid address).
+- [ ] In a week or two, check Search Console: Sitemaps should say Success with 9 discovered pages, and Pages should show them indexed. A status of "Couldn't fetch" that lasts more than a day is worth a second look.
 
 ## 4. Done
 
