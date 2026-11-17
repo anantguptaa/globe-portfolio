@@ -11,7 +11,7 @@
 import type { GetStaticPaths } from 'astro';
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import GlobeSlot from '../../components/GlobeSlot.astro';
+import GlobePage from '../../components/GlobePage.astro';
 import Lifecycle, { type Stage } from '../../components/Lifecycle.astro';
 import StatGrid from '../../components/StatGrid.astro';
 import { formatCoords } from '../../lib/geo';
@@ -71,73 +71,74 @@ const { Content } = await render(project);
 ---
 
 <BaseLayout title={title} description={summary} coords={coords}>
-  <div class="container page">
-    <section class="hero">
-      <div class="intro">
-        <a class="back" href="/projects"><span aria-hidden="true">←</span> Mission index</a>
-        <p class="eyebrow">
-          Mission file {missionNo}
-          <span class="eyebrow-coords"><span aria-hidden="true"> · </span>{coords}</span>
-        </p>
-        <h1>{title}</h1>
-        <p class="lede">{summary}</p>
-        {
-          facts.length > 0 && (
-            <dl class="facts">
-              {facts.map(({ term, value }) => (
-                <div>
-                  <dt>{term}</dt>
-                  <dd>{value}</dd>
-                </div>
-              ))}
-            </dl>
-          )
-        }
-      </div>
+  {
+    /* There's no still per project yet, so the Projects still stands in until the live
+       globe is ready (it shows the USA_FIELDS pin). */
+  }
+  <GlobePage still="projects" size={400} {...globe}>
+    <div class="page">
+      <section class="hero">
+        <div class="intro">
+          <a class="back" href="/projects"><span aria-hidden="true">←</span> Mission index</a>
+          <p class="eyebrow">
+            Mission file {missionNo}
+            <span class="eyebrow-coords"><span aria-hidden="true"> · </span>{coords}</span>
+          </p>
+          <h1>{title}</h1>
+          <p class="lede">{summary}</p>
+          {
+            facts.length > 0 && (
+              <dl class="facts">
+                {facts.map(({ term, value }) => (
+                  <div>
+                    <dt>{term}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )
+          }
+        </div>
+      </section>
+
+      {shownStats.length > 0 && <StatGrid stats={shownStats} />}
+
+      {stages.length > 0 && <Lifecycle stages={stages} />}
+
       {
-        /* There's no still per project yet, so the Projects still stands in until the live
-           globe is ready (it shows the USA_FIELDS pin). */
+        hasWriteup && (
+          <article class="writeup">
+            <Content />
+          </article>
+        )
       }
-      <GlobeSlot still="projects" size={400} {...globe} />
-    </section>
 
-    {shownStats.length > 0 && <StatGrid stats={shownStats} />}
-
-    {stages.length > 0 && <Lifecycle stages={stages} />}
-
-    {
-      hasWriteup && (
-        <article class="writeup">
-          <Content />
-        </article>
-      )
-    }
-
-    {
-      (shownStack.length > 0 || shownLinks.length > 0) && (
-        <section class="outro" aria-label="Stack and links">
-          {shownStack.length > 0 && (
-            <div class="stack">
-              <h2 class="section-label">Stack</h2>
-              <p class="stack-list">{shownStack.join(' · ')}</p>
-            </div>
-          )}
-          {shownLinks.length > 0 && (
-            <ul class="links">
-              {shownLinks.map(({ label, href }) => (
-                <li>
-                  <a class="link-button" href={href} target="_blank" rel="noopener">
-                    {label} <span aria-hidden="true">↗</span>
-                    <span class="visually-hidden">(opens in a new tab)</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )
-    }
-  </div>
+      {
+        (shownStack.length > 0 || shownLinks.length > 0) && (
+          <section class="outro" aria-label="Stack and links">
+            {shownStack.length > 0 && (
+              <div class="stack">
+                <h2 class="section-label">Stack</h2>
+                <p class="stack-list">{shownStack.join(' · ')}</p>
+              </div>
+            )}
+            {shownLinks.length > 0 && (
+              <ul class="links">
+                {shownLinks.map(({ label, href }) => (
+                  <li>
+                    <a class="link-button" href={href} target="_blank" rel="noopener">
+                      {label} <span aria-hidden="true">↗</span>
+                      <span class="visually-hidden">(opens in a new tab)</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )
+      }
+    </div>
+  </GlobePage>
 </BaseLayout>
 
 <style>
@@ -158,11 +159,6 @@ const { Content } = await render(project);
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
-  }
-
-  /* Mobile: the globe strip comes first, right under the header. */
-  .hero :global(.globe-slot) {
-    order: -1;
   }
 
   .back {
@@ -378,26 +374,10 @@ const { Content } = await render(project);
     }
   }
 
-  /* ---------- Globe beside the title (1100px and wider) ----------
-     Below 1100px inner pages keep the phone layout for the globe: the 250px strip under
-     the header, with the content below it. Everything else switches at 768px as usual. */
+  /* ---------- Beside the globe (1100px and wider) ---------- */
   @media (min-width: 1100px) {
-    .hero {
-      flex-direction: row;
-      align-items: center;
-      gap: var(--space-12);
-    }
-
-    .hero :global(.globe-slot) {
-      order: 0;
-    }
-
     .intro {
-      flex: 1 1 0;
-      min-width: 0;
       padding-top: var(--space-10);
-      position: relative;
-      z-index: 1;
     }
   }
 </style>

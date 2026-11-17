@@ -68,6 +68,14 @@
   --gutter-full: max(var(--page-pad), calc((100% - var(--content-max)) / 2));
   --touch-min: 44px; /* minimum touch target */
 
+  /* ---------- Inner pages' globe (GlobePage.astro, GlobeSlot.astro) ---------- */
+  --content-col: 680px; /* text column beside the globe, ≥1100px (about 70 characters a line) */
+  --globe-col-min: 340px; /* the globe column never gets narrower than this */
+  --globe-sticky-top: var(--space-6); /* ≥1100px: where the globe stops when scrolling */
+  --strip-h: 250px; /* <1100px: the globe strip at the top of the page */
+  --strip-compact: 140px; /* …and how much of it stays on screen once it sticks */
+  --strip-fade: 48px; /* the strip's soft bottom edge */
+
   /* ---------- Radii ---------- */
   --radius-card: 6px;
   --radius-button: 4px;
@@ -107,8 +115,9 @@
 
   /* ---------- Breakpoints (reference only: CSS vars can't be used in @media) ----------
      Desktop layout from 768px wide; mobile below.
-     Inner pages' globe: 250px strip under the header below 1100px; beside the title from
-     1100px (GlobeSlot.astro and the 1100px block in each inner page). */
+     Inner pages' globe (GlobePage.astro): below 1100px a sticky strip at the top that
+     shrinks from 250px to 140px as the page scrolls; from 1100px a sticky column beside the
+     content. The 404 page keeps the older layout (GlobeSlot's "page" variant). */
 }
 
 @media (min-width: 768px) {

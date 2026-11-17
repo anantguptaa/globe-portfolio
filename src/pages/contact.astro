@@ -7,7 +7,7 @@
  */
 import { getEntry, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import GlobeSlot from '../components/GlobeSlot.astro';
+import GlobePage from '../components/GlobePage.astro';
 import { contactPins } from '../lib/pins';
 import { SOCIAL_LINKS, linkDisplay } from '../data/site';
 import { formatCoords } from '../lib/geo';
@@ -23,67 +23,67 @@ const globe = await contactPins();
 ---
 
 <BaseLayout title="Contact" description={description} coords={coords} showSocial={false}>
-  <div class="container page">
-    <section class="hero">
-      <div class="intro">
-        <p class="eyebrow">
-          Ground station<span class="eyebrow-coords"><span aria-hidden="true"> · </span>{coords}</span><span
-            aria-hidden="true"> · </span>{location.label}
-        </p>
-        <h1>Contact</h1>
-        <div class="lede">
-          <Content />
+  <GlobePage still="contact" {...globe}>
+    {
+      /* The signal arc: an SVG laid over the globe, in the globe disc's box (0–100 both
+         ways). Cheaper than drawing on the globe: the browser animates one path, and the
+         globe's render loop isn't involved. Decorative, so hidden from screen readers. */
+    }
+    <svg slot="overlay" class="signal" viewBox="0 0 100 100" aria-hidden="true" focusable="false" data-signal-arc>
+      <path pathLength="1" data-signal-path></path>
+    </svg>
+    <div class="page">
+      <section class="hero">
+        <div class="intro">
+          <p class="eyebrow">
+            Ground station<span class="eyebrow-coords"><span aria-hidden="true"> · </span>{coords}</span><span
+              aria-hidden="true"> · </span>{location.label}
+          </p>
+          <h1>Contact</h1>
+          <div class="lede">
+            <Content />
+          </div>
+          {
+            /* While a channel row is hovered or focused, the dot turns blue and the text reads
+               "Transmitting · <channel>"; on desktop a signal arc leaves the pin (script below). */
+          }
+          <p class="status" data-signal-status>
+            <span class="dot" aria-hidden="true"></span>
+            <span data-signal-text>Channel open · Standing by</span>
+          </p>
         </div>
-        {
-          /* While a channel row is hovered or focused, the dot turns blue and the text reads
-             "Transmitting · <channel>"; on desktop a signal arc leaves the pin (script below). */
-        }
-        <p class="status" data-signal-status>
-          <span class="dot" aria-hidden="true"></span>
-          <span data-signal-text>Channel open · Standing by</span>
-        </p>
-      </div>
-      <GlobeSlot still="contact" {...globe}>
-        {
-          /* The signal arc: an SVG laid over the globe, in the globe disc's box (0–100 both
-             ways). Cheaper than drawing on the globe: the browser animates one path, and the
-             globe's render loop isn't involved. Decorative, so hidden from screen readers. */
-        }
-        <svg class="signal" viewBox="0 0 100 100" aria-hidden="true" focusable="false" data-signal-arc>
-          <path pathLength="1" data-signal-path></path>
-        </svg>
-      </GlobeSlot>
-    </section>
+      </section>
 
-    <ul class="channels" aria-label="Contact channels">
-      {
-        SOCIAL_LINKS.map((link, i) => {
-          const newTab = link.kind === 'cv';
-          return (
-            <li>
-              <a
-                class="channel"
-                href={link.href}
-                data-channel={link.kind}
-                data-signal-index={i}
-                data-signal-label={link.label}
-                {...(newTab ? { target: '_blank', rel: 'noopener' } : {})}
-              >
-                <span class="channel-name">
-                  CH {String(i + 1).padStart(2, '0')} · {link.label}
-                </span>
-                <span class="channel-value">
-                  {/* &nbsp; keeps the arrow on the same line as the end of the address. */}
-                  {linkDisplay(link)}&nbsp;<span aria-hidden="true">↗</span>
-                  {newTab && <span class="visually-hidden">(opens in a new tab)</span>}
-                </span>
-              </a>
-            </li>
-          );
-        })
-      }
-    </ul>
-  </div>
+      <ul class="channels" aria-label="Contact channels">
+        {
+          SOCIAL_LINKS.map((link, i) => {
+            const newTab = link.kind === 'cv';
+            return (
+              <li>
+                <a
+                  class="channel"
+                  href={link.href}
+                  data-channel={link.kind}
+                  data-signal-index={i}
+                  data-signal-label={link.label}
+                  {...(newTab ? { target: '_blank', rel: 'noopener' } : {})}
+                >
+                  <span class="channel-name">
+                    CH {String(i + 1).padStart(2, '0')} · {link.label}
+                  </span>
+                  <span class="channel-value">
+                    {/* &nbsp; keeps the arrow on the same line as the end of the address. */}
+                    {linkDisplay(link)}&nbsp;<span aria-hidden="true">↗</span>
+                    {newTab && <span class="visually-hidden">(opens in a new tab)</span>}
+                  </span>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  </GlobePage>
 </BaseLayout>
 
 <script>
@@ -244,10 +244,6 @@ const globe = await contactPins();
     padding-block: var(--space-2) var(--space-6);
   }
 
-  .hero :global(.globe-slot) {
-    order: -1;
-  }
-
   .eyebrow {
     font-family: var(--font-mono);
     font-size: var(--fs-label);
@@ -395,38 +391,10 @@ const globe = await contactPins();
     }
   }
 
-  /* ---------- Globe beside the title (1100px and wider) ----------
-     Below 1100px inner pages keep the phone layout for the globe: the 250px strip under
-     the header, with the content below it. Everything else switches at 768px as usual. */
+  /* ---------- Beside the globe (1100px and wider) ---------- */
   @media (min-width: 1100px) {
-    .page {
-      --overlap: 130px; /* how far the rows rise over the globe's faded bottom */
-    }
-
-    .hero {
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0 var(--space-12);
-    }
-
-    .hero :global(.globe-slot) {
-      order: 0;
-    }
-
     .intro {
-      flex: 1 1 380px;
-      padding-block: var(--space-16) calc(var(--overlap) + var(--space-6));
-      position: relative;
-      z-index: 1;
-    }
-
-    .channels {
-      position: relative;
-      z-index: 1;
-      margin-top: calc(-1 * var(--overlap));
-      padding-top: var(--space-10);
-      background: linear-gradient(to bottom, transparent, var(--bg) 120px);
+      padding-block: var(--space-16) var(--space-10);
     }
   }
 </style>

@@ -191,3 +191,27 @@ a {
 main:focus {
   outline: none;
 }
+
+/* ---------- Inner pages with the sticky globe strip (GlobePage, below 1100px) ----------
+   Anchor jumps and elements scrolled into view by keyboard focus land below the strip
+   (its visible part once it has shrunk), never behind it. */
+@media (max-width: 1099.98px) {
+  html:has([data-globe-page]) {
+    scroll-padding-top: calc(var(--strip-compact) + var(--space-4));
+  }
+}
+
+/* A text readout the live globe's pin label repeats (the page's coordinates and place).
+   Once the live globe is showing, it's kept for screen readers only; without the live
+   globe (no JavaScript, no WebGL, low-end devices) it stays on screen. */
+html[data-globe='live'] .readout-when-no-globe {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

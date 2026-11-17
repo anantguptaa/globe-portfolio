@@ -128,13 +128,16 @@ const isLanding = variant === 'landing';
       )
     }
     {
-      /* The one live globe, kept across page changes (transition:persist). It sits behind
-         the page and is moved over the current page's GlobeSlot by site-globe.ts:
+      /* The one live globe, kept across page changes (transition:persist). It is moved over
+         the current page's GlobeSlot by site-globe.ts:
+           track  = the box the slot sticks within (the whole layer when it doesn't stick),
            window = the slot's box (with its fade), stage = the square the globe is drawn in. */
     }
     <div class="globe-layer" data-globe-layer transition:persist="globe">
-      <div class="globe-window" data-globe-window hidden>
-        <div class="globe-stage" data-globe-stage></div>
+      <div class="globe-track" data-globe-track>
+        <div class="globe-window" data-globe-window hidden>
+          <div class="globe-stage" data-globe-stage></div>
+        </div>
       </div>
     </div>
     <Header variant={variant} />
@@ -193,16 +196,30 @@ const isLanding = variant === 'landing';
   }
 
   /* The live globe's layer: full page, behind the content, clips anything that hangs off
-     the edge. Nothing in it takes presses: dragging is handled on the page's slot. */
+     the edge. Nothing in it takes presses: dragging is handled on the page's slot.
+     overflow: clip, not hidden: hidden would make the layer a scroll container, and the
+     sticky globe window inside would then stick to the layer instead of the screen. */
   .globe-layer {
     position: absolute;
     inset: 0;
     z-index: 0;
-    overflow: hidden;
+    overflow: clip;
     pointer-events: none;
   }
 
-  /* Position and size are set by site-globe.ts to match the page's slot. */
+  /* Pages with a sticky globe (GlobePage): the content scrolls UNDER the globe strip, so the
+     globe goes above the content. The header stays on top of both. */
+  body:has([data-globe-page]) .globe-layer {
+    z-index: 2;
+  }
+
+  body:has([data-globe-page]) > :global(header) {
+    z-index: 3;
+  }
+
+  /* Position and size of all three are set by site-globe.ts to match the page's slot. The
+     window is position: sticky when the slot is (set inline); otherwise absolute. */
+  .globe-track,
   .globe-window,
   .globe-stage {
     position: absolute;

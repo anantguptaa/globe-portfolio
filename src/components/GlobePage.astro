@@ -1,0 +1,62 @@
+---
+/**
+ * GlobePage — the layout for inner pages that keep the globe on screen while you scroll
+ * (Experience, Projects, project pages, About, Contact).
+ *
+ *   below 1100px  the globe strip first, sticking at the top of the screen as it shrinks;
+ *                 the page's content scrolls under it.
+ *   1100px and up two columns: the content on the left (at most 680px, so lines stay near
+ *                 70 characters) and the globe on the right, sticking near the top.
+ *
+ * Usage: the page's content goes between the tags; the GlobeSlot's props go on this
+ * component. Anything drawn over the globe (Contact's signal arc) goes in slot="overlay".
+ *
+ * The GlobeSlot is a direct child of this box on purpose: a sticky element only sticks
+ * within its parent, so the parent has to span the whole page for the globe to stay on
+ * screen down to the last item. site-globe.ts mirrors that: it lays the live globe's window
+ * over this box and lets the browser make it stick the same way.
+ */
+import GlobeSlot, { type StillName } from './GlobeSlot.astro';
+import type { PagePins } from '../lib/pins';
+
+interface Props extends PagePins {
+  still: StillName;
+  /** Desktop globe width in px (it gets smaller on short screens). */
+  size?: number;
+}
+
+const { still, size, pins, active } = Astro.props;
+---
+
+<div class="container globe-page" data-globe-page>
+  <GlobeSlot variant="sticky" still={still} size={size} pins={pins} active={active}>
+    <slot name="overlay" />
+  </GlobeSlot>
+  <div class="globe-page__content">
+    <slot />
+  </div>
+</div>
+
+<style>
+  /* No vertical padding on this box: site-globe.ts treats its border box as the area the
+     globe sticks within. */
+  @media (min-width: 1100px) {
+    .globe-page {
+      display: grid;
+      grid-template-columns: minmax(0, var(--content-col)) minmax(var(--globe-col-min), 1fr);
+      column-gap: var(--space-12);
+    }
+
+    /* Content left, globe right, both in the one row that spans the whole page. */
+    .globe-page__content {
+      grid-column: 1;
+      grid-row: 1;
+      min-width: 0;
+    }
+
+    .globe-page > :global(.globe-slot) {
+      grid-column: 2;
+      grid-row: 1;
+    }
+  }
+</style>

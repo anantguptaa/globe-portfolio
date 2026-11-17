@@ -60,6 +60,17 @@
   color: var(--text-muted);
 }
 
+/* The inner pages' strip once it has shrunk (data-compact, set by site-globe.ts): one line,
+   the place name only, so the label still fits above the pin. Screen readers get the full
+   coordinates from the page's readout and the globe's own announcement. */
+[data-compact] .globe-label__coords {
+  display: none;
+}
+
+[data-compact] .globe-label__box {
+  padding-block: var(--space-1);
+}
+
 /* Text for screen readers only: the active pin, announced when it changes. */
 .globe-sr {
   position: absolute;

@@ -10,12 +10,16 @@
  *  - the area you can drag to turn the globe.
  *
  * Placement:
- *  - page    below 1100px: a 250px full-width strip under the header, faded at the bottom.
- *            1100px and wider: a square beside the page title (size px), fading into the content.
- *            (Inner pages keep the strip up to 1100px, past the usual 768px breakpoint: beside
- *            the title there isn't room for both until then.)
+ *  - sticky  inner pages, placed by GlobePage.astro, so the globe stays on screen while scrolling.
+ *            Below 1100px: a full-width 250px strip at the top of the page. It sticks with only
+ *            its bottom 140px on screen, so it "shrinks" as the page scrolls, and the content
+ *            passes under its faded bottom edge. 1100px and wider: a square (size px, or less on
+ *            short screens) in the right-hand column, sticking near the top of the screen.
+ *  - page    the 404 page: the strip under the header below 1100px; beside the text from
+ *            1100px, fading into the content. It scrolls with the page.
  *  - landing large, behind the menu: below the header on mobile, off the right edge on desktop.
- * The fade (mask-image) and clipping set here are copied onto the live globe's window.
+ * The live globe's window copies this box's position (sticky or not), fade, clipping and
+ * background from its computed CSS, so the placement is only ever written here.
  */
 import type { PagePins } from '../lib/pins';
 
@@ -24,8 +28,8 @@ export type StillName = 'landing' | 'about' | 'projects' | 'experience' | 'conta
 interface Props extends PagePins {
   /** Which pre-rendered still to show (public/globe/still-<name>.webp). */
   still: StillName;
-  variant?: 'page' | 'landing';
-  /** Desktop width in px (page variant). Experience 480, Projects 520, as in the mockups. */
+  variant?: 'sticky' | 'page' | 'landing';
+  /** Desktop width in px (sticky and page variants). Experience 480, Projects 520, as in the mockups. */
   size?: number;
 }
 
@@ -120,6 +124,50 @@ const alt = activePin ? `Dotted globe pinned at ${activePin.label}` : 'Dotted gl
     }
 
     .page .disc {
+      top: 0;
+      left: 0;
+      width: 100%;
+      transform: none;
+    }
+  }
+
+  /* ---------- Sticky (inner pages, inside GlobePage) ---------- */
+  /* Below 1100px: the strip. It's 250px tall in the page, but sticks at a negative top, so
+     once it reaches the top of the screen only its bottom 140px stays visible. The strip
+     "shrinks" by scrolling up those 110px with the page, then stays: no animation, so it
+     moves exactly with the content and can't stutter. Its background hides the content
+     passing under it, and the mask fades its bottom edge. It must be the first thing in its
+     container with no top margin: site-globe.ts relies on that to mirror it. */
+  .globe-slot.sticky {
+    position: sticky;
+    top: calc(var(--strip-compact) - var(--strip-h));
+    z-index: 2;
+    height: var(--strip-h);
+    margin-inline: calc(-1 * var(--page-pad)); /* full bleed */
+    overflow: hidden;
+    background-color: var(--bg);
+    -webkit-mask-image: linear-gradient(to bottom, var(--text) calc(100% - var(--strip-fade)), transparent 100%);
+    mask-image: linear-gradient(to bottom, var(--text) calc(100% - var(--strip-fade)), transparent 100%);
+  }
+
+  /* 1100px and wider: a square in the globe column, sticking near the top of the screen.
+     It's never taller than the screen, so the whole globe stays in view. */
+  @media (min-width: 1100px) {
+    .globe-slot.sticky {
+      top: var(--globe-sticky-top);
+      align-self: start;
+      justify-self: center;
+      width: min(var(--slot-size), 100%, calc(100svh - 2 * var(--globe-sticky-top)));
+      height: auto;
+      aspect-ratio: 1 / 1;
+      margin-inline: 0;
+      overflow: visible;
+      background-color: transparent;
+      -webkit-mask-image: linear-gradient(to bottom, var(--text) 45%, transparent 92%);
+      mask-image: linear-gradient(to bottom, var(--text) 45%, transparent 92%);
+    }
+
+    .sticky .disc {
       top: 0;
       left: 0;
       width: 100%;

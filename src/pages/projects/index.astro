@@ -7,7 +7,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Accordion from '../../components/Accordion.astro';
-import GlobeSlot from '../../components/GlobeSlot.astro';
+import GlobePage from '../../components/GlobePage.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { PAGE_DESCRIPTIONS } from '../../data/site';
 import { formatCoords } from '../../lib/geo';
@@ -24,88 +24,90 @@ const globe = await projectsPins();
 ---
 
 <BaseLayout title="Projects" description={PAGE_DESCRIPTIONS.projects} coords={firstCoords}>
-  <div class="container page">
-    <section class="hero">
-      <div class="intro">
-        <p class="eyebrow">Mission index</p>
-        <h1>Projects</h1>
-        <p class="lede lede-desktop">
-          Each project is pinned on the globe where its data comes from. Hover a card to fly there, open it for
-          the numbers, the visuals and how it was built.
-        </p>
-        <p class="lede lede-mobile">Tap a card to fly the globe to where its data comes from.</p>
-        {
-          first && (
-            // Follows the card the globe points at (src/globe/interactions.ts). Not a live
-            // region: the globe already announces its active pin to screen readers.
-            <div class="readout" data-globe-readout>
-              <span class="readout-coords" data-readout-coords>
-                {firstCoords}
-              </span>
-              <span class="readout-place" data-readout-place>
-                {first.data.title} · {first.data.location.label}
-              </span>
-            </div>
-          )
-        }
+  <GlobePage still="projects" size={520} {...globe}>
+    <div class="page">
+      <section class="hero">
+        <div class="intro">
+          <p class="eyebrow">Mission index</p>
+          <h1>Projects</h1>
+          <p class="lede lede-desktop">
+            Each project is pinned on the globe where its data comes from. Hover a card to fly there, open it for
+            the numbers, the visuals and how it was built.
+          </p>
+          <p class="lede lede-mobile">Tap a card to fly the globe to where its data comes from.</p>
+          {
+            first && (
+              // Follows the card the globe points at (src/globe/interactions.ts). Not a live
+              // region: the globe already announces its active pin to screen readers.
+              // Visually hidden once the live globe's label shows the same place.
+              <div class="readout readout-when-no-globe" data-globe-readout>
+                <span class="readout-coords" data-readout-coords>
+                  {firstCoords}
+                </span>
+                <span class="readout-place" data-readout-place>
+                  {first.data.title} · {first.data.location.label}
+                </span>
+              </div>
+            )
+          }
+        </div>
+      </section>
+
+      <div class="cards">
+        {featured.map((project, i) => <ProjectCard project={project} index={i + 1} />)}
       </div>
-      <GlobeSlot still="projects" size={520} {...globe} />
-    </section>
 
-    <div class="cards">
-      {featured.map((project, i) => <ProjectCard project={project} index={i + 1} />)}
-    </div>
-
-    {
-      others.length > 0 && (
-        <Accordion as="section" class="others" aria-labelledby="others-heading">
-          {/* Desktop: a plain heading over an open list. Mobile: the heading's button opens it. */}
-          <h2 class="others-heading" id="others-heading">
-            <button type="button" class="others-trigger" data-accordion-trigger>
-              <span>
-                Other builds <span class="count">({others.length})</span>
-              </span>
-              <span class="sign" data-accordion-sign aria-hidden="true" />
-            </button>
-          </h2>
-          <ul class="builds" id="other-builds" data-accordion-panel>
-            {others.map((project) => {
-              const link = projectLink(project);
-              const { title, summary, stack } = project.data;
-              const content = (
-                <>
-                  <span class="build-text">
-                    <span class="build-title">
-                      {title}
-                      {link && <span aria-hidden="true"> ↗</span>}
+      {
+        others.length > 0 && (
+          <Accordion as="section" class="others" aria-labelledby="others-heading">
+            {/* Desktop: a plain heading over an open list. Mobile: the heading's button opens it. */}
+            <h2 class="others-heading" id="others-heading">
+              <button type="button" class="others-trigger" data-accordion-trigger>
+                <span>
+                  Other builds <span class="count">({others.length})</span>
+                </span>
+                <span class="sign" data-accordion-sign aria-hidden="true" />
+              </button>
+            </h2>
+            <ul class="builds" id="other-builds" data-accordion-panel>
+              {others.map((project) => {
+                const link = projectLink(project);
+                const { title, summary, stack } = project.data;
+                const content = (
+                  <>
+                    <span class="build-text">
+                      <span class="build-title">
+                        {title}
+                        {link && <span aria-hidden="true"> ↗</span>}
+                      </span>
+                      <span class="build-summary">{summary}</span>
                     </span>
-                    <span class="build-summary">{summary}</span>
-                  </span>
-                  <span class="build-stack">
-                    <span class="visually-hidden">Built with: </span>
-                    {stack.join(' · ')}
-                  </span>
-                  {link && <span class="visually-hidden">({link.label}, opens in a new tab)</span>}
-                </>
-              );
-              // Rows with a link are links; rows without one (yet) are plain text, so nothing dead-ends.
-              return (
-                <li>
-                  {link ? (
-                    <a class="build" href={link.href} target="_blank" rel="noopener">
-                      {content}
-                    </a>
-                  ) : (
-                    <div class="build">{content}</div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </Accordion>
-      )
-    }
-  </div>
+                    <span class="build-stack">
+                      <span class="visually-hidden">Built with: </span>
+                      {stack.join(' · ')}
+                    </span>
+                    {link && <span class="visually-hidden">({link.label}, opens in a new tab)</span>}
+                  </>
+                );
+                // Rows with a link are links; rows without one (yet) are plain text, so nothing dead-ends.
+                return (
+                  <li>
+                    {link ? (
+                      <a class="build" href={link.href} target="_blank" rel="noopener">
+                        {content}
+                      </a>
+                    ) : (
+                      <div class="build">{content}</div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </Accordion>
+        )
+      }
+    </div>
+  </GlobePage>
 </BaseLayout>
 
 <style>
@@ -126,11 +128,6 @@ const globe = await projectsPins();
     flex-direction: column;
     gap: var(--space-4);
     padding-block: var(--space-2) var(--space-6);
-  }
-
-  /* Mobile: the globe strip comes first, right under the header. */
-  .hero :global(.globe-slot) {
-    order: -1;
   }
 
   .eyebrow {
@@ -326,39 +323,10 @@ const globe = await projectsPins();
     }
   }
 
-  /* ---------- Globe beside the title (1100px and wider) ----------
-     Below 1100px inner pages keep the phone layout for the globe: the 250px strip under
-     the header, with the content below it. Everything else switches at 768px as usual. */
+  /* ---------- Beside the globe (1100px and wider) ---------- */
   @media (min-width: 1100px) {
-    /* How far the cards rise over the globe's faded bottom. */
-    .page {
-      --overlap: 150px;
-    }
-
-    /* Cards rise over the globe's faded bottom, as in the mockup. */
-    .cards {
-      position: relative;
-      z-index: 1;
-      margin-top: calc(-1 * var(--overlap));
-    }
-
-    .hero {
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0 var(--space-12);
-    }
-
-    .hero :global(.globe-slot) {
-      order: 0;
-    }
-
-    /* Bottom padding = the overlap, so the cards can only ever cover the globe, never the text. */
     .intro {
-      flex: 1 1 380px;
-      padding-block: var(--space-16) calc(var(--overlap) + var(--space-6));
-      position: relative;
-      z-index: 1;
+      padding-block: var(--space-16) var(--space-10);
     }
   }
 </style>
