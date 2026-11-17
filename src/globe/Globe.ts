@@ -38,7 +38,9 @@
  *   dispose()            free everything
  */
 import * as THREE from 'three';
-import './globe.css';
+// The label's styles (globe.css) are NOT imported here: each page loads them itself (BaseLayout,
+// the dev test page). Injected from this lazily loaded file, the dev server's <style> tag was
+// dropped by ClientRouter's swap on the next navigation, leaving the label unstyled and hidden.
 import { fragmentShader, pinFragmentShader, pinVertexShader, vertexShader } from './shaders';
 
 /** A place marked on the globe. */

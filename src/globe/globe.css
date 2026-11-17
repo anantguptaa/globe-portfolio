@@ -1,6 +1,8 @@
 /*
  * Styles for the HTML the Globe adds next to its canvas: the pin label and the
- * screen-reader text. Imported by Globe.ts, so it loads with the globe, not before it.
+ * screen-reader text, and the drag cursor. Imported by BaseLayout (and the dev test page), so
+ * it's part of every page's own CSS and survives ClientRouter navigations. It's small, and
+ * nothing here applies until the globe adds its elements.
  */
 
 /* Zero-size anchor that Globe.ts moves to the active pin's point on screen each frame. */
