@@ -232,6 +232,9 @@ onPageLoad();
 if (stage) {
   void mountGlobe(stage, {
     label: 'Dotted globe of the Earth showing where this page is pinned',
+    // No scroll spin: the globe stays on screen while inner pages scroll (GlobePage), and
+    // turning it with the scrollbar would carry the pin an item aimed at away from view.
+    scrollSpin: false,
     onReady: () => {
       live = true;
       root.dataset.globe = 'live'; // CSS fades the canvas in and the page's still out

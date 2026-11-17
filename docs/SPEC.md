@@ -174,7 +174,7 @@ One Three.js points globe, created once in the base layout and kept alive across
 **Motion**
 
 - `flyTo(lat, lon)`: rotate by the shortest path, eased (about 0.07 per frame, or a 0.9s tween); retarget smoothly mid-flight.
-- Scroll spin: extra longitude = page scroll × 0.25°, eased; pins stay correct.
+- No scroll spin on the site: inner pages keep the globe on screen while scrolling, and spinning it with the scrollbar would turn the aimed pin out of view. (`Globe` still supports it as an option, `scrollSpin`, used only by the dev test page.)
 - Idle: no auto-spin, so it stays still when nobody is interacting.
 - Drag: the globe's visible disc can be dragged to turn it (mouse and touch; on touch a sideways swipe turns it and an up/down swipe scrolls). A quick flick keeps it turning briefly (momentum, off under reduced motion). After about 3s untouched it flies back to the active pin, or the page's pin. No keyboard rotation: arrow keys stay with page scrolling, and every place is also reachable as a link.
 - On the landing page only the globe's visible area is draggable; the menu rows stay on top and fully clickable.
@@ -322,7 +322,7 @@ Ship a live site on day one, then add one layer at a time; each step ends deploy
 2. **Foundations:** `tokens.css`, fonts, BaseLayout, Header, Footer with SocialIcon.
 3. **Content model:** collection schemas, one sample project (USA\_FIELDS) and the five roles.
 4. **Pages, no globe:** landing (menu rows with wipe), About, Projects, project page, Experience, Contact; desktop and mobile layouts.
-5. **Globe:** Three.js scene with points shader, pins, labels, `flyTo`, scroll spin, still-image fallback.
+5. **Globe:** Three.js scene with points shader, pins, labels, `flyTo`, scroll spin (later turned off on the site), still-image fallback.
 6. **Hook pages to the globe:** hover and tap targets, per-page positions, persistence across navigation.
 7. **Transitions:** zoom from the landing, word becomes title between pages, reduced-motion crossfade.
 8. **Polish:** Cursor, contact signal arc, CompareSlider (dropped: no published results), accordions, performance pass against the budgets.
